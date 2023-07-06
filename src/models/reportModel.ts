@@ -1,4 +1,4 @@
-import { Table, Column, Model, DataType, BelongsTo, ForeignKey } from "sequelize-typescript";
+import { Table, Column, Model, DataType, BelongsTo, ForeignKey, CreatedAt } from "sequelize-typescript";
 import { Users } from "./userModel";
 
 
@@ -40,9 +40,10 @@ export class Report extends Model {
     })
     report_status!: string;
 
+    @CreatedAt
     @Column({
-        type: DataType.STRING,
-        allowNull: false
+        type: DataType.DATE,
+        allowNull: true
     })
-    createdAt!: string;
+    createdAt!: Date;
 }

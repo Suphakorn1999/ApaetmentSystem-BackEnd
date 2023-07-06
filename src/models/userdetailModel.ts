@@ -1,10 +1,12 @@
-import { Table, Column, Model, DataType, BelongsTo, ForeignKey } from "sequelize-typescript";
+import { Table, Column, Model, DataType, BelongsTo, ForeignKey, CreatedAt, UpdatedAt } from "sequelize-typescript";
 import { Room } from "./roomModel";
 import { Users } from "./userModel";
 
 @Table({
     timestamps: false,
-    tableName: "user_detail"
+    tableName: "user_detail",
+    createdAt: "createdAt",
+    updatedAt: "updatedAt"
 })
 
 export class UserDetail extends Model {
@@ -126,15 +128,17 @@ export class UserDetail extends Model {
     @BelongsTo(() => Room)
     room!: Room;
 
+    @CreatedAt
     @Column({
-        type: DataType.STRING,
+        type: DataType.DATE,
         allowNull: true
     })
-    createdAt!: string;
+    createdAt!: Date;
 
+    @UpdatedAt
     @Column({
-        type: DataType.STRING,
+        type: DataType.DATE,
         allowNull: true
     })
-    updatedAt!: string;
+    updatedAt!: Date;
 }

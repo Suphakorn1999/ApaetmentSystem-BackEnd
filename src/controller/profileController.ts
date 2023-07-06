@@ -33,7 +33,6 @@ export const createUserDetail: RequestHandler = async (req, res) => {
                 phone_number: data.phone_number,
                 birth_date: data.birth_date,
                 gender: data.gender,
-                updatedAt: dayjs().format('YYYY-MM-DD HH:mm:ss'),
             }, { where: { iduser: iduser } });
 
             return res.status(200).json({ message: 'Update User Detail Success' });
@@ -53,7 +52,6 @@ export const createUserDetail: RequestHandler = async (req, res) => {
                 phone_number: data.phone_number,
                 birth_date: data.birth_date,
                 gender: data.gender,
-                createdAt: dayjs().format('YYYY-MM-DD HH:mm:ss'),
             });
             return res.status(200).json({ message: 'Create User Detail Success' });
         }

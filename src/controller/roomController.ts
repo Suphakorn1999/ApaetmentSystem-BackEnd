@@ -138,7 +138,6 @@ export const updateRoom: RequestHandler = async (req, res) => {
                 idroom_type: data.idroom_type,
                 room_number: data.room_number,
                 room_status: data.room_status,
-                updatedAt: dayjs().format('YYYY-MM-DD HH:mm:ss'),
                 status_room: data.status_room
             }, { where: { idroom: req.params.id } });
             return res.status(200).json({ message: 'Update Room Success' });

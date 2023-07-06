@@ -1,4 +1,4 @@
-import { Table, Column, Model, DataType, BelongsTo, ForeignKey, HasMany } from "sequelize-typescript";
+import { Table, Column, Model, DataType, BelongsTo, ForeignKey, HasMany, UpdatedAt, CreatedAt } from "sequelize-typescript";
 import { UserDetail } from "./userdetailModel";
 import { RoomType } from "./roomtypeModel";
 
@@ -39,17 +39,19 @@ export class Room extends Model {
     })
     room_status!: string;
 
+    @CreatedAt
     @Column({
-        type: DataType.STRING,
+        type: DataType.DATE,
         allowNull: true
     })
-    createdAt!: string;
+    createdAt!: Date;
 
+    @UpdatedAt
     @Column({
-        type: DataType.STRING,
+        type: DataType.DATE,
         allowNull: true
     })
-    updatedAt!: string;
+    updatedAt!: Date;
 
     @Column({
         type: DataType.STRING,

@@ -13,14 +13,14 @@ export const login: RequestHandler = async (req, res) => {
         let passworddecrypt = CryptoJS.AES.decrypt(user.password, process.env.SECRET_KEY).toString(CryptoJS.enc.Utf8);
         if (passworddecrypt === password) {
             const token = generateToken({ id: user.iduser, username: user.username, role: user.idrole });
-            return res.status(200).json({ message: 'Login Success', token: token });
+            return res.status(200).json({ message: 'ล็อกอินสำเร็จ', token: token });
         }else{
-            return res.status(401).json({ message: 'Password is wrong' });
+            return res.status(401).json({ message: 'รหัสผ่านผิด' });
         }
     }else{
-        return res.status(401).json({ message: 'Username is wrong' });
+        return res.status(401).json({ message: 'ชื่อผู้ใช้งานผิด' });
     }
     } catch (err:any) {
         return res.status(500).json({ message: err.message });
     }
-}
+} 

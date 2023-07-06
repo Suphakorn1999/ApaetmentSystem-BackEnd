@@ -1,4 +1,4 @@
-import { Table, Column, Model, DataType, BelongsTo, ForeignKey } from "sequelize-typescript";
+import { Table, Column, Model, DataType, BelongsTo, ForeignKey, CreatedAt } from "sequelize-typescript";
 import { Users } from "./userModel";
 
 @Table({
@@ -69,10 +69,11 @@ export class Invoice extends Model {
     })
     total_price!: number;
 
+    @CreatedAt
     @Column({
-        type: DataType.STRING,
-        allowNull: false
+        type: DataType.DATE,
+        allowNull: true
     })
-    createdAt!: string;
+    createdAt!: Date;
 }
 
