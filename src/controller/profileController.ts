@@ -4,15 +4,12 @@ import { Users } from '../models/userModel';
 import { Provinces } from '../models/provincesModel';
 import { Districts } from '../models/districtsModel';
 import { SubDistricts } from '../models/sub_districtsModel';
+import multer, { Multer } from 'multer';
 const CryptoJS = require('crypto-js');
 import dotenv from 'dotenv';
 dotenv.config();
-import dayjs from "dayjs";
-import "dayjs/locale/th";
-dayjs.locale("th");
-
-
-
+import fs from 'fs';
+import path from 'path';
 
 export const createUserDetail: RequestHandler = async (req, res) => {
     try {
@@ -84,14 +81,185 @@ export const getUserDetailByid: RequestHandler = async (req, res) => {
                 phone_number: userdetail.phone_number,
                 birth_date: userdetail.birth_date,
                 gender: userdetail.gender,
+                partNameAvatar: userdetail.partNameAvatar,
             });
 
             return res.status(200).json({ data: data[0] });
         } else {
-            return res.status(400).json({ message: 'User Detail is not found' });
+            return res.status(404).json({ message: 'User Detail is not found' });
         }
 
     } catch (err: any) {
         res.status(500).json({ message: err.message });
+    }
+}
+
+export const uploadImage: RequestHandler = async (req, res) => {
+    try{
+        const iduser = req.body.user.id;
+        const userdetail = await UserDetail.findOne({ where: { iduser: iduser } });
+        if (userdetail == null) {
+            const createuser = await UserDetail.create({
+                iduser: iduser,
+                partNameAvatar: null
+            });
+            if (createuser) {
+                if (createuser?.partNameAvatar !== null) {
+                    const paths = path.join(__dirname, '../../public/uploads') + '/' + createuser?.partNameAvatar;
+                    fs.unlinkSync(paths)
+
+                    const storage = multer.diskStorage({
+                        destination: function (req, file, cb) {
+                            cb(null, './public/uploads/')
+                        },
+                        filename: function (req, file, cb) {
+                            cb(null, iduser + '.' + file.originalname.split('.')[1])
+                        }
+                    })
+
+                    const upload = multer({ storage: storage }).single('file');
+                    upload(req, res, async function (err) {
+                        if (err instanceof multer.MulterError) {
+                            return res.status(500).json({ message: err.message });
+                        }
+                        else if (err) {
+                            return res.status(500).json({ message: err.message });
+                        }
+
+                        const data: any = req.file
+                        const userdetail = await UserDetail.findOne({ where: { iduser: iduser } });
+                        if (data) {
+                            if (userdetail) {
+                                await UserDetail.update({
+                                    partNameAvatar: iduser + '.' + data.originalname.split('.')[1],
+                                }, { where: { iduser: iduser } });
+
+                                return res.status(200).json({ message: 'Upload image success' });
+                            } else {
+                                return res.status(400).json({ message: 'User Detail is not found' });
+                            }
+                        } else {
+                            return res.status(400).json({ message: 'Please select image' });
+                        }
+                    }
+                    )
+                } else {
+                    const storage = multer.diskStorage({
+                        destination: function (req, file, cb) {
+                            cb(null, './public/uploads/')
+                        },
+                        filename: function (req, file, cb) {
+                            cb(null, iduser + '.' + file.originalname.split('.')[1])
+                        }
+                    })
+
+                    const upload = multer({ storage: storage }).single('file');
+                    upload(req, res, async function (err) {
+                        if (err instanceof multer.MulterError) {
+                            return res.status(500).json({ message: err.message });
+                        }
+                        else if (err) {
+                            return res.status(500).json({ message: err.message });
+                        }
+
+                        const data: any = req.file
+                        const userdetail = await UserDetail.findOne({ where: { iduser: iduser } });
+                        if (data) {
+                            if (userdetail) {
+                                await UserDetail.update({
+                                    partNameAvatar: iduser + '.' + data.originalname.split('.')[1],
+                                }, { where: { iduser: iduser } });
+
+                                return res.status(200).json({ message: 'Upload image success' });
+                            } else {
+                                return res.status(400).json({ message: 'User Detail is not found' });
+                            }
+                        } else {
+                            return res.status(400).json({ message: 'Please select image' });
+                        }
+                    }
+                    )
+                }
+            }
+        }else{
+            if (userdetail?.partNameAvatar !== null) {
+                const paths = path.join(__dirname, '../../public/uploads') + '/' + userdetail?.partNameAvatar;
+                fs.unlinkSync(paths)
+
+                const storage = multer.diskStorage({
+                    destination: function (req, file, cb) {
+                        cb(null, './public/uploads/')
+                    },
+                    filename: function (req, file, cb) {
+                        cb(null, iduser + '.' + file.originalname.split('.')[1])
+                    }
+                })
+
+                const upload = multer({ storage: storage }).single('file');
+                upload(req, res, async function (err) {
+                    if (err instanceof multer.MulterError) {
+                        return res.status(500).json({ message: err.message });
+                    }
+                    else if (err) {
+                        return res.status(500).json({ message: err.message });
+                    }
+
+                    const data: any = req.file
+                    const userdetail = await UserDetail.findOne({ where: { iduser: iduser } });
+                    if (data) {
+                        if (userdetail) {
+                            await UserDetail.update({
+                                partNameAvatar: iduser + '.' + data.originalname.split('.')[1],
+                            }, { where: { iduser: iduser } });
+
+                            return res.status(200).json({ message: 'Upload image success' });
+                        } else {
+                            return res.status(400).json({ message: 'User Detail is not found' });
+                        }
+                    } else {
+                        return res.status(400).json({ message: 'Please select image' });
+                    }
+                }
+                )
+            } else {
+                const storage = multer.diskStorage({
+                    destination: function (req, file, cb) {
+                        cb(null, './public/uploads/')
+                    },
+                    filename: function (req, file, cb) {
+                        cb(null, iduser + '.' + file.originalname.split('.')[1])
+                    }
+                })
+
+                const upload = multer({ storage: storage }).single('file');
+                upload(req, res, async function (err) {
+                    if (err instanceof multer.MulterError) {
+                        return res.status(500).json({ message: err.message });
+                    }
+                    else if (err) {
+                        return res.status(500).json({ message: err.message });
+                    }
+
+                    const data: any = req.file
+                    const userdetail = await UserDetail.findOne({ where: { iduser: iduser } });
+                    if (data) {
+                        if (userdetail) {
+                            await UserDetail.update({
+                                partNameAvatar: iduser + '.' + data.originalname.split('.')[1],
+                            }, { where: { iduser: iduser } });
+
+                            return res.status(200).json({ message: 'Upload image success' });
+                        } else {
+                            return res.status(400).json({ message: 'User Detail is not found' });
+                        }
+                    } else {
+                        return res.status(400).json({ message: 'Please select image' });
+                    }
+                }
+                )
+            }
+        }
+    }catch(err:any){
+        return res.status(500).json({ message: err.message });
     }
 }

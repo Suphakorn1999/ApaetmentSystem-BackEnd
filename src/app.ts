@@ -3,6 +3,7 @@ import cors from "cors";
 import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
 import connection from './config/config';
+import path from 'path';
 dotenv.config();
 
 
@@ -11,7 +12,7 @@ const port = process.env.PORT
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
+app.use(express.static(path.join(__dirname, '../public/uploads')));
 
 import userRouter from './routes/userRouter';
 import loginRouter from './routes/loginRouter';
@@ -21,12 +22,12 @@ import RoomRouter from './routes/roomRouter';
 
 app.use('/api/auth', [userRouter, loginRouter, provinceRouter, profileRouter, RoomRouter]);
 
-
 app.use(
     (err: Error, req: Request, res: Response, next: express.NextFunction) => {
         res.status(500).json({ message: err.message });
     },
 );
+
 app.get('/', (req, res) => {
     res.send(
         `<h1 style=text-align:center;>

@@ -30,67 +30,67 @@ export class UserDetail extends Model {
 
     @Column({
         type: DataType.STRING,
-        allowNull: false
+        allowNull: true
     })
     fname!: string;
 
     @Column({
         type: DataType.STRING,
-        allowNull: false
+        allowNull: true
     })
     lname!: string;
 
     @Column({
         type: DataType.STRING,
-        allowNull: false
+        allowNull: true
     })
     province!: string;
 
     @Column({
         type: DataType.STRING,
-        allowNull: false
+        allowNull: true
     })
     district!: string;
 
     @Column({
         type: DataType.STRING,
-        allowNull: false
+        allowNull: true
     })
     sub_district!: string;
 
     @Column({
         type: DataType.STRING,
-        allowNull: false
+        allowNull: true
     })
     zip_code!: string;
 
     @Column({
         type: DataType.INTEGER,
-        allowNull: false
+        allowNull: true
     })
     age!: number;
 
     @Column({
         type: DataType.STRING,
-        allowNull: false
+        allowNull: true
     })
     email!: string;
 
     @Column({
         type: DataType.STRING,
-        allowNull: false
+        allowNull: true
     })
     card_id!: string;
 
     @Column({
         type: DataType.STRING,
-        allowNull: false
+        allowNull: true
     })
     birth_date!: string;
 
     @Column({
         type: DataType.STRING(10),
-        allowNull: false
+        allowNull: true
     })
     phone_number!: string;
 
@@ -102,7 +102,7 @@ export class UserDetail extends Model {
 
     @Column({
         type: DataType.STRING,
-        allowNull: false
+        allowNull: true
     })
     status_user !: string;
 
@@ -127,6 +127,12 @@ export class UserDetail extends Model {
 
     @BelongsTo(() => Room)
     room!: Room;
+
+    @Column({
+        type: DataType.STRING,
+        allowNull: true
+    })
+    partNameAvatar!: string;
 
     @CreatedAt
     @Column({
