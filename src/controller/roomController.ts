@@ -26,7 +26,6 @@ export const createRoom: RequestHandler = async (req, res) => {
             const room = await Room.create({
                 idroom_type: data.idroom_type,
                 room_number: data.room_number,
-                createdAt: dayjs().format('YYYY-MM-DD HH:mm:ss'),
             });
             if(room){
                 return res.status(200).json({ message: 'Create Room Success' });
@@ -59,7 +58,6 @@ export const createRoomType: RequestHandler = async (req, res) => {
                     room_price: data.room_price,
                     WaterMeterprice: data.WaterMeterprice,
                     ElectricMeterprice: data.ElectricMeterprice,
-                    createdAt: dayjs().format('YYYY-MM-DD HH:mm:ss'),
                 });
     
                 return res.status(200).json({ message: 'Create Room Type Success' });
@@ -105,7 +103,6 @@ export const updateRoomType: RequestHandler = async (req, res) => {
                 room_price: data.room_price,
                 ElectricMeterprice: data.ElectricMeterprice,
                 WaterMeterprice: data.WaterMeterprice,
-                updatedAt: dayjs().format('YYYY-MM-DD HH:mm:ss'),
                 status_room_type: data.status_room_type
             }, { where: { idroom_type: req.params.id } });
             return res.status(200).json({ message: 'Update Room Type Success' });

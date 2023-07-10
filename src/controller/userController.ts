@@ -1,6 +1,7 @@
 import express from 'express';
 import { RequestHandler } from 'express';
 import { Users } from '../models/userModel';
+import { Role } from '../models/roleModel';
 const CryptoJS = require('crypto-js');
 import dotenv from 'dotenv';
 dotenv.config();
@@ -16,16 +17,16 @@ export const getallUsers: RequestHandler = async (req, res) => {
 
 export const register: RequestHandler = async (req, res) => {
     try {
-        const { username, password  } = req.body;
+        const { username, idrole } = req.body;
         const user = await Users.findOne({ where: { username: username } });
         if (user) {
             return res.status(400).json({ message: 'Username is already' });
         } else {
-          let passwordencrypt = CryptoJS.AES.encrypt(password, process.env.SECRET_KEY).toString();
+            let passwordencrypt = CryptoJS.AES.encrypt(username, process.env.SECRET_KEY).toString();
             const user = await Users.create({
                 username: username,
                 password: passwordencrypt,
-                idrole: 1
+                idrole: idrole,
             });
             return res.status(200).json({ message: 'Register Success' });
         }
@@ -53,6 +54,15 @@ export const ChangePassword: RequestHandler = async (req, res) => {
     }
     catch (err:any) {
         return res.status(500).json({ message: err.message });
+    }
+}
+
+export const getRoles: RequestHandler = async (req, res) => {
+    try {
+        const roles = await Role.findAll();
+        res.status(200).json({ data: roles, message: 'Get Roles Success' });
+    } catch (err:any) {
+        res.status(500).json({ message: err.message });
     }
 }
 

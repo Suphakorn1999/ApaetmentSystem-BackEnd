@@ -311,8 +311,6 @@ export const getUserDetailbyid: RequestHandler = async (req, res) => {
                 idroom: userdetail.idroom,
                 status_user: userdetail.status_user,
                 partNameAvatar: userdetail.partNameAvatar,
-                createdAt: userdetail.createdAt,
-                updatedAt: userdetail.updatedAt,
             });
 
             return res.status(200).json({ data: data[0] });

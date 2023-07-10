@@ -12,8 +12,8 @@ export const login: RequestHandler = async (req, res) => {
     if (user) { 
         let passworddecrypt = CryptoJS.AES.decrypt(user.password, process.env.SECRET_KEY).toString(CryptoJS.enc.Utf8);
         if (passworddecrypt === password) {
-            const token = generateToken({ id: user.iduser, username: user.username, role: user.idrole });
-            return res.status(200).json({ message: 'Login Success', token: token });
+            const token = generateToken({ id: user.iduser, username: user.username });
+            return res.status(200).json({ message: 'Login Success', token: token , idrole: user.idrole });
         }else{
             return res.status(401).json({ message: 'Password is wrong' });
         }

@@ -41,14 +41,14 @@ export class RoomType extends Model {
 
     @CreatedAt
     @Column({
-        type: DataType.STRING,
+        type: DataType.DATE,
         allowNull: true
     })
     createdAt!: Date;
 
     @UpdatedAt
     @Column({
-        type: DataType.STRING,
+        type: DataType.DATE,
         allowNull: true
     })
     updatedAt!: Date;

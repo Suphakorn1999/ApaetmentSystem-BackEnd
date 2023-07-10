@@ -1,20 +1,21 @@
 import { Router } from "express";
 import { getallRoom, createRoom, createRoomType, getRoomtype, getRoomTypeByid, updateRoomType, getRoomByid, updateRoom  } from "../controller/roomController";
+const { verifyToken } = require('../middlewares/jwtHandler');
 
 const router = Router();
 
-router.get('/getRoom', getallRoom);
-router.get('/getRoomtype', getRoomtype);
-router.get('/getRoomtype/:id', getRoomTypeByid);
-router.get('/getRoom/:id', getRoomByid);
+router.get('/getRoom', verifyToken, getallRoom);
+router.get('/getRoomtype', verifyToken, getRoomtype);
+router.get('/getRoomtype/:id', verifyToken, getRoomTypeByid);
+router.get('/getRoom/:id', verifyToken, getRoomByid);
 
 
-router.post('/createRoom', createRoom);
-router.post('/createRoomType', createRoomType);
+router.post('/createRoom', verifyToken, createRoom);
+router.post('/createRoomType', verifyToken, createRoomType);
 
 
-router.put('/updateRoomType/:id', updateRoomType);
-router.put('/updateRoom/:id', updateRoom);
+router.put('/updateRoomType/:id', verifyToken, updateRoomType);
+router.put('/updateRoom/:id', verifyToken, updateRoom);
 
 
 
