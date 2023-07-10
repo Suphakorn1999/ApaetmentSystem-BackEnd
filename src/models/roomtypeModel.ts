@@ -2,8 +2,8 @@ import { Table, Column, Model, DataType, BelongsTo, ForeignKey, HasMany, Created
 import { Room } from "./roomModel";
 
 @Table({
-    timestamps: false,
-    tableName: "room_type"
+    timestamps: true,
+    tableName: "room_type",
 })
 
 export class RoomType extends Model {

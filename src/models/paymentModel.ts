@@ -3,8 +3,8 @@ import { Invoice } from "./invoiceModel";
 
 
 @Table({
-    timestamps: false,
-    tableName: "payment"
+    timestamps: true,
+    tableName: "payment",
 })
 
 export class Payment extends Model {

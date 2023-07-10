@@ -3,7 +3,7 @@ import { Provinces } from "./provincesModel";
 
 @Table({
     timestamps: false,
-    tableName: "districts"
+    tableName: "districts",
 })
 
 export class Districts extends Model {

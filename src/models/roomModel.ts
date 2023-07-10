@@ -3,8 +3,8 @@ import { UserDetail } from "./userdetailModel";
 import { RoomType } from "./roomtypeModel";
 
 @Table({
-    timestamps: false,
-    tableName: "room"
+    timestamps: true,
+    tableName: "room",
 })
 
 export class Room extends Model {

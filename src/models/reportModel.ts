@@ -3,8 +3,8 @@ import { Users } from "./userModel";
 
 
 @Table({
-    timestamps: false,
-    tableName: "report"
+    timestamps: true,
+    tableName: "report",
 })
 
 export class Report extends Model {

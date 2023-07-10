@@ -3,10 +3,8 @@ import { Room } from "./roomModel";
 import { Users } from "./userModel";
 
 @Table({
-    timestamps: false,
+    timestamps: true,
     tableName: "user_detail",
-    createdAt: "createdAt",
-    updatedAt: "updatedAt"
 })
 
 export class UserDetail extends Model {
@@ -102,7 +100,8 @@ export class UserDetail extends Model {
 
     @Column({
         type: DataType.STRING,
-        allowNull: true
+        allowNull: true,
+        defaultValue: "active"
     })
     status_user !: string;
 
@@ -110,13 +109,20 @@ export class UserDetail extends Model {
         type: DataType.DATE,
         allowNull: true
     })
-    date_in!: string;
+    date_in!: Date;
 
     @Column({
         type: DataType.DATE,
         allowNull: true
     })
-    date_out!: string;
+    date_out!: Date;
+
+    @Column({
+        type: DataType.INTEGER,
+        allowNull: true,
+        defaultValue: 0
+    })
+    deposit!: string;
 
     @ForeignKey(() => Room)
     @Column({

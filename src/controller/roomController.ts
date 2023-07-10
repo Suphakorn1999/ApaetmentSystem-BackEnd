@@ -1,6 +1,7 @@
 import { RequestHandler } from 'express';
 import { Room } from '../models/roomModel';
 import { RoomType } from '../models/roomtypeModel';
+import { UserDetail } from '../models/userdetailModel';
 import dayjs from "dayjs";
 import "dayjs/locale/th";
 dayjs.locale("th");
@@ -133,6 +134,14 @@ export const updateRoom: RequestHandler = async (req, res) => {
     try{
         const data:Room = req.body;
         const room = await Room.findOne({ where: { idroom: req.params.id } });
+        if(data.room_status === "empty"){
+            const userdetail = await UserDetail.findOne({ where: { idroom: data.idroom } });
+            if(userdetail){
+                await UserDetail.update({
+                    idroom: null,
+                }, { where: { idroom: data.idroom } });
+            }
+        }
         if (room) {
             await Room.update({
                 idroom_type: data.idroom_type,

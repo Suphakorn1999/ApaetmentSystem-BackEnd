@@ -2,8 +2,8 @@ import { Table, Column, Model, DataType, BelongsTo, ForeignKey } from "sequelize
 import { Users } from "./userModel";
 
 @Table({
-    timestamps: false,
-    tableName: "checkout"
+    timestamps: true,
+    tableName: "checkout",
 })
 
 export class Checkout extends Model {

@@ -2,8 +2,8 @@ import { Table, Column, Model, DataType, BelongsTo, ForeignKey, CreatedAt } from
 import { Users } from "./userModel";
 
 @Table({
-    timestamps: false,
-    tableName: "invoice"
+    timestamps: true,
+    tableName: "invoice",
 })
 
 export class Invoice extends Model {
