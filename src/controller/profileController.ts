@@ -227,7 +227,7 @@ export const uploadImage: RequestHandler = async (req, res) => {
             } else {
                 const storage = multer.diskStorage({
                     destination: function (req, file, cb) {
-                        cb(null, './public/uploads/')
+                        cb(null, './public/uploads/profile/')
                     },
                     filename: function (req, file, cb) {
                         cb(null, iduser + '.' + file.originalname.split('.')[1])

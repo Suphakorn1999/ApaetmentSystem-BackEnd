@@ -15,6 +15,16 @@ export class Invoice extends Model {
     })
     idinvoice!: number;
 
+    @ForeignKey(() => Users)
+    @Column({
+        type: DataType.INTEGER,
+        allowNull: false
+    })
+    iduser!: number;
+
+    @BelongsTo(() => Users)
+    user!: Users;
+
     @Column({
         type: DataType.INTEGER,
         allowNull: false
@@ -58,22 +68,10 @@ export class Invoice extends Model {
     water_price!: number;
 
     @Column({
-        type: DataType.INTEGER,
-        allowNull: false
+        type: DataType.STRING,
+        allowNull: false,
+        defaultValue: 'unpaid'
     })
-    center_service_price!: number;
-
-    @Column({
-        type: DataType.INTEGER,
-        allowNull: false
-    })
-    total_price!: number;
-
-    @CreatedAt
-    @Column({
-        type: DataType.DATE,
-        allowNull: true
-    })
-    createdAt!: Date;
+    invoice_status!: string;
 }
 
