@@ -33,7 +33,7 @@ export const createUserDetail: RequestHandler = async (req, res) => {
                 gender: data.gender,
             }, { where: { iduser: iduser } });
 
-            return res.status(200).json({ message: 'Update User Detail Success' });
+            return res.status(200).json({ message: 'อัปเดตข้อมูลพนักงานสำเร็จ' });
         } else {
             const userdetail = await UserDetail.create({
                 iduser: iduser,
@@ -51,7 +51,7 @@ export const createUserDetail: RequestHandler = async (req, res) => {
                 birth_date: data.birth_date,
                 gender: data.gender,
             });
-            return res.status(200).json({ message: 'Create User Detail Success' });
+            return res.status(200).json({ message: 'สร้างข้อมูลพนักงานสำเร็จ' });
         }
     } catch (err: any) {
         return res.status(500).json({ message: err.message });
@@ -87,7 +87,7 @@ export const getUserDetailByToken: RequestHandler = async (req, res) => {
 
             return res.status(200).json({ data: data[0] });
         } else {
-            return res.status(404).json({ message: 'User Detail is not found' });
+            return res.status(404).json({ message: 'ไม่เจอข้อมูลผู้ใช้งาน' });
         }
 
     } catch (err: any) {
@@ -135,12 +135,12 @@ export const uploadImage: RequestHandler = async (req, res) => {
                                     partNameAvatar: iduser + '.' + data.originalname.split('.')[1],
                                 }, { where: { iduser: iduser } });
 
-                                return res.status(200).json({ message: 'Upload image success' });
+                                return res.status(200).json({ message: 'อัปเดตรูปสำเร็จ' });
                             } else {
-                                return res.status(400).json({ message: 'User Detail is not found' });
+                                return res.status(400).json({ message: 'ไม่เจอผู้ใช้งาน' });
                             }
                         } else {
-                            return res.status(400).json({ message: 'Please select image' });
+                            return res.status(400).json({ message: 'กรุณาเลือกรูป' });
                         }
                     }
                     )
@@ -171,18 +171,18 @@ export const uploadImage: RequestHandler = async (req, res) => {
                                     partNameAvatar: iduser + '.' + data.originalname.split('.')[1],
                                 }, { where: { iduser: iduser } });
 
-                                return res.status(200).json({ message: 'Upload image success' });
+                                return res.status(200).json({ message: 'อัปเดตรูปสำเร็จ' });
                             } else {
-                                return res.status(400).json({ message: 'User Detail is not found' });
+                                return res.status(400).json({ message: 'ไม่เจอผู้ใช้งาน' });
                             }
                         } else {
-                            return res.status(400).json({ message: 'Please select image' });
+                            return res.status(400).json({ message: 'กรุณาเลือกรูป' });
                         }
                     }
                     )
                 }
             }else{
-                return res.status(400).json({ message: 'User Detail is not found' });
+                return res.status(400).json({ message: 'ไม่เจอข้อมูลพนักงาน' });
             }
         } else {
             if (userdetail?.partNameAvatar !== null) {
@@ -215,12 +215,12 @@ export const uploadImage: RequestHandler = async (req, res) => {
                                 partNameAvatar: iduser + '.' + data.originalname.split('.')[1],
                             }, { where: { iduser: iduser } });
 
-                            return res.status(200).json({ message: 'Upload image success' });
+                            return res.status(200).json({ message: 'อัปเดตรูปสำเร็จ' });
                         } else {
-                            return res.status(400).json({ message: 'User Detail is not found' });
+                            return res.status(400).json({ message: 'ไม่เจอผู้ใช้งาน' });
                         }
                     } else {
-                        return res.status(400).json({ message: 'Please select image' });
+                        return res.status(400).json({ message: 'กรุณาเลือกรูป' });
                     }
                 }
                 )
@@ -251,12 +251,12 @@ export const uploadImage: RequestHandler = async (req, res) => {
                                 partNameAvatar: iduser + '.' + data.originalname.split('.')[1],
                             }, { where: { iduser: iduser } });
 
-                            return res.status(200).json({ message: 'Upload image success' });
+                            return res.status(200).json({ message: 'อัปเดตรูปสำเร็จ' });
                         } else {
-                            return res.status(400).json({ message: 'User Detail is not found' });
+                            return res.status(400).json({ message: 'ไม่เจอผู้ใช้งาน' });
                         }
                     } else {
-                        return res.status(400).json({ message: 'Please select image' });
+                        return res.status(400).json({ message: 'กรุณาเลือกรูป' });
                     }
                 }
                 )
@@ -273,7 +273,7 @@ export const getUserAllDetail: RequestHandler = async (req, res) => {
         if (userdetail) {
             return res.status(200).json({ data: userdetail });
         } else {
-            return res.status(404).json({ message: 'User Detail is not found' });
+            return res.status(404).json({ message: 'ไม่เจอข้อมูลพนักงาน' });
         }
     } catch (err: any) {
         res.status(500).json({ message: err.message });
@@ -315,7 +315,7 @@ export const getUserDetailbyid: RequestHandler = async (req, res) => {
 
             return res.status(200).json({ data: data[0] });
         } else {
-            return res.status(404).json({ message: 'User Detail is not found' });
+            return res.status(404).json({ message: 'ไม่เจอข้อมูลพนักงาน' });
         }
     } catch (err: any) {
         res.status(500).json({ message: err.message });
@@ -329,19 +329,38 @@ export const updateUserUserDetailByid: RequestHandler = async (req, res) => {
         const userdetails = await UserDetail.findOne({ where: { iduser: iduser } });
 
         if(data.idroom !== null){
-            const room = await Room.findOne({ where: { idroom: data.idroom } });
-            if(room){
-                if(room?.room_status === 'full'){
-                    return res.status(400).json({ message: 'Room is not available' });
+            const users = await UserDetail.findOne({ where: { idroom: data.idroom, iduser:iduser },include: [{ model: Room }] });
+            if (users){
+                if (users.room.room_status == 'full'){
+                    const userdetail = await UserDetail.update({
+                        fname: data.fname,
+                        lname: data.lname,
+                        age: data.age,
+                        email: data.email,
+                        sub_district: data.sub_district,
+                        district: data.district,
+                        province: data.province,
+                        zip_code: data.zip_code,
+                        card_id: data.card_id,
+                        birth_date: data.birth_date,
+                        phone_number: data.phone_number,
+                        gender: data.gender,
+                        status_user: data.status_user,
+                        date_in: data.date_in,
+                        date_out: data.date_out,
+                        deposit: data.deposit,
+                        idroom: data.idroom,
+                    }, { where: { iduser: iduser } });
+
+                    return res.status(200).json({ message: 'อัปเดตข้อมูลพนักงานสำเร็จ' });
                 }else{
                     await Room.update({
                         room_status: 'full',
                     }, { where: { idroom: data.idroom } });
                 }
-            }
-                
+            }    
         }
-        if (userdetails) {
+        if (userdetails?.idroom == data.idroom) {
             const userdetail = await UserDetail.update({
                 fname: data.fname,
                 lname: data.lname,
@@ -362,9 +381,9 @@ export const updateUserUserDetailByid: RequestHandler = async (req, res) => {
                 idroom: data.idroom,
             }, { where: { iduser: iduser } });
 
-            return res.status(200).json({ message: 'Update User Detail Success' });
+            return res.status(200).json({ message: 'อัปเดตข้อมูลพนักงานสำเร็จ' });
         } else {
-            return res.status(404).json({ message: 'User Detail is not found' });
+            return res.status(400).json({ message: 'ห้องมีคนอยู่แล้ว หรือ ไม่เจอข้อมูลผู้ใช้งาน' });
         }
     }
     catch (err: any) {

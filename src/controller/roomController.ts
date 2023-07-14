@@ -20,7 +20,7 @@ export const createRoom: RequestHandler = async (req, res) => {
     try {
         const roomfind = await Room.findOne({ where: { room_number: req.body.room_number } });
         if (roomfind) {
-            return res.status(400).json({ message: 'Room number is already' });
+            return res.status(400).json({ message: 'หมายเลขห้องมีอยู่แล้ว'});
         }else{
             const data: Room = req.body;
             const room = await Room.create({
@@ -28,9 +28,9 @@ export const createRoom: RequestHandler = async (req, res) => {
                 room_number: data.room_number,
             });
             if(room){
-                return res.status(200).json({ message: 'Create Room Success' });
+                return res.status(200).json({ message: 'สร้างข้อมูลห้องสำเร็จ' });
             }else{
-                return res.status(400).json({ message: 'Create Room Fail' });
+                return res.status(400).json({ message: 'สร้างข้อมูลห้องไม่สำเร็จ' });
             }
         }
         
@@ -45,13 +45,13 @@ export const createRoomType: RequestHandler = async (req, res) => {
         const data:RoomType = req.body;
 
         if (!data.room_type_name || !data.room_price) {
-            return res.status(400).json({ message: 'Please fill all field' });
+            return res.status(400).json({ message: 'กรุณาตรวจสอบข้อมูลให้ครบ' });
         }
 
         if (data.room_type_name) {
             const roomtype = await RoomType.findOne({ where: { room_type_name: data.room_type_name } });
             if (roomtype) {
-                return res.status(400).json({ message: 'Room type is already' });
+                return res.status(400).json({ message: 'ประเภทห้องมีอยู่แล้ว' });
             }else{
                 const roomtype = await RoomType.create({
                     room_type_name: data.room_type_name,
@@ -60,10 +60,10 @@ export const createRoomType: RequestHandler = async (req, res) => {
                     ElectricMeterprice: data.ElectricMeterprice,
                 });
     
-                return res.status(200).json({ message: 'Create Room Type Success' });
+                return res.status(200).json({ message: 'สร้างข้อมูลประเภทห้องสำเร็จ' });
             }
         }else {
-            return res.status(400).json({ message: 'Please fill all field' });
+            return res.status(400).json({ message: 'กรุณาตรวจสอบข้อมูลให้ครบ' });
         }
     }
     catch (err: any) {
@@ -86,7 +86,7 @@ export const getRoomTypeByid: RequestHandler = async (req, res) => {
         if (roomtype) {
             return res.status(200).json({ data: roomtype });
         } else {
-            return res.status(400).json({ message: 'Room type is not found' });
+            return res.status(400).json({ message: 'ไม่เจอข้อมูลประเภทห้อง' });
         }
     } catch (err: any) {
         res.status(500).json({ message: err.message });
@@ -105,9 +105,9 @@ export const updateRoomType: RequestHandler = async (req, res) => {
                 WaterMeterprice: data.WaterMeterprice,
                 status_room_type: data.status_room_type
             }, { where: { idroom_type: req.params.id } });
-            return res.status(200).json({ message: 'Update Room Type Success' });
+            return res.status(200).json({ message: 'อัปเดตข้อมูลประเภทห้องสำเร็จ' });
         } else {
-            return res.status(400).json({ message: 'Room type is not found' });
+            return res.status(400).json({ message: 'ไม่เจอข้อมูลประเภทห้อง' });
         }
     } catch (err: any) {
         res.status(500).json({ message: err.message });
@@ -120,7 +120,7 @@ export const getRoomByid: RequestHandler = async (req, res) => {
         if (room) {
             return res.status(200).json({ data: room });
         } else {
-            return res.status(400).json({ message: 'Room is not found' });
+            return res.status(400).json({ message: 'ไม่เจอข้อมูลห้อง' });
         }
     } catch (err: any) {
         res.status(500).json({ message: err.message });
@@ -146,7 +146,7 @@ export const updateRoom: RequestHandler = async (req, res) => {
                 room_status: data.room_status,
                 status_room: data.status_room
             }, { where: { idroom: req.params.id } });
-            return res.status(200).json({ message: 'Update Room Success' });
+            return res.status(200).json({ message: 'อัปเดตข้อมูลห้องสำเร็จ' });
         }
     }
     catch (err: any) {

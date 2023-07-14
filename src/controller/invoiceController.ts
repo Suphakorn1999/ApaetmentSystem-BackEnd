@@ -54,10 +54,10 @@ export const getInvoiceByid: RequestHandler = async (req, res) => {
                     }    
                 }
             }else{
-                return res.status(404).json({ message: 'Not Found' });
+                return res.status(404).json({ message: 'ไม่เจอข้อมูล' });
             }
         }else{
-            return res.status(404).json({ message: 'Not Found' });
+            return res.status(404).json({ message: 'ไม่เจอข้อมูล' });
         }
 
     } catch (err: any) {
@@ -79,7 +79,7 @@ export const createInvoice: RequestHandler = async (req, res) => {
             electric_price: data.electric_price,
             water_price: data.water_price,
         });
-        return res.status(200).json({ message: 'Create Invoice Success' });
+        return res.status(200).json({ message: 'สร้างใบแจ้งหนี้สำเร็จ' });
     } catch (err: any) {
         return res.status(500).json({ message: err.message });
     }

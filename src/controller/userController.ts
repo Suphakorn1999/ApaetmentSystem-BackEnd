@@ -9,7 +9,7 @@ dotenv.config();
 export const getallUsers: RequestHandler = async (req, res) => {
     try {
         const users = await Users.findAll({attributes: { exclude: ['password'] }});
-        res.status(200).json(users);
+        res.status(200).json({ data: users, message: 'ดึงข้อมูลผู้ใช้งานสำเร็จ' });
     } catch (err:any) {
         res.status(500).json({ message: err.message });
     }
@@ -20,7 +20,7 @@ export const register: RequestHandler = async (req, res) => {
         const { username, idrole } = req.body;
         const user = await Users.findOne({ where: { username: username } });
         if (user) {
-            return res.status(400).json({ message: 'Username is already' });
+            return res.status(400).json({ message: 'มีชื่อผู้ใช้อยู่แล้ว' });
         } else {
             let passwordencrypt = CryptoJS.AES.encrypt(username, process.env.SECRET_KEY).toString();
             const user = await Users.create({
@@ -28,7 +28,7 @@ export const register: RequestHandler = async (req, res) => {
                 password: passwordencrypt,
                 idrole: idrole,
             });
-            return res.status(200).json({ message: 'Register Success' });
+            return res.status(200).json({ message: 'ลงทะเบียนสำเร็จ' });
         }
     } catch (err:any) {
         return res.status(500).json({ message: err.message });
@@ -46,9 +46,9 @@ export const ChangePassword: RequestHandler = async (req, res) => {
                 const user = await Users.update({
                     password: passwordencrypt,
                 }, { where: { iduser: req.body.user.id } });
-                return res.status(200).json({ message: 'Change Password Success' });
+                return res.status(200).json({ message: 'เปลี่ยนรหัสผ่านสำเร็จ' });
             } else {
-                return res.status(401).json({ message: 'Old Password is wrong' });
+                return res.status(401).json({ message: 'รหัสผ่านเก่าไม่ถูกต้อง' });
             }
         }
     }
@@ -60,7 +60,7 @@ export const ChangePassword: RequestHandler = async (req, res) => {
 export const getRoles: RequestHandler = async (req, res) => {
     try {
         const roles = await Role.findAll();
-        res.status(200).json({ data: roles, message: 'Get Roles Success' });
+        res.status(200).json({ data: roles, message: 'ดึงข้อมูลสิทธิผู้ใช้งานสำเร็จ' });
     } catch (err:any) {
         res.status(500).json({ message: err.message });
     }
