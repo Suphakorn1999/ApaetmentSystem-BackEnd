@@ -66,12 +66,5 @@ export class Invoice extends Model {
         allowNull: false
     })
     water_price!: number;
-
-    @Column({
-        type: DataType.STRING,
-        allowNull: false,
-        defaultValue: 'unpaid'
-    })
-    invoice_status!: string;
 }
 

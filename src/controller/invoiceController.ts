@@ -8,8 +8,24 @@ import { Op } from 'sequelize';
 
 export const getallInvoices: RequestHandler = async (req, res) => {
     try {
-        const invoices = await Invoice.findAll({ include: [{ model: Users, attributes: { exclude: ['password'] } }, { model: Room }] });
-        res.status(200).json({ data: invoices });
+        const data =[]
+        const invoices = await Invoice.findAll({ include: [{ model: Users, include: [{ model: UserDetail, attributes:['fname','lname','idroom'] }], attributes: ['iduser'] }] });
+        if(invoices.length == 0){
+            return res.status(404).json({ message: 'ไม่มีข้อมูลใบแจ้งหนี้' });
+        }
+        
+        for (let i = 0; i < invoices.length; i++) {
+            data.push({
+                idinvoice: invoices[i].idinvoice,
+                idroom: invoices[i].user.user_detail[0].idroom,
+                fname: invoices[i].user.user_detail[0].fname,
+                lname: invoices[i].user.user_detail[0].lname,
+                date_invoice : invoices[i].createdAt,
+                total: (invoices[i].room_price + (invoices[i].watermeter_new - invoices[i].watermeter_old) * invoices[i].water_price + (invoices[i].electricmeter_new - invoices[i].electricmeter_old) * invoices[i].electric_price)
+            })
+        }
+        return res.status(200).json({ data: data });
+
     } catch (err: any) {
         res.status(500).json({ message: err.message });
     }
@@ -18,9 +34,9 @@ export const getallInvoices: RequestHandler = async (req, res) => {
 export const getInvoiceByid: RequestHandler = async (req, res) => {
     try {
         let data = []
-        const userDetail = await UserDetail.findOne({ where: { iduser: req.params.id },attributes: ['iduser',"fname","lname","idroom"] });
-        if (userDetail){
-            const room = await Room.findOne({ where: { idroom: userDetail.idroom }, include: [{ model: RoomType, attributes: ["room_price", "WaterMeterprice","ElectricMeterprice"] }] });
+        const userDetail = await UserDetail.findOne({ where: { iduser: req.params.id }, attributes: ['iduser', "fname", "lname", "idroom"] });
+        if (userDetail) {
+            const room = await Room.findOne({ where: { idroom: userDetail.idroom }, include: [{ model: RoomType, attributes: ["room_price", "WaterMeterprice", "ElectricMeterprice"] }] });
             if (room) {
                 const invoice = await Invoice.findAll({ where: { iduser: req.params.id } });
                 if (invoice.length == 0) {
@@ -36,7 +52,7 @@ export const getInvoiceByid: RequestHandler = async (req, res) => {
                         electricmeter_old: 0,
                     })
                     return res.status(200).json({ data: data[0] });
-                }else{
+                } else {
                     const invoice = await Invoice.findOne({ where: { iduser: req.params.id }, order: [['createdAt', 'DESC']] });
                     if (invoice) {
                         data.push({
@@ -51,12 +67,12 @@ export const getInvoiceByid: RequestHandler = async (req, res) => {
                             electricmeter_old: invoice.electricmeter_new,
                         })
                         return res.status(200).json({ data: data[0] });
-                    }    
+                    }
                 }
-            }else{
+            } else {
                 return res.status(404).json({ message: 'ไม่เจอข้อมูล' });
             }
-        }else{
+        } else {
             return res.status(404).json({ message: 'ไม่เจอข้อมูล' });
         }
 
@@ -67,7 +83,7 @@ export const getInvoiceByid: RequestHandler = async (req, res) => {
 
 export const createInvoice: RequestHandler = async (req, res) => {
     try {
-        const data : Invoice = req.body;
+        const data: Invoice = req.body;
 
         const invoice = await Invoice.create({
             iduser: data.iduser,
@@ -82,5 +98,33 @@ export const createInvoice: RequestHandler = async (req, res) => {
         return res.status(200).json({ message: 'สร้างใบแจ้งหนี้สำเร็จ' });
     } catch (err: any) {
         return res.status(500).json({ message: err.message });
+    }
+}
+
+export const getInvoiceByidInvoice: RequestHandler = async (req, res) => {
+    try {
+        const data = []
+        const invoice = await Invoice.findOne({ where: { idinvoice: req.params.id },include: [{ model: Users, include: [{ model: UserDetail, attributes:['fname','lname','idroom'] }], attributes: ['iduser'] }] });
+        if (invoice) {
+            data.push({
+                idinvoice: invoice.idinvoice,
+                idroom: invoice.user.user_detail[0].idroom,
+                fname: invoice.user.user_detail[0].fname,
+                lname: invoice.user.user_detail[0].lname,
+                room_price: invoice.room_price,
+                watermeter_old: invoice.watermeter_old,
+                watermeter_new: invoice.watermeter_new,
+                electricmeter_old: invoice.electricmeter_old,
+                electricmeter_new: invoice.electricmeter_new,
+                water_price: invoice.water_price,
+                electric_price: invoice.electric_price,
+                date_invoice: invoice.createdAt,
+            })
+            return res.status(200).json({ data: data[0] });
+        } else {
+            return res.status(404).json({ message: 'ไม่เจอข้อมูล' });
+        }
+    } catch (err: any) {
+        res.status(500).json({ message: err.message });
     }
 }

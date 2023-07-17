@@ -40,7 +40,8 @@ export class Payment extends Model {
 
     @Column({
         type: DataType.STRING,
-        allowNull: false
+        allowNull: false,
+        defaultValue: "รอการตรวจสอบ"
     })
     payment_status!: string;
 
