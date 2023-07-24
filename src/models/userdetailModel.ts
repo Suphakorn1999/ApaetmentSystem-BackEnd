@@ -8,6 +8,7 @@ import { Users } from "./userModel";
 })
 
 export class UserDetail extends Model {
+    [x: string]: any;
     @Column({
         type: DataType.INTEGER,
         primaryKey: true,
@@ -106,33 +107,11 @@ export class UserDetail extends Model {
     status_user !: string;
 
     @Column({
-        type: DataType.DATE,
-        allowNull: true
-    })
-    date_in!: Date;
-
-    @Column({
-        type: DataType.DATE,
-        allowNull: true
-    })
-    date_out!: Date;
-
-    @Column({
         type: DataType.INTEGER,
         allowNull: true,
         defaultValue: 0
     })
     deposit!: string;
-
-    @ForeignKey(() => Room)
-    @Column({
-        type: DataType.INTEGER,
-        allowNull: true
-    })
-    idroom!: number;
-
-    @BelongsTo(() => Room)
-    room!: Room;
 
     @Column({
         type: DataType.STRING,

@@ -4,23 +4,25 @@ import { Users } from '../models/userModel';
 import { Room } from '../models/roomModel';
 import { RoomType } from '../models/roomtypeModel';
 import { UserDetail } from '../models/userdetailModel';
+import { UserRoom } from '../models/user_roomModel';
 import { Op } from 'sequelize';
 
 export const getallInvoices: RequestHandler = async (req, res) => {
     try {
-        const data =[]
-        const invoices = await Invoice.findAll({ include: [{ model: Users, include: [{ model: UserDetail, attributes:['fname','lname','idroom'] }], attributes: ['iduser'] }] });
-        if(invoices.length == 0){
+        const data = []
+        const invoices = await Invoice.findAll({ include: [{ model: Users, include: [{ model: UserDetail, attributes: ['fname', 'lname'] }, { model: UserRoom, attributes: ['idroom'] }], attributes: ['iduser'] }] });
+
+        if (invoices.length == 0) {
             return res.status(404).json({ message: 'ไม่มีข้อมูลใบแจ้งหนี้' });
         }
-        
+
         for (let i = 0; i < invoices.length; i++) {
             data.push({
                 idinvoice: invoices[i].idinvoice,
-                idroom: invoices[i].user.user_detail[0].idroom,
+                idroom: invoices[i].user.user_room[0].idroom,
                 fname: invoices[i].user.user_detail[0].fname,
                 lname: invoices[i].user.user_detail[0].lname,
-                date_invoice : invoices[i].createdAt,
+                date_invoice: invoices[i].createdAt,
                 total: (invoices[i].room_price + (invoices[i].watermeter_new - invoices[i].watermeter_old) * invoices[i].water_price + (invoices[i].electricmeter_new - invoices[i].electricmeter_old) * invoices[i].electric_price)
             })
         }
@@ -34,9 +36,9 @@ export const getallInvoices: RequestHandler = async (req, res) => {
 export const getInvoiceByid: RequestHandler = async (req, res) => {
     try {
         let data = []
-        const userDetail = await UserDetail.findOne({ where: { iduser: req.params.id }, attributes: ['iduser', "fname", "lname", "idroom"] });
+        const userDetail = await UserDetail.findOne({ where: { iduser: req.params.id }, attributes: ['iduser', "fname", "lname"], include: [{ model: Users, include: [{ model: UserRoom, attributes: ['idroom'] }] }] });
         if (userDetail) {
-            const room = await Room.findOne({ where: { idroom: userDetail.idroom }, include: [{ model: RoomType, attributes: ["room_price", "WaterMeterprice", "ElectricMeterprice"] }] });
+            const room = await Room.findOne({ where: { idroom: userDetail.users.user_room[0].idroom }, include: [{ model: RoomType, attributes: ["room_price", "WaterMeterprice", "ElectricMeterprice"] }] });
             if (room) {
                 const invoice = await Invoice.findAll({ where: { iduser: req.params.id } });
                 if (invoice.length == 0) {
@@ -44,7 +46,7 @@ export const getInvoiceByid: RequestHandler = async (req, res) => {
                         iduser: userDetail.iduser,
                         fname: userDetail.fname,
                         lname: userDetail.lname,
-                        idroom: userDetail.idroom,
+                        idroom: userDetail.users.user_room[0].idroom,
                         room_price: parseInt(room.roomtype.room_price),
                         electric_price: parseInt(room.roomtype.ElectricMeterprice),
                         water_price: parseInt(room.roomtype.WaterMeterprice),
@@ -59,7 +61,7 @@ export const getInvoiceByid: RequestHandler = async (req, res) => {
                             iduser: invoice.iduser,
                             fname: userDetail.fname,
                             lname: userDetail.lname,
-                            idroom: userDetail.idroom,
+                            idroom: userDetail.users.user_room[0].idroom,
                             room_price: parseInt(room.roomtype.room_price),
                             electric_price: parseInt(room.roomtype.ElectricMeterprice),
                             water_price: parseInt(room.roomtype.WaterMeterprice),
@@ -104,11 +106,11 @@ export const createInvoice: RequestHandler = async (req, res) => {
 export const getInvoiceByidInvoice: RequestHandler = async (req, res) => {
     try {
         const data = []
-        const invoice = await Invoice.findOne({ where: { idinvoice: req.params.id },include: [{ model: Users, include: [{ model: UserDetail, attributes:['fname','lname','idroom'] }], attributes: ['iduser'] }] });
+        const invoice = await Invoice.findOne({ where: { idinvoice: req.params.id }, include: [{ model: Users, include: [{ model: UserDetail, attributes: ['fname', 'lname'] }, { model: UserRoom, attributes: ['idroom'], where: { status: 'active' } }], attributes: ['iduser'] }] });
         if (invoice) {
             data.push({
                 idinvoice: invoice.idinvoice,
-                idroom: invoice.user.user_detail[0].idroom,
+                idroom: invoice.user.user_room[0].idroom,
                 fname: invoice.user.user_detail[0].fname,
                 lname: invoice.user.user_detail[0].lname,
                 room_price: invoice.room_price,

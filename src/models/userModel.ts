@@ -1,5 +1,6 @@
 import { Table, Column, Model, DataType, HasMany, ForeignKey, BelongsTo } from "sequelize-typescript";
 import { UserDetail } from "./userdetailModel";
+import { UserRoom } from "./user_roomModel";
 import { Role } from "./roleModel";
 
 @Table({
@@ -8,6 +9,7 @@ import { Role } from "./roleModel";
 })
 
 export class Users extends Model {
+    [x: string]: any;
     @Column({
         type: DataType.INTEGER,
         primaryKey: true,
@@ -47,4 +49,7 @@ export class Users extends Model {
 
     @HasMany(() => UserDetail)
     user_detail!: UserDetail[];
+
+    @HasMany(() => UserRoom)
+    user_room!: UserRoom[];
 }

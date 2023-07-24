@@ -4,13 +4,14 @@ import { Users } from '../models/userModel';
 import { Provinces } from '../models/provincesModel';
 import { Districts } from '../models/districtsModel';
 import { SubDistricts } from '../models/sub_districtsModel';
-import { Room } from '../models/roomModel';
 import multer, { Multer } from 'multer';
 const CryptoJS = require('crypto-js');
 import dotenv from 'dotenv';
 dotenv.config();
 import fs from 'fs';
 import path from 'path';
+import { UserRoom } from '../models/user_roomModel';
+import { Room } from '../models/roomModel';
 
 export const createUserDetail: RequestHandler = async (req, res) => {
     try {
@@ -32,10 +33,7 @@ export const createUserDetail: RequestHandler = async (req, res) => {
                 birth_date: data.birth_date,
                 phone_number: data.phone_number,
                 gender: data.gender,
-                date_in: data.date_in,
-                date_out: data.date_out,
                 deposit: data.deposit,
-                idroom: data.idroom,
             }, { where: { iduser: iduser } });
 
             return res.status(200).json({ message: 'อัปเดตข้อมูลพนักงานสำเร็จ' });
@@ -54,10 +52,7 @@ export const createUserDetail: RequestHandler = async (req, res) => {
                 birth_date: data.birth_date,
                 phone_number: data.phone_number,
                 gender: data.gender,
-                date_in: data.date_in,
-                date_out: data.date_out,
                 deposit: data.deposit,
-                idroom: data.idroom,
             });
             return res.status(200).json({ message: 'สร้างข้อมูลพนักงานสำเร็จ' });
         }
@@ -189,7 +184,7 @@ export const uploadImage: RequestHandler = async (req, res) => {
                     }
                     )
                 }
-            }else{
+            } else {
                 return res.status(400).json({ message: 'ไม่เจอข้อมูลพนักงาน' });
             }
         } else {
@@ -277,12 +272,37 @@ export const uploadImage: RequestHandler = async (req, res) => {
 
 export const getUserAllDetail: RequestHandler = async (req, res) => {
     try {
-        const userdetail = await UserDetail.findAll();
+        const data: object[] = [];
+        const userdetail = await UserDetail.findAll({ include: [{ model: Users, include: [{ model: UserRoom, attributes: ['idroom', 'date_in','date_out'] }] }] });
         if (userdetail) {
-            return res.status(200).json({ data: userdetail });
+            userdetail.forEach((userdetail) => {
+                data.push({
+                    iduser: userdetail.iduser,
+                    idroom: userdetail.users.user_room[0].idroom,
+                    fname: userdetail.fname,
+                    lname: userdetail.lname,
+                    createdAt: userdetail.createdAt,
+                    updatedAt: userdetail.updatedAt,
+                    deposit: userdetail.deposit,
+                    status_user: userdetail.status_user,
+                    birth_date: userdetail.birth_date,
+                    phone_number: userdetail.phone_number,
+                    card_id: userdetail.card_id,
+                    gender: userdetail.gender,
+                    sub_district: userdetail.sub_district,
+                    district: userdetail.district,
+                    province: userdetail.province,
+                    zip_code: userdetail.zip_code,
+                    email: userdetail.email,
+                    date_in: userdetail.users.user_room[0].date_in,
+                    date_out: userdetail.users.user_room[0].date_out,
+                })
+            })
+            return res.status(200).json({ data: data });
         } else {
-            return res.status(404).json({ message: 'ไม่เจอข้อมูลพนักงาน' });
+            return res.status(404).json({ message: 'ไม่เจอข้อมูลผู้ใช้งาน' });
         }
+
     } catch (err: any) {
         res.status(500).json({ message: err.message });
     }
@@ -314,9 +334,6 @@ export const getUserDetailbyid: RequestHandler = async (req, res) => {
                 birth_date: userdetail.birth_date,
                 gender: userdetail.gender,
                 deposit: userdetail.deposit,
-                date_in: userdetail.date_in,
-                date_out: userdetail.date_out,
-                idroom: userdetail.idroom,
                 status_user: userdetail.status_user,
                 partNameAvatar: userdetail.partNameAvatar,
             });
@@ -335,66 +352,51 @@ export const updateUserUserDetailByid: RequestHandler = async (req, res) => {
         const iduser = req.params.id;
         const data: UserDetail = req.body;
         const userdetails = await UserDetail.findOne({ where: { iduser: iduser } });
-
-        if(data.idroom !== null){
-            const users = await UserDetail.findOne({ where: { idroom: data.idroom, iduser:iduser },include: [{ model: Room }] });
-            if (users){
-                if (users.room.room_status == 'full'){
-                    const userdetail = await UserDetail.update({
-                        fname: data.fname,
-                        lname: data.lname,
-                        age: data.age,
-                        email: data.email,
-                        sub_district: data.sub_district,
-                        district: data.district,
-                        province: data.province,
-                        zip_code: data.zip_code,
-                        card_id: data.card_id,
-                        birth_date: data.birth_date,
-                        phone_number: data.phone_number,
-                        gender: data.gender,
-                        status_user: data.status_user,
-                        date_in: data.date_in,
-                        date_out: data.date_out,
-                        deposit: data.deposit,
-                        idroom: data.idroom,
-                    }, { where: { iduser: iduser } });
-
-                    return res.status(200).json({ message: 'อัปเดตข้อมูลพนักงานสำเร็จ' });
-                }else{
-                    await Room.update({
-                        room_status: 'full',
-                    }, { where: { idroom: data.idroom } });
-                }
-            }    
-        }
-        if (userdetails?.idroom == data.idroom) {
-            const userdetail = await UserDetail.update({
-                fname: data.fname,
-                lname: data.lname,
-                age: data.age,
-                email: data.email,
-                sub_district: data.sub_district,
-                district: data.district,
-                province: data.province,
-                zip_code: data.zip_code,
-                card_id: data.card_id,
-                birth_date: data.birth_date,
-                phone_number: data.phone_number,
-                gender: data.gender,
-                status_user: data.status_user,
-                date_in: data.date_in,
-                date_out: data.date_out,
-                deposit: data.deposit,
-                idroom: data.idroom,
-            }, { where: { iduser: iduser } });
-
+        if (userdetails) {
+            await UserDetail.update({ ...data }, { where: { iduser: iduser } });
             return res.status(200).json({ message: 'อัปเดตข้อมูลพนักงานสำเร็จ' });
         } else {
-            return res.status(400).json({ message: 'ห้องมีคนอยู่แล้ว หรือ ไม่เจอข้อมูลผู้ใช้งาน' });
+            return res.status(404).json({ message: 'ไม่เจอข้อมูลพนักงาน' });
         }
     }
     catch (err: any) {
         return res.status(500).json({ message: err.message });
+    }
+}
+
+export const getIdroomByiduser: RequestHandler = async (req, res) => {
+    try {
+        const userRoom = await UserRoom.findOne({ where: { iduser: req.params.id, status:'active' } });
+        if (userRoom) {
+            return res.status(200).json({ data: userRoom }); 
+        }
+        else {
+            return res.status(404).json({ message: 'ไม่เจอข้อมูลห้องพัก' });
+        }
+    } catch (err: any) {
+        res.status(500).json({ message: err.message });
+    }
+}
+
+export const updateidRoomByiduser: RequestHandler = async (req, res) => {
+    try {
+        const iduser = req.params.id;
+        const idroom = req.body.idroom;
+        const userRoom = await UserRoom.findOne({ where: { iduser: iduser }, include: [{ model: Room, attributes: ['room_status'] }] });
+        if (userRoom) {
+            if (userRoom.room.room_status == 'full') {
+                if (userRoom.idroom == idroom) {
+                    await UserRoom.update({ idroom: idroom }, { where: { iduser: iduser } });
+                    return res.status(200).json({ message: 'อัปเดตห้องพักสำเร็จ' });
+                }else{
+                    return res.status(400).json({ message: 'ห้องพักนี้มีผู้เช่าคนอื่นอยู่' });
+                }
+            } else {
+                return res.status(400).json({ message: 'ห้องพักไม่ว่าง' });
+            }
+        }
+
+    } catch (err: any) {
+        res.status(500).json({ message: err.message });
     }
 }

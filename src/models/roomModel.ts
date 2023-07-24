@@ -1,6 +1,6 @@
 import { Table, Column, Model, DataType, BelongsTo, ForeignKey, HasMany, UpdatedAt, CreatedAt } from "sequelize-typescript";
-import { UserDetail } from "./userdetailModel";
 import { RoomType } from "./roomtypeModel";
+import { UserRoom } from "./user_roomModel";
 
 @Table({
     timestamps: true,
@@ -60,6 +60,6 @@ export class Room extends Model {
     })
     status_room!: string;
 
-    @HasMany(() => UserDetail)
-    userdetail!: UserDetail[];
+    @HasMany(() => UserRoom)
+    user_room!: UserRoom[];
 }

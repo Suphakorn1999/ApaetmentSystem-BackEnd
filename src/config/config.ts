@@ -11,6 +11,8 @@ import { RoomType } from '../models/roomtypeModel';
 import { Districts } from '../models/districtsModel';
 import { Provinces } from '../models/provincesModel';
 import { SubDistricts } from '../models/sub_districtsModel';
+import { PaymentType } from '../models/paymentTypeModel';
+import { UserRoom } from '../models/user_roomModel';
 
 
 const connection = new Sequelize({
@@ -33,6 +35,8 @@ const connection = new Sequelize({
     Districts,
     Provinces,
     SubDistricts,
+    PaymentType,
+    UserRoom,
   ],
   sync: { force: false, alter: true },
 });

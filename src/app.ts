@@ -20,8 +20,9 @@ import provinceRouter from './routes/provinceRouter';
 import profileRouter from './routes/profileRouter';
 import RoomRouter from './routes/roomRouter';
 import invoiceRouter from './routes/invoiceRouter';
+import paymentRouter from './routes/paymentRouter';
 
-app.use('/api/auth', [userRouter, loginRouter, provinceRouter, profileRouter, RoomRouter, invoiceRouter]);
+app.use('/api/auth', [userRouter, loginRouter, provinceRouter, profileRouter, RoomRouter, invoiceRouter, paymentRouter]);
 
 app.use(
     (err: Error, req: Request, res: Response, next: express.NextFunction) => {
