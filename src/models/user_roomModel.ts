@@ -37,16 +37,16 @@ export class UserRoom extends Model {
     room!: Room;
 
     @Column({
-        type: DataType.DATE,
+        type: DataType.STRING,
         allowNull: true
     })
-    date_in!: Date;
+    date_in!: string;
 
     @Column({
-        type: DataType.DATE,
+        type: DataType.STRING,
         allowNull: true
     })
-    date_out!: Date;
+    date_out!: string;
 
     @Column({
         type: DataType.STRING,

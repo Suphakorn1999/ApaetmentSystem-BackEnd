@@ -1,4 +1,4 @@
-import { Table, Column, Model, DataType, BelongsTo, ForeignKey, CreatedAt, UpdatedAt } from "sequelize-typescript";
+import { Table, Column, Model, DataType, BelongsTo, ForeignKey, CreatedAt, UpdatedAt, HasMany } from "sequelize-typescript";
 import { Room } from "./roomModel";
 import { Users } from "./userModel";
 
@@ -8,7 +8,6 @@ import { Users } from "./userModel";
 })
 
 export class UserDetail extends Model {
-    [x: string]: any;
     @Column({
         type: DataType.INTEGER,
         primaryKey: true,

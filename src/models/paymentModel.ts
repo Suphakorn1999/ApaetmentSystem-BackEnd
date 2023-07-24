@@ -1,4 +1,4 @@
-import { Table, Column, Model, DataType, BelongsTo, ForeignKey, CreatedAt } from "sequelize-typescript";
+import { Table, Column, Model, DataType, BelongsTo, ForeignKey, CreatedAt, HasMany } from "sequelize-typescript";
 import { Invoice } from "./invoiceModel";
 
 
@@ -28,26 +28,26 @@ export class Payment extends Model {
 
     @Column({
         type: DataType.STRING,
-        allowNull: false
+        allowNull: true
     })
     payment!: string;
 
     @Column({
         type: DataType.STRING,
-        allowNull: false
+        allowNull: true
     })
     image_payment!: string;
 
     @Column({
         type: DataType.STRING,
         allowNull: false,
-        defaultValue: "รอการตรวจสอบ"
+        defaultValue: "pending"
     })
     payment_status!: string;
 
     @Column({
         type: DataType.STRING,
-        allowNull: false
+        allowNull: true
     })
     note!: string;
 

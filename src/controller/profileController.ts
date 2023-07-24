@@ -273,12 +273,12 @@ export const uploadImage: RequestHandler = async (req, res) => {
 export const getUserAllDetail: RequestHandler = async (req, res) => {
     try {
         const data: object[] = [];
-        const userdetail = await UserDetail.findAll({ include: [{ model: Users, include: [{ model: UserRoom, attributes: ['idroom', 'date_in','date_out'] }] }] });
+        const userdetail = await UserDetail.findAll({ include: [{ model: Users, include: [{ model: UserRoom, attributes: ['idroom', 'date_in', 'date_out'], where: { status: 'active' } }] }] });
         if (userdetail) {
             userdetail.forEach((userdetail) => {
                 data.push({
                     iduser: userdetail.iduser,
-                    idroom: userdetail.users.user_room[0].idroom,
+                    idroom: userdetail.users?.user_room[0].idroom,
                     fname: userdetail.fname,
                     lname: userdetail.lname,
                     createdAt: userdetail.createdAt,
@@ -294,8 +294,8 @@ export const getUserAllDetail: RequestHandler = async (req, res) => {
                     province: userdetail.province,
                     zip_code: userdetail.zip_code,
                     email: userdetail.email,
-                    date_in: userdetail.users.user_room[0].date_in,
-                    date_out: userdetail.users.user_room[0].date_out,
+                    date_in: userdetail.users?.user_room[0].date_in,
+                    date_out: userdetail.users?.user_room[0].date_out,
                 })
             })
             return res.status(200).json({ data: data });
@@ -366,9 +366,9 @@ export const updateUserUserDetailByid: RequestHandler = async (req, res) => {
 
 export const getIdroomByiduser: RequestHandler = async (req, res) => {
     try {
-        const userRoom = await UserRoom.findOne({ where: { iduser: req.params.id, status:'active' } });
+        const userRoom = await UserRoom.findOne({ where: { iduser: req.params.id, status: 'active' } });
         if (userRoom) {
-            return res.status(200).json({ data: userRoom }); 
+            return res.status(200).json({ data: userRoom });
         }
         else {
             return res.status(404).json({ message: 'ไม่เจอข้อมูลห้องพัก' });
@@ -382,20 +382,58 @@ export const updateidRoomByiduser: RequestHandler = async (req, res) => {
     try {
         const iduser = req.params.id;
         const idroom = req.body.idroom;
-        const userRoom = await UserRoom.findOne({ where: { iduser: iduser }, include: [{ model: Room, attributes: ['room_status'] }] });
+        const date_out = req.body.date_out;
+        const userRoom = await UserRoom.findOne({ where: { iduser: iduser, status: 'active' }, include: [{ model: Room, attributes: ['room_status'] }] });
+        if (date_out !== null && date_out !== undefined) {
+            if (userRoom) {
+                if (userRoom.room.room_status == 'full') {
+                    if (userRoom.idroom == idroom) {
+                        await UserRoom.update({ date_out: date_out, status: 'inactive' }, { where: { iduser: iduser, date_in: req.body.date_in } });
+                        await Room.update({ room_status: 'empty' }, { where: { idroom: idroom } });
+                        return res.status(200).json({ message: 'อัปเดตห้องพักสำเร็จ' });
+                    } else {
+                        return res.status(400).json({ message: 'ห้องพักนี้มีผู้เช่าคนอื่นอยู่' });
+                    }
+                } else {
+                    return res.status(400).json({ message: 'ห้องพักไม่ว่าง' });
+                }
+            }
+        }
         if (userRoom) {
             if (userRoom.room.room_status == 'full') {
                 if (userRoom.idroom == idroom) {
-                    await UserRoom.update({ idroom: idroom }, { where: { iduser: iduser } });
+                    await UserRoom.update({ idroom: idroom }, { where: { iduser: iduser, date_in: req.body.date_in } });
                     return res.status(200).json({ message: 'อัปเดตห้องพักสำเร็จ' });
-                }else{
+                } else {
                     return res.status(400).json({ message: 'ห้องพักนี้มีผู้เช่าคนอื่นอยู่' });
                 }
             } else {
-                return res.status(400).json({ message: 'ห้องพักไม่ว่าง' });
+                const userRoom = await UserRoom.findOne({ where: { iduser: iduser } });
+                if (userRoom) {
+                    await UserRoom.update({ idroom: idroom }, { where: { iduser: iduser, date_in: req.body.date_in } });
+                    await Room.update({ room_status: 'full' }, { where: { idroom: idroom } });
+                    return res.status(200).json({ message: 'อัปเดตห้องพักสำเร็จ' });
+                } else {
+                    await UserRoom.create({ iduser: iduser, idroom: idroom, date_in: req.body.date_in });
+                    await Room.update({ room_status: 'full' }, { where: { idroom: idroom } });
+                    return res.status(200).json({ message: 'อัปเดตห้องพักสำเร็จ' });
+                }
             }
-        }
+        } else {
+            const room = await Room.findOne({ where: { idroom: idroom } });
+            if (room){
+                if(room.room_status == 'full'){
+                    return res.status(400).json({ message: 'ห้องพักไม่ว่าง' });
+                }else{
+                    await UserRoom.create({ iduser: iduser, idroom: idroom, date_in: req.body.date_in });
+                    await Room.update({ room_status: 'full' }, { where: { idroom: idroom } });
+                    return res.status(200).json({ message: 'อัปเดตห้องพักสำเร็จ' });
+                }
+            }else{
+                return res.status(400).json({ message: 'ไม่เจอห้องพัก' });
+            }
 
+        }
     } catch (err: any) {
         res.status(500).json({ message: err.message });
     }

@@ -1,5 +1,6 @@
-import { Table, Column, Model, DataType, BelongsTo, ForeignKey, CreatedAt } from "sequelize-typescript";
+import { Table, Column, Model, DataType, BelongsTo, ForeignKey, CreatedAt, HasMany } from "sequelize-typescript";
 import { Users } from "./userModel";
+import { Payment } from "./paymentModel";
 
 @Table({
     timestamps: true,
@@ -7,7 +8,6 @@ import { Users } from "./userModel";
 })
 
 export class Invoice extends Model {
-    [x: string]: any;
     @Column({
         type: DataType.INTEGER,
         primaryKey: true,
@@ -67,5 +67,8 @@ export class Invoice extends Model {
         allowNull: false
     })
     water_price!: number;
+
+    @HasMany(() => Payment)
+    payment!: Payment[];
 }
 

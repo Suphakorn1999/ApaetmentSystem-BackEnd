@@ -11,7 +11,7 @@ router.get('/getAllProfile', verifyToken, getUserAllDetail);
 router.get('/getProfileById/:id', verifyToken, getUserDetailbyid);
 router.put('/updateProfileById/:id', verifyToken, updateUserUserDetailByid);
 router.get('/getIdroomByiduser/:id', verifyToken, getIdroomByiduser);
-router.put('/updateidRoomByiduser/:id', verifyToken, updateidRoomByiduser);
+router.post('/updateidRoomByiduser/:id', verifyToken, updateidRoomByiduser);
 
 
 export default router;

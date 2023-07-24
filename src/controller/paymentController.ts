@@ -22,3 +22,15 @@ export const createPaymentType: RequestHandler = async (req, res) => {
         return res.status(500).json({ message: err.message });
     }
 }
+
+export const getallPaymentType: RequestHandler = async (req, res) => {
+    try {
+        const paymentType = await PaymentType.findAll();
+        if (paymentType.length == 0) {
+            return res.status(404).json({ message: 'ไม่มีประเภทการชำระเงิน' });
+        }
+        return res.status(200).json({ data: paymentType });
+    } catch (err: any) {
+        return res.status(500).json({ message: err.message });
+    }
+}
