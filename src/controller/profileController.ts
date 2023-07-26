@@ -282,12 +282,12 @@ export const uploadImage: RequestHandler = async (req, res) => {
 export const getUserAllDetail: RequestHandler = async (req, res) => {
     try {
         const data: object[] = [];
-        const userdetail = await UserDetail.findAll({ include: [{ model: Users, where: { idrole: { [Op.ne]: 1 } }, include: [{ model: UserRoom, attributes: ['idroom', 'date_in', 'date_out'], where: { status: 'active' } }] }] });
+        const userdetail = await UserDetail.findAll({ include: [{ model: Users, where: { idrole: { [Op.ne]: 1 } }, include: [{ model: UserRoom,required:false, attributes: ['idroom', 'date_in', 'date_out'], where: { status: 'active' } }] }] });
         if (userdetail) {
             userdetail.forEach((userdetail) => {
                 data.push({
                     iduser: userdetail.iduser,
-                    idroom: userdetail.users?.user_room[0].idroom,
+                    idroom: userdetail.users?.user_room[0]?.idroom,
                     fname: userdetail.fname,
                     lname: userdetail.lname,
                     createdAt: userdetail.createdAt,
@@ -303,8 +303,8 @@ export const getUserAllDetail: RequestHandler = async (req, res) => {
                     province: userdetail.province,
                     zip_code: userdetail.zip_code,
                     email: userdetail.email,
-                    date_in: userdetail.users?.user_room[0].date_in,
-                    date_out: userdetail.users?.user_room[0].date_out,
+                    date_in: userdetail.users?.user_room[0]?.date_in,
+                    date_out: userdetail.users?.user_room[0]?.date_out,
                 })
             })
             return res.status(200).json({ data: data });

@@ -92,7 +92,6 @@ export const getInvoiceByid: RequestHandler = async (req, res) => {
         } else {
             return res.status(404).json({ message: 'ไม่เจอข้อมูล' });
         }
-
     } catch (err: any) {
         res.status(500).json({ message: err.message });
     }
@@ -113,8 +112,6 @@ export const createInvoice: RequestHandler = async (req, res) => {
             electric_price: data.electric_price,
             water_price: data.water_price,
         }, { transaction: t });
-
-        console.log(invoice.idinvoice);
 
         await Payment.create({
             idinvoice: invoice.idinvoice,
