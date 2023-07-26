@@ -12,6 +12,7 @@ import fs from 'fs';
 import path from 'path';
 import { UserRoom } from '../models/user_roomModel';
 import { Room } from '../models/roomModel';
+import { Op } from 'sequelize';
 
 export const createUserDetail: RequestHandler = async (req, res) => {
     try {
@@ -117,7 +118,8 @@ export const uploadImage: RequestHandler = async (req, res) => {
                             cb(null, './public/uploads/profile')
                         },
                         filename: function (req, file, cb) {
-                            cb(null, iduser + '.' + file.originalname.split('.')[1])
+                            const mimetype = file.mimetype.split('/')[1];
+                            cb(null, iduser + '.' + mimetype)
                         }
                     })
 
@@ -131,11 +133,12 @@ export const uploadImage: RequestHandler = async (req, res) => {
                         }
 
                         const data: any = req.file
+                        const mimetype = req.file?.mimetype.split('/')[1];
                         const userdetail = await UserDetail.findOne({ where: { iduser: iduser } });
                         if (data) {
                             if (userdetail) {
                                 await UserDetail.update({
-                                    partNameAvatar: iduser + '.' + data.originalname.split('.')[1],
+                                    partNameAvatar: iduser + '.' + mimetype,
                                 }, { where: { iduser: iduser } });
 
                                 return res.status(200).json({ message: 'อัปเดตรูปสำเร็จ' });
@@ -153,7 +156,8 @@ export const uploadImage: RequestHandler = async (req, res) => {
                             cb(null, './public/uploads/profile')
                         },
                         filename: function (req, file, cb) {
-                            cb(null, iduser + '.' + file.originalname.split('.')[1])
+                            const mimetype = file.mimetype.split('/')[1];
+                            cb(null, iduser + '.' + mimetype)
                         }
                     })
 
@@ -167,11 +171,12 @@ export const uploadImage: RequestHandler = async (req, res) => {
                         }
 
                         const data: any = req.file
+                        const mimetype = req.file?.mimetype.split('/')[1];
                         const userdetail = await UserDetail.findOne({ where: { iduser: iduser } });
                         if (data) {
                             if (userdetail) {
                                 await UserDetail.update({
-                                    partNameAvatar: iduser + '.' + data.originalname.split('.')[1],
+                                    partNameAvatar: iduser + '.' + mimetype,
                                 }, { where: { iduser: iduser } });
 
                                 return res.status(200).json({ message: 'อัปเดตรูปสำเร็จ' });
@@ -197,7 +202,8 @@ export const uploadImage: RequestHandler = async (req, res) => {
                         cb(null, './public/uploads/profile/')
                     },
                     filename: function (req, file, cb) {
-                        cb(null, iduser + '.' + file.originalname.split('.')[1])
+                        const mimetype = file.mimetype.split('/')[1];
+                        cb(null, iduser + '.' + mimetype)
                     }
                 })
 
@@ -211,11 +217,12 @@ export const uploadImage: RequestHandler = async (req, res) => {
                     }
 
                     const data: any = req.file
+                    const mimetype = req.file?.mimetype.split('/')[1];
                     const userdetail = await UserDetail.findOne({ where: { iduser: iduser } });
                     if (data) {
                         if (userdetail) {
                             await UserDetail.update({
-                                partNameAvatar: iduser + '.' + data.originalname.split('.')[1],
+                                partNameAvatar: iduser + '.' + mimetype,
                             }, { where: { iduser: iduser } });
 
                             return res.status(200).json({ message: 'อัปเดตรูปสำเร็จ' });
@@ -233,7 +240,8 @@ export const uploadImage: RequestHandler = async (req, res) => {
                         cb(null, './public/uploads/profile/')
                     },
                     filename: function (req, file, cb) {
-                        cb(null, iduser + '.' + file.originalname.split('.')[1])
+                        const mimetype = file.mimetype.split('/')[1];
+                        cb(null, iduser + '.' + mimetype)
                     }
                 })
 
@@ -247,11 +255,12 @@ export const uploadImage: RequestHandler = async (req, res) => {
                     }
 
                     const data: any = req.file
+                    const mimetype = req.file?.mimetype.split('/')[1];
                     const userdetail = await UserDetail.findOne({ where: { iduser: iduser } });
                     if (data) {
                         if (userdetail) {
                             await UserDetail.update({
-                                partNameAvatar: iduser + '.' + data.originalname.split('.')[1],
+                                partNameAvatar: iduser + '.' + mimetype,
                             }, { where: { iduser: iduser } });
 
                             return res.status(200).json({ message: 'อัปเดตรูปสำเร็จ' });
@@ -273,7 +282,7 @@ export const uploadImage: RequestHandler = async (req, res) => {
 export const getUserAllDetail: RequestHandler = async (req, res) => {
     try {
         const data: object[] = [];
-        const userdetail = await UserDetail.findAll({ include: [{ model: Users, include: [{ model: UserRoom, attributes: ['idroom', 'date_in', 'date_out'], where: { status: 'active' } }] }] });
+        const userdetail = await UserDetail.findAll({ include: [{ model: Users, where: { idrole: { [Op.ne]: 1 } }, include: [{ model: UserRoom, attributes: ['idroom', 'date_in', 'date_out'], where: { status: 'active' } }] }] });
         if (userdetail) {
             userdetail.forEach((userdetail) => {
                 data.push({
@@ -412,7 +421,7 @@ export const updateidRoomByiduser: RequestHandler = async (req, res) => {
             } else {
                 const userRoom = await UserRoom.findOne({ where: { iduser: iduser } });
                 if (userRoom) {
-                    await UserRoom.update({ idroom: idroom }, { where: { iduser: iduser, date_in: req.body.date_in } , transaction: t});
+                    await UserRoom.update({ idroom: idroom }, { where: { iduser: iduser, date_in: req.body.date_in }, transaction: t });
                     await Room.update({ room_status: 'full' }, { where: { idroom: idroom }, transaction: t });
                     await t?.commit();
                     return res.status(200).json({ message: 'อัปเดตห้องพักสำเร็จ' });
@@ -425,16 +434,16 @@ export const updateidRoomByiduser: RequestHandler = async (req, res) => {
             }
         } else {
             const room = await Room.findOne({ where: { idroom: idroom } });
-            if (room){
-                if(room.room_status == 'full'){
+            if (room) {
+                if (room.room_status == 'full') {
                     return res.status(400).json({ message: 'ห้องพักไม่ว่าง' });
-                }else{
+                } else {
                     await UserRoom.create({ iduser: iduser, idroom: idroom, date_in: req.body.date_in }, { transaction: t });
                     await Room.update({ room_status: 'full' }, { where: { idroom: idroom }, transaction: t });
                     await t?.commit();
                     return res.status(200).json({ message: 'อัปเดตห้องพักสำเร็จ' });
                 }
-            }else{
+            } else {
                 return res.status(400).json({ message: 'ไม่เจอห้องพัก' });
             }
 

@@ -15,8 +15,9 @@ export const getallInvoices: RequestHandler = async (req, res) => {
             include: [
                 { model: UserDetail, attributes: ['fname', 'lname'] },
                 { model: UserRoom, attributes: ['idroom'], where: { status: 'active' } },
-                { model: Invoice, required: true, order: [['createdAt', 'DESC']], include: [{ model: Payment, required: false, attributes: ['payment_status'] }] }
+                { model: Invoice, required: true, order: [['createdAt', 'DESC']], include: [{ model: Payment, required: false, attributes: ['payment_status','updatedAt'] }] }
             ],
+            where: { idrole: { [Op.ne]: 1 } }
         })
 
         if (users.length == 0) {
@@ -31,6 +32,7 @@ export const getallInvoices: RequestHandler = async (req, res) => {
                 lname: users[i].user_detail[0].lname,
                 date_invoice: users[i].invoice[0].createdAt,
                 payment_status: users[i].invoice[0].payment[0]?.payment_status,
+                updatedAt: users[i].invoice[0].payment[0]?.updatedAt,
                 total: (
                     users[i].invoice[0].room_price +
                     (users[i].invoice[0].watermeter_new - users[i].invoice[0].watermeter_old) * users[i].invoice[0].water_price +
