@@ -4,6 +4,7 @@ import { Users } from '../models/userModel';
 import { Role } from '../models/roleModel';
 const CryptoJS = require('crypto-js');
 import dotenv from 'dotenv';
+import { UserDetail } from '../models/userdetailModel';
 dotenv.config();
 
 export const getallUsers: RequestHandler = async (req, res) => {
@@ -16,6 +17,7 @@ export const getallUsers: RequestHandler = async (req, res) => {
 }
 
 export const register: RequestHandler = async (req, res) => {
+    const t = await Users.sequelize?.transaction();
     try {
         const { username, idrole } = req.body;
         const user = await Users.findOne({ where: { username: username } });
@@ -27,10 +29,17 @@ export const register: RequestHandler = async (req, res) => {
                 username: username,
                 password: passwordencrypt,
                 idrole: idrole,
-            });
+            }, { transaction: t });
+
+            await UserDetail.create({
+                iduser: user.iduser,
+            }, { transaction: t });
+
+            await t?.commit();
             return res.status(200).json({ message: 'ลงทะเบียนสำเร็จ' });
         }
     } catch (err:any) {
+        await t?.rollback();
         return res.status(500).json({ message: err.message });
     }
 }
@@ -65,5 +74,3 @@ export const getRoles: RequestHandler = async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 }
-
-    

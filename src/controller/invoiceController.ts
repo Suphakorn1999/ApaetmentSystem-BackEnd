@@ -15,8 +15,8 @@ export const getallInvoices: RequestHandler = async (req, res) => {
             include: [
                 { model: UserDetail, attributes: ['fname', 'lname'] },
                 { model: UserRoom, attributes: ['idroom'], where: { status: 'active' } },
-                { model: Invoice, required: true, include: [{ model: Payment}] }
-            ]
+                { model: Invoice, required: true, order: [['createdAt', 'DESC']], include: [{ model: Payment, required: false, attributes: ['payment_status'] }] }
+            ],
         })
 
         if (users.length == 0) {
@@ -113,7 +113,7 @@ export const createInvoice: RequestHandler = async (req, res) => {
         }, { transaction: t });
 
         console.log(invoice.idinvoice);
-    
+
         await Payment.create({
             idinvoice: invoice.idinvoice,
         }, { transaction: t })
@@ -129,7 +129,7 @@ export const createInvoice: RequestHandler = async (req, res) => {
 export const getInvoiceByidInvoice: RequestHandler = async (req, res) => {
     try {
         const data = []
-        const invoice = await Invoice.findOne({ where: { idinvoice: req.params.id }, include: [{ model: Users, include: [{ model: UserDetail, attributes: ['fname', 'lname'] }, { model: UserRoom, attributes: ['idroom'], where: { status: 'active' } }], attributes: ['iduser'] }] });
+        const invoice = await Invoice.findOne({ where: { idinvoice: req.params.id }, include: [{ model: Payment }, { model: Users, include: [{ model: UserDetail, attributes: ['fname', 'lname'] }, { model: UserRoom, attributes: ['idroom'], where: { status: 'active' } }], attributes: ['iduser'] }] });
         if (invoice) {
             data.push({
                 idinvoice: invoice.idinvoice,
@@ -144,6 +144,8 @@ export const getInvoiceByidInvoice: RequestHandler = async (req, res) => {
                 water_price: invoice.water_price,
                 electric_price: invoice.electric_price,
                 date_invoice: invoice.createdAt,
+                fname_payee: invoice.payment[0]?.fname_payee,
+                lname_payee: invoice.payment[0]?.lname_payee,
             })
             return res.status(200).json({ data: data[0] });
         } else {

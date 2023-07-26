@@ -128,6 +128,7 @@ export const getRoomByid: RequestHandler = async (req, res) => {
 }
 
 export const updateRoom: RequestHandler = async (req, res) => {
+    const t = await Room.sequelize?.transaction();
     try{
         const data:Room = req.body;
         const room = await Room.findOne({ where: { idroom: req.params.id } });
@@ -136,7 +137,7 @@ export const updateRoom: RequestHandler = async (req, res) => {
             if(userdetail){
                 await UserDetail.update({
                     idroom: null,
-                }, { where: { idroom: data.idroom } });
+                }, { where: { idroom: data.idroom }, transaction: t });
             }
         }
         if (room) {
@@ -145,11 +146,13 @@ export const updateRoom: RequestHandler = async (req, res) => {
                 room_number: data.room_number,
                 room_status: data.room_status,
                 status_room: data.status_room
-            }, { where: { idroom: req.params.id } });
+            }, { where: { idroom: req.params.id }, transaction: t });
+            await t?.commit();
             return res.status(200).json({ message: 'อัปเดตข้อมูลห้องสำเร็จ' });
         }
     }
     catch (err: any) {
+        await t?.rollback();
         res.status(500).json({ message: err.message });
     }
 }

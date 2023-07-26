@@ -49,6 +49,18 @@ export class Payment extends Model {
         type: DataType.STRING,
         allowNull: true
     })
+    fname_payee!: string;
+
+    @Column({
+        type: DataType.STRING,
+        allowNull: true
+    })
+    lname_payee!: string;
+
+    @Column({
+        type: DataType.TEXT,
+        allowNull: true
+    })
     note!: string;
 
     @CreatedAt

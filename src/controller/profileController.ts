@@ -379,6 +379,7 @@ export const getIdroomByiduser: RequestHandler = async (req, res) => {
 }
 
 export const updateidRoomByiduser: RequestHandler = async (req, res) => {
+    const t = await UserRoom.sequelize?.transaction();
     try {
         const iduser = req.params.id;
         const idroom = req.body.idroom;
@@ -388,8 +389,9 @@ export const updateidRoomByiduser: RequestHandler = async (req, res) => {
             if (userRoom) {
                 if (userRoom.room.room_status == 'full') {
                     if (userRoom.idroom == idroom) {
-                        await UserRoom.update({ date_out: date_out, status: 'inactive' }, { where: { iduser: iduser, date_in: req.body.date_in } });
-                        await Room.update({ room_status: 'empty' }, { where: { idroom: idroom } });
+                        await UserRoom.update({ date_out: date_out, status: 'inactive' }, { where: { iduser: iduser, date_in: req.body.date_in }, transaction: t });
+                        await Room.update({ room_status: 'empty' }, { where: { idroom: idroom }, transaction: t });
+                        await t?.commit();
                         return res.status(200).json({ message: 'อัปเดตห้องพักสำเร็จ' });
                     } else {
                         return res.status(400).json({ message: 'ห้องพักนี้มีผู้เช่าคนอื่นอยู่' });
@@ -410,12 +412,14 @@ export const updateidRoomByiduser: RequestHandler = async (req, res) => {
             } else {
                 const userRoom = await UserRoom.findOne({ where: { iduser: iduser } });
                 if (userRoom) {
-                    await UserRoom.update({ idroom: idroom }, { where: { iduser: iduser, date_in: req.body.date_in } });
-                    await Room.update({ room_status: 'full' }, { where: { idroom: idroom } });
+                    await UserRoom.update({ idroom: idroom }, { where: { iduser: iduser, date_in: req.body.date_in } , transaction: t});
+                    await Room.update({ room_status: 'full' }, { where: { idroom: idroom }, transaction: t });
+                    await t?.commit();
                     return res.status(200).json({ message: 'อัปเดตห้องพักสำเร็จ' });
                 } else {
-                    await UserRoom.create({ iduser: iduser, idroom: idroom, date_in: req.body.date_in });
-                    await Room.update({ room_status: 'full' }, { where: { idroom: idroom } });
+                    await UserRoom.create({ iduser: iduser, idroom: idroom, date_in: req.body.date_in }, { transaction: t });
+                    await Room.update({ room_status: 'full' }, { where: { idroom: idroom }, transaction: t });
+                    await t?.commit();
                     return res.status(200).json({ message: 'อัปเดตห้องพักสำเร็จ' });
                 }
             }
@@ -425,8 +429,9 @@ export const updateidRoomByiduser: RequestHandler = async (req, res) => {
                 if(room.room_status == 'full'){
                     return res.status(400).json({ message: 'ห้องพักไม่ว่าง' });
                 }else{
-                    await UserRoom.create({ iduser: iduser, idroom: idroom, date_in: req.body.date_in });
-                    await Room.update({ room_status: 'full' }, { where: { idroom: idroom } });
+                    await UserRoom.create({ iduser: iduser, idroom: idroom, date_in: req.body.date_in }, { transaction: t });
+                    await Room.update({ room_status: 'full' }, { where: { idroom: idroom }, transaction: t });
+                    await t?.commit();
                     return res.status(200).json({ message: 'อัปเดตห้องพักสำเร็จ' });
                 }
             }else{
@@ -435,6 +440,7 @@ export const updateidRoomByiduser: RequestHandler = async (req, res) => {
 
         }
     } catch (err: any) {
+        await t?.rollback();
         res.status(500).json({ message: err.message });
     }
 }
