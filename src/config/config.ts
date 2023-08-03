@@ -13,6 +13,7 @@ import { Provinces } from '../models/provincesModel';
 import { SubDistricts } from '../models/sub_districtsModel';
 import { PaymentType } from '../models/paymentTypeModel';
 import { UserRoom } from '../models/user_roomModel';
+import { ReportType } from '../models/reporttypeModel';
 
 
 const connection = new Sequelize({
@@ -37,6 +38,7 @@ const connection = new Sequelize({
     SubDistricts,
     PaymentType,
     UserRoom,
+    ReportType,
   ],
   sync: { force: false, alter: true },
 });

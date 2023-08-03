@@ -1,6 +1,6 @@
 import { Table, Column, Model, DataType, BelongsTo, ForeignKey, CreatedAt } from "sequelize-typescript";
+import { ReportType } from "./reporttypeModel";
 import { Users } from "./userModel";
-
 
 @Table({
     timestamps: true,
@@ -16,27 +16,36 @@ export class Report extends Model {
     })
     idreport!: number;
 
+    @ForeignKey(() => Users)
     @Column({
-        type: DataType.STRING,
+        type: DataType.INTEGER,
         allowNull: false
     })
-    report_type!: string;
+    iduser!: number;
+
+    @BelongsTo(() => Users)
+    user!: Users;
+
+    @ForeignKey(() => ReportType)
+    @Column({
+        type: DataType.INTEGER,
+        allowNull: false
+    })
+    idreport_type!: number;
+
+    @BelongsTo(() => ReportType)
+    report_type!: ReportType;
 
     @Column({
         type: DataType.STRING,
-        allowNull: false
-    })
-    image_report!: string;
-
-    @Column({
-        type: DataType.STRING,
-        allowNull: false
+        allowNull: true,
     })
     report_description!: string;
 
     @Column({
         type: DataType.STRING,
-        allowNull: false
+        allowNull: false,
+        defaultValue: "pending"
     })
     report_status!: string;
 

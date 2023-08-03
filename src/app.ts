@@ -21,8 +21,9 @@ import profileRouter from './routes/profileRouter';
 import RoomRouter from './routes/roomRouter';
 import invoiceRouter from './routes/invoiceRouter';
 import paymentRouter from './routes/paymentRouter';
+import report from './routes/reportRouter';
 
-app.use('/api/auth', [userRouter, loginRouter, provinceRouter, profileRouter, RoomRouter, invoiceRouter, paymentRouter]);
+app.use('/api/auth', [userRouter, loginRouter, provinceRouter, profileRouter, RoomRouter, invoiceRouter, paymentRouter, report]);
 
 app.use(
     (err: Error, req: Request, res: Response, next: express.NextFunction) => {

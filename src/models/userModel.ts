@@ -3,6 +3,7 @@ import { UserDetail } from "./userdetailModel";
 import { UserRoom } from "./user_roomModel";
 import { Role } from "./roleModel";
 import { Invoice } from "./invoiceModel";
+import { Report } from "./reportModel";
 
 @Table({
     timestamps: false,
@@ -55,4 +56,7 @@ export class Users extends Model {
 
     @HasMany(() => Invoice)
     invoice!: Invoice[];
+
+    @HasMany(() => Report)
+    report!: Report[];
 }

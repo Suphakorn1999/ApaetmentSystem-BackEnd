@@ -144,7 +144,7 @@ export const updatePaymentByidinvoiceAndUploadfile: RequestHandler = async (req,
                 payment: data.payment,
                 note: data.note,
                 image_payment: dateStr + '-' + iduser + "." + mimetype
-            }, { where: { idinvoice: req.params.id } });
+            }, { where: { idinvoice: req.params.id }, transaction: t  });
             if (payment) {
                 await t?.commit();
                 return res.status(200).json({ message: 'ชำระเงินสำเร็จ' });
