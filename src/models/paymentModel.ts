@@ -1,5 +1,6 @@
 import { Table, Column, Model, DataType, BelongsTo, ForeignKey, CreatedAt, HasMany } from "sequelize-typescript";
 import { Invoice } from "./invoiceModel";
+import { Sequelize } from "sequelize";
 
 
 @Table({
@@ -69,4 +70,29 @@ export class Payment extends Model {
         allowNull: true
     })
     createdAt!: Date;
+
+    static async calculateMonthlyIncome(year: number): Promise<number[]> {
+        const monthlyIncomes: number[] = Array(12).fill(0);
+
+        const payments = await Payment.findAll({
+            where: {
+                payment_status: 'paid'
+            },
+            include: [
+                {
+                    model: Invoice,
+                    where: Sequelize.where(Sequelize.fn('YEAR', Sequelize.col('Invoice.createdAt')), year)
+                }
+            ]
+        });
+
+        payments.forEach(payment => {
+            const paymentMonth = payment.createdAt.getMonth();
+            monthlyIncomes[paymentMonth] += payment.invoice?.room_price + 
+                ((payment.invoice?.watermeter_new - payment.invoice?.watermeter_old) * payment.invoice?.water_price) +
+                ((payment.invoice?.electricmeter_new - payment.invoice?.electricmeter_old) * payment.invoice?.electric_price);
+        });
+
+        return monthlyIncomes;
+    }
 }

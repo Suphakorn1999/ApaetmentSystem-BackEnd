@@ -147,3 +147,56 @@ export const updateReportByid: RequestHandler = async (req, res) => {
     }
 }
 
+export const getReportByiduser: RequestHandler = async (req, res) => {
+    try {
+        const data: object[] = [];
+        const report = await Report.findAll({ include: [{ model: Users, include: [{ model: UserRoom, where: { status: 'active' }, include: [{ model: Room }] }] }, { model: ReportType, attributes: ['report_type'] }], where: { [Op.and]: [{ iduser: req.body.user.id }, { report_status: { [Op.notLike]: 'done' } }] }, limit: 2, order: [['createdAt', 'DESC']] })
+        if (report.length == 0) {
+            return res.status(200).json({ data: [] });
+        }
+
+        for (let i = 0; i < report.length; i++) {
+            if (report[i].user.user_room.length != 0) {
+                data.push({
+                    report_type: report[i].report_type.report_type,
+                    report_status: report[i].report_status,
+                });
+            }
+        }
+
+        return res.status(200).json({ data: data });
+
+    } catch (err: any) {
+        return res.status(500).json({ message: err.message });
+    }
+}
+
+export const getallReportByiduser: RequestHandler = async (req, res) => {
+    try {
+        const data: object[] = [];
+        const report = await Report.findAll({ include: [{ model: Users, include: [{ model: UserRoom, where: { status: 'active' }, include: [{ model: Room }] }] }, { model: ReportType, attributes: ['report_type'] }], where: { iduser: req.body.user.id } })
+        if (report.length == 0) {
+            return res.status(200).json({ data: [] });
+        }
+
+        for (let i = 0; i < report.length; i++) {
+            if (report[i].user.user_room.length != 0) {
+                data.push({
+                    idreport: report[i].idreport,
+                    room_number: report[i].user.user_room[0].room.room_number,
+                    report_type: report[i].report_type.report_type,
+                    report_description: report[i].report_description,
+                    report_status: report[i].report_status,
+                    createdAt: report[i].createdAt,
+                    updatedAt: report[i].updatedAt
+                });
+            }
+        }
+
+        return res.status(200).json({ data: data });
+
+    } catch (err: any) {
+        return res.status(500).json({ message: err.message });
+    }
+}
+

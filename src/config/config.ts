@@ -14,6 +14,9 @@ import { SubDistricts } from '../models/sub_districtsModel';
 import { PaymentType } from '../models/paymentTypeModel';
 import { UserRoom } from '../models/user_roomModel';
 import { ReportType } from '../models/reporttypeModel';
+import { Threads } from '../models/threadsModel';
+import { Posts } from '../models/postsModel';
+import { Comment } from '../models/commentModel';
 
 
 const connection = new Sequelize({
@@ -39,6 +42,9 @@ const connection = new Sequelize({
     PaymentType,
     UserRoom,
     ReportType,
+    Threads,
+    Posts,
+    Comment,
   ],
   sync: { force: false, alter: true },
 });

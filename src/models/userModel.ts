@@ -4,6 +4,8 @@ import { UserRoom } from "./user_roomModel";
 import { Role } from "./roleModel";
 import { Invoice } from "./invoiceModel";
 import { Report } from "./reportModel";
+import { Threads } from "./threadsModel";
+import { Comment } from "./commentModel";
 
 @Table({
     timestamps: false,
@@ -59,4 +61,10 @@ export class Users extends Model {
 
     @HasMany(() => Report)
     report!: Report[];
+
+    @HasMany(() => Threads)
+    threads!: Threads[];
+
+    @HasMany(() => Comment)
+    comment!: Comment[];
 }

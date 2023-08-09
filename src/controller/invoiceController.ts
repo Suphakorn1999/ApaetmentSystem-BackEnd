@@ -15,7 +15,7 @@ export const getallInvoices: RequestHandler = async (req, res) => {
             include: [
                 { model: UserDetail, attributes: ['fname', 'lname'] },
                 { model: UserRoom, attributes: ['idroom'], where: { status: 'active' } },
-                { model: Invoice, required: true, order: [['createdAt', 'DESC']], include: [{ model: Payment, required: false, attributes: ['payment_status','updatedAt'] }] }
+                { model: Invoice, required: true, order: [['createdAt', 'DESC']], include: [{ model: Payment, required: false, attributes: ['payment_status', 'updatedAt'] }] }
             ],
             where: { idrole: { [Op.ne]: 1 } }
         })
@@ -147,6 +147,62 @@ export const getInvoiceByidInvoice: RequestHandler = async (req, res) => {
                 lname_payee: invoice.payment[0]?.lname_payee,
             })
             return res.status(200).json({ data: data[0] });
+        } else {
+            return res.status(404).json({ message: 'ไม่เจอข้อมูล' });
+        }
+    } catch (err: any) {
+        res.status(500).json({ message: err.message });
+    }
+}
+
+export const getInvoiceMonthlyByToken: RequestHandler = async (req, res) => {
+    try {
+        const data = []
+        const users = await Users.findOne({ where: { iduser: req.body.user.id }, attributes: ['iduser'] });
+        if (users) {
+            const invoice = await Invoice.findAll({ include: [{ model: Payment, where: { [Op.or]: [{ payment_status: 'pending' }, { payment_status: "unpaid" }] } }], where: { iduser: users.iduser } });
+            if (invoice.length == 0) {
+                return res.status(200).json({ data: [] });
+            }
+            for (let i = 0; i < invoice.length; i++) {
+                data.push({
+                    total: (
+                        invoice[i].room_price +
+                        (invoice[i].watermeter_new - invoice[i].watermeter_old) * invoice[i].water_price +
+                        (invoice[i].electricmeter_new - invoice[i].electricmeter_old) * invoice[i].electric_price
+                    ),
+                })
+            }
+            return res.status(200).json({ data: data[0] });
+        } else {
+            return res.status(404).json({ message: 'ไม่เจอข้อมูล' });
+        }
+    } catch (err: any) {
+        res.status(500).json({ message: err.message });
+    }
+}
+
+export const getAllInvoiceByToken: RequestHandler = async (req, res) => {
+    try {
+        const data = []
+        const users = await Users.findOne({ where: { iduser: req.body.user.id }, attributes: ['iduser'] });
+        if (users) {
+            const invoice = await Invoice.findAll({ include: [{ model: Payment, where: { payment_status: 'paid' } }], where: { iduser: users.iduser },limit: 5,order: [['createdAt', 'DESC']] });
+            if (invoice.length == 0) {
+                return res.status(200).json({ data: [] });
+            }
+            for (let i = 0; i < invoice.length; i++) {
+                data.push({
+                    payment_status: invoice[i].payment[0]?.payment_status,
+                    total: (
+                        invoice[i].room_price +
+                        (invoice[i].watermeter_new - invoice[i].watermeter_old) * invoice[i].water_price +
+                        (invoice[i].electricmeter_new - invoice[i].electricmeter_old) * invoice[i].electric_price
+                    ),
+                    updatedAt: invoice[i].payment[0]?.updatedAt,
+                })
+            }
+            return res.status(200).json({ data: data });
         } else {
             return res.status(404).json({ message: 'ไม่เจอข้อมูล' });
         }

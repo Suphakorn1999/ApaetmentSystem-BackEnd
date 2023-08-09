@@ -23,8 +23,9 @@ import invoiceRouter from './routes/invoiceRouter';
 import paymentRouter from './routes/paymentRouter';
 import report from './routes/reportRouter';
 import data from './routes/dataRouter';
+import webboardRouter from './routes/webboardRouter';
 
-app.use('/api/auth', [userRouter, loginRouter, provinceRouter, profileRouter, RoomRouter, invoiceRouter, paymentRouter, report, data]);
+app.use('/api/auth', [userRouter, loginRouter, provinceRouter, profileRouter, RoomRouter, invoiceRouter, paymentRouter, report, data, webboardRouter]);
 
 app.use(
     (err: Error, req: Request, res: Response, next: express.NextFunction) => {
