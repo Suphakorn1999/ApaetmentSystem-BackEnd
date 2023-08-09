@@ -136,8 +136,9 @@ export const getComment: RequestHandler = async (req, res, next) => {
 
 export const createThread: RequestHandler = async (req, res, next) => {
     try {
-        const { title, iduser } = req.body;
-        const thread = await Threads.create({ title, iduser });
+        const { title } = req.body;
+        const iduser = req.body.user.id;
+        const thread = await Threads.create({ title: title, iduser: iduser });
 
         return res.status(200).json({ data: thread });
     } catch (err: any) {
