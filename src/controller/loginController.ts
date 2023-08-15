@@ -13,7 +13,7 @@ export const login: RequestHandler = async (req, res) => {
         let passworddecrypt = CryptoJS.AES.decrypt(user.password, process.env.SECRET_KEY).toString(CryptoJS.enc.Utf8);
         if (passworddecrypt === password) {
             const token = generateToken({ id: user.iduser, username: user.username });
-            return res.status(200).json({ message: 'เข้าสู่ระบบสำเร็จ', token: token , idrole: user.idrole });
+            return res.status(200).json({ message: 'เข้าสู่ระบบสำเร็จ', token: token , idrole: user.idrole, iduser: user.iduser });
         }else{
             return res.status(401).json({ message: 'รหัสผ่านผิด' });
         }

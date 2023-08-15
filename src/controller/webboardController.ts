@@ -8,6 +8,7 @@ import { Op } from 'sequelize';
 
 export const getThreads: RequestHandler = async (req, res, next) => {
     try {
+        const data: object[] = [];
         const threads = await Threads.findAll({
             include: [
                 {
@@ -16,7 +17,7 @@ export const getThreads: RequestHandler = async (req, res, next) => {
                     include: [
                         {
                             model: UserDetail,
-                            attributes: ["fname", "lname"]
+                            attributes: ["fname", "lname", "partNameAvatar"]
                         }
                     ]
                 },
@@ -41,7 +42,20 @@ export const getThreads: RequestHandler = async (req, res, next) => {
             ]
         });
 
-        return res.status(200).json({ data: threads });
+        threads.forEach((thread: any) => {
+            data.push({
+                idthreads: thread.idthreads,
+                title: thread.title,
+                created_at: thread.created_at,
+                updatedAt: thread.updatedAt,
+                fname: thread.user.user_detail[0].fname,
+                lname: thread.user.user_detail[0].lname,
+                partNameAvatar: thread.user.user_detail[0].partNameAvatar,
+                iduser: thread.user.iduser,
+            })
+        });
+
+        return res.status(200).json({ data: data });
     } catch (err: any) {
         return res.status(500).json({ message: err.message });
     }
@@ -58,7 +72,7 @@ export const getThread: RequestHandler = async (req, res, next) => {
                     include: [
                         {
                             model: UserDetail,
-                            attributes: ["fname", "lname"]
+                            attributes: ["fname", "lname", "partNameAvatar"]
                         }
                     ]
                 },
@@ -89,46 +103,67 @@ export const getThread: RequestHandler = async (req, res, next) => {
     }
 }
 
-export const getPost: RequestHandler = async (req, res, next) => {
+export const getPostAndCommentByidthreads: RequestHandler = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const post = await Posts.findByPk(id, {
+        const data: object[] = [];
+        const post = await Posts.findAll({
+            where: { idthreads: id },
             include: [
                 {
                     model: Users,
-                    attributes: ["iduser"]
+                    attributes: ["iduser"],
+                    include: [
+                        {
+                            model: UserDetail,
+                            attributes: ["fname", "lname", "partNameAvatar"]
+                        }
+                    ]
                 },
                 {
                     model: Comment,
                     include: [
                         {
                             model: Users,
-                            attributes: ["iduser"]
+                            attributes: ["iduser"],
+                            include: [
+                                {
+                                    model: UserDetail,
+                                    attributes: ["fname", "lname", "partNameAvatar"]
+                                }
+                            ]
                         }
                     ]
                 }
             ]
         });
 
-        return res.status(200).json({ data: post });
-    } catch (err: any) {
-        return res.status(500).json({ message: err.message });
-    }
-}
-
-export const getComment: RequestHandler = async (req, res, next) => {
-    try {
-        const { id } = req.params;
-        const comment = await Comment.findByPk(id, {
-            include: [
-                {
-                    model: Users,
-                    attributes: ["iduser"]
-                }
-            ]
+        post.forEach((post: any, index: number) => {
+            data.push({
+                idposts: post.idposts,
+                content: post.content,
+                created_at: post.created_at,
+                updatedAt: post.updatedAt,
+                fname: post.user.user_detail[index].fname,
+                lname: post.user.user_detail[index].lname,
+                partNameAvatar: post.user.user_detail[index].partNameAvatar,
+                iduser: post.user.iduser,
+                comments: post.comment && post.comment.map((comment: any, index: number) => {
+                    return {
+                        idcomment: comment.idcomment,
+                        content: comment.content,
+                        created_at: comment.created_at,
+                        updatedAt: comment.updatedAt,
+                        fname: comment.user.user_detail[0]?.fname,
+                        lname: comment.user.user_detail[0]?.lname,
+                        partNameAvatar: comment.user.user_detail[0]?.partNameAvatar,
+                        iduser: comment.user.iduser
+                    }
+                })
+            })
         });
 
-        return res.status(200).json({ data: comment });
+        return res.status(200).json({ data: data });
     } catch (err: any) {
         return res.status(500).json({ message: err.message });
     }
@@ -148,8 +183,9 @@ export const createThread: RequestHandler = async (req, res, next) => {
 
 export const createPost: RequestHandler = async (req, res, next) => {
     try {
-        const { content, iduser, idthreads } = req.body;
-        const post = await Posts.create({ content, iduser, idthreads });
+        const { content, idthreads } = req.body;
+        const iduser = req.body.user.id;
+        const post = await Posts.create({ content: content, iduser: iduser, idthreads: idthreads });
 
         return res.status(200).json({ data: post });
     } catch (err: any) {
@@ -159,8 +195,9 @@ export const createPost: RequestHandler = async (req, res, next) => {
 
 export const createComment: RequestHandler = async (req, res, next) => {
     try {
-        const { content, iduser, idposts } = req.body;
-        const comment = await Comment.create({ content, iduser, idposts });
+        const { content, idposts } = req.body;
+        const iduser = req.body.user.id;
+        const comment = await Comment.create({ content: content, iduser: iduser, idposts: idposts });
 
         return res.status(200).json({ data: comment });
     } catch (err: any) {
@@ -210,6 +247,67 @@ export const getCommentByidposts: RequestHandler = async (req, res, next) => {
         const comment = await Comment.findAll({ where: { idposts: id } });
 
         return res.status(200).json({ data: comment });
+    } catch (err: any) {
+        return res.status(500).json({ message: err.message });
+    }
+}
+
+export const getSearchedThread: RequestHandler = async (req, res, next) => {
+    try {
+        const { title } = req.params;
+        const data: object[] = [];
+        const threads = await Threads.findAll({
+            include: [
+                {
+                    model: Users,
+                    attributes: ["iduser"],
+                    include: [
+                        {
+                            model: UserDetail,
+                            attributes: ["fname", "lname", "partNameAvatar"]
+                        }
+                    ]
+                },
+                {
+                    model: Posts,
+                    include: [
+                        {
+                            model: Users,
+                            attributes: ["iduser"]
+                        },
+                        {
+                            model: Comment,
+                            include: [
+                                {
+                                    model: Users,
+                                    attributes: ["iduser"]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ],
+            where: {
+                title: {
+                    [Op.like]: `%${title}%`
+                }
+            }
+        });
+
+        threads.forEach((thread: any) => {
+            data.push({
+                idthreads: thread.idthreads,
+                title: thread.title,
+                created_at: thread.created_at,
+                updatedAt: thread.updatedAt,
+                fname: thread.user.user_detail[0].fname,
+                lname: thread.user.user_detail[0].lname,
+                partNameAvatar: thread.user.user_detail[0].partNameAvatar,
+                iduser: thread.user.iduser,
+            })
+        });
+
+        return res.status(200).json({ data: data });
     } catch (err: any) {
         return res.status(500).json({ message: err.message });
     }

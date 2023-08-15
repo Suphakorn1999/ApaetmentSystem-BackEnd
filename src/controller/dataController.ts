@@ -44,3 +44,15 @@ export const getmonthlyincome = async (req: any, res: any) => {
         return res.status(500).json({ message: err.message });
     }
 }
+
+export const getCountBadge = async (req: any, res: any) => {
+    try {
+        const countReport = await Report.count({ where: { [Op.or]: [{ report_status: "pending" }, { report_status: "inprogress" }] } });
+        const countInvoice = await Invoice.count({ include: [{ model: Payment, where: { payment_status: "pending" } }] });
+        
+        return res.status(200).json({ countReport: countReport, countInvoice: countInvoice });
+
+    } catch (err: any) {
+        return res.status(500).json({ message: err.message });
+    }
+}
