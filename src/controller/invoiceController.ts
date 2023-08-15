@@ -187,7 +187,7 @@ export const getAllInvoiceByToken: RequestHandler = async (req, res) => {
         const data = []
         const users = await Users.findOne({ where: { iduser: req.body.user.id }, attributes: ['iduser'] });
         if (users) {
-            const invoice = await Invoice.findAll({ include: [{ model: Payment, where: { payment_status: 'paid' } }], where: { iduser: users.iduser },limit: 5,order: [['createdAt', 'DESC']] });
+            const invoice = await Invoice.findAll({ include: [{ model: Payment, where: { payment_status: 'paid' } }], where: { iduser: users.iduser }, limit: 5, order: [['createdAt', 'DESC']] });
             if (invoice.length == 0) {
                 return res.status(200).json({ data: [] });
             }
@@ -206,6 +206,58 @@ export const getAllInvoiceByToken: RequestHandler = async (req, res) => {
         } else {
             return res.status(404).json({ message: 'ไม่เจอข้อมูล' });
         }
+    } catch (err: any) {
+        res.status(500).json({ message: err.message });
+    }
+}
+
+export const getAllInvoiceMonthly: RequestHandler = async (req, res) => {
+    try {
+        const data: object[] = []
+        const month:any = req.params.month;
+        const users = await Users.findAll({
+            include: [
+                { model: UserRoom, attributes: ['idroom'], where: { status: 'active' }, include: [{ model: Room, attributes: ['room_number'], include: [{ model: RoomType }], order: [['room_number', 'DESC']], required: true }] },
+                { model: UserDetail, attributes: ['fname', 'lname'] },
+                { model: Invoice, required: true, include: [{ model: Payment, required: false, attributes: ['payment_status', 'updatedAt', "fname_payee", "lname_payee"] }], where: { [Op.and]: [{ createdAt: { [Op.gte]: new Date(new Date().getFullYear(), month - 1, 1) } }, { createdAt: { [Op.lte]: new Date(new Date().getFullYear(), month, 0) } }] } }
+            ],
+            where: { idrole: { [Op.ne]: 1 } }
+        })
+
+        if (users.length == 0) {
+            return res.status(200).json({ data: [] });
+        }
+
+        users.forEach((user) => {
+            data.push({
+                room_number: user.user_room[0].room.room_number,
+                username: user.username,
+                fname: user.user_detail[0].fname,
+                lname: user.user_detail[0].lname,
+                room_price: parseInt(user.user_room[0].room.roomtype.room_price),
+                watermeter_old: user.invoice[0]?.watermeter_old,
+                watermeter_new: user.invoice[0]?.watermeter_new,
+                electricmeter_old: user.invoice[0]?.electricmeter_old,
+                electricmeter_new: user.invoice[0]?.electricmeter_new,
+                water_price: user.invoice[0]?.water_price,
+                electric_price: user.invoice[0]?.electric_price,
+                total: (
+                    parseInt(user.user_room[0].room.roomtype.room_price) +
+                    (user.invoice[0]?.watermeter_new - user.invoice[0]?.watermeter_old) * user.invoice[0]?.water_price +
+                    (user.invoice[0]?.electricmeter_new - user.invoice[0]?.electricmeter_old) * user.invoice[0]?.electric_price
+                ),
+                fname_payee: user.invoice[0]?.payment[0]?.fname_payee,
+                lname_payee: user.invoice[0]?.payment[0]?.lname_payee,
+            })
+        })
+
+        data.sort((a: any, b: any) => {
+            return parseInt(a.room_number) - parseInt(b.room_number);
+        })
+
+
+        return res.status(200).json({ data: data });
+
     } catch (err: any) {
         res.status(500).json({ message: err.message });
     }
