@@ -1,6 +1,7 @@
-import { Table, Column, Model, DataType, BelongsTo, ForeignKey, CreatedAt, UpdatedAt } from "sequelize-typescript";
+import { Table, Column, Model, DataType, BelongsTo, ForeignKey, CreatedAt, UpdatedAt, HasMany } from "sequelize-typescript";
 import { Room } from "./roomModel";
 import { Users } from "./userModel";
+import { Invoice } from "./invoiceModel";
 
 @Table({
     timestamps: true,
@@ -40,6 +41,24 @@ export class UserRoom extends Model {
         type: DataType.STRING,
         allowNull: true
     })
+    deposit!: string;
+
+    @Column({
+        type: DataType.INTEGER,
+        allowNull: true
+    })
+    watermeterstart!: number;
+
+    @Column({
+        type: DataType.INTEGER,
+        allowNull: true
+    })
+    electricmeterstart!: number;
+
+    @Column({
+        type: DataType.STRING,
+        allowNull: true
+    })
     date_in!: string;
 
     @Column({
@@ -54,4 +73,7 @@ export class UserRoom extends Model {
         defaultValue: "active"
     })
     status!: string;
+
+    @HasMany(() => Invoice)
+    invoice!: Invoice[];
 }

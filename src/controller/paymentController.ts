@@ -72,12 +72,11 @@ export const updatePaymentByidinvoice: RequestHandler = async (req, res) => {
 
 export const getPaymentByTokenUser: RequestHandler = async (req, res) => {
     try {
-        const data = []
+        const data: Object[] = []
         const users = await Users.findAll({
             include: [
                 { model: UserDetail, attributes: ['fname', 'lname'] },
-                { model: UserRoom, attributes: ['idroom'], where: { status: 'active' } },
-                { model: Invoice, required: true, order: [['createdAt', 'DESC']], include: [{ model: Payment, required: false, attributes: ['payment_status', 'updatedAt'] }] }
+                { model: UserRoom, attributes: ['idroom'], where: { status: 'active' }, include: [{ model: Invoice, required: true, order: [['createdAt', 'DESC']], include: [{ model: Payment, required: false, attributes: ['payment_status', 'updatedAt'] }] }] },
             ],
             where: { iduser: req.body.user.id }
         })
@@ -86,22 +85,22 @@ export const getPaymentByTokenUser: RequestHandler = async (req, res) => {
             return res.status(404).json({ message: 'ไม่มีข้อมูลใบแจ้งหนี้' });
         }
 
-        for (let i = 0; i < users.length; i++) {
+        users.forEach((user) => {
             data.push({
-                idinvoice: users[i].invoice[0].idinvoice,
-                idroom: users[i].user_room[0].idroom,
-                fname: users[i].user_detail[0].fname,
-                lname: users[i].user_detail[0].lname,
-                date_invoice: users[i].invoice[0].createdAt,
-                payment_status: users[i].invoice[0].payment[0]?.payment_status,
-                updatedAt: users[i].invoice[0].payment[0]?.updatedAt,
+                idinvoice: user.user_room[0]?.invoice[0]?.idinvoice,
+                idroom: user.user_room[0]?.idroom,
+                fname: user.user_detail[0]?.fname,
+                lname: user.user_detail[0]?.lname,
+                date_invoice: user.user_room[0]?.invoice[0]?.createdAt,
+                payment_status: user.user_room[0]?.invoice[0]?.payment[0]?.payment_status,
+                updatedAt: user.user_room[0]?.invoice[0]?.payment[0]?.updatedAt,
                 total: (
-                    users[i].invoice[0].room_price +
-                    (users[i].invoice[0].watermeter_new - users[i].invoice[0].watermeter_old) * users[i].invoice[0].water_price +
-                    (users[i].invoice[0].electricmeter_new - users[i].invoice[0].electricmeter_old) * users[i].invoice[0].electric_price
+                    user.user_room[0]?.invoice[0]?.room_price +
+                    (user.user_room[0]?.invoice[0]?.watermeter_new - user.user_room[0]?.invoice[0]?.watermeter_old) * user.user_room[0]?.invoice[0]?.water_price +
+                    (user.user_room[0]?.invoice[0]?.electricmeter_new - user.user_room[0]?.invoice[0]?.electricmeter_old) * user.user_room[0]?.invoice[0]?.electric_price
                 )
             })
-        }
+        })
 
         return res.status(200).json({ data: data });
 
@@ -144,7 +143,7 @@ export const updatePaymentByidinvoiceAndUploadfile: RequestHandler = async (req,
                 payment: data.payment,
                 note: data.note,
                 image_payment: dateStr + '-' + iduser + "." + mimetype
-            }, { where: { idinvoice: req.params.id }, transaction: t  });
+            }, { where: { idinvoice: req.params.id }, transaction: t });
             if (payment) {
                 await t?.commit();
                 return res.status(200).json({ message: 'ชำระเงินสำเร็จ' });

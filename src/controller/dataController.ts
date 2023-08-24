@@ -6,20 +6,73 @@ import { Op } from 'sequelize';
 import { Payment } from '../models/paymentModel';
 import { Invoice } from '../models/invoiceModel';
 import { Sequelize } from 'sequelize-typescript';
+import { RoomType } from '../models/roomtypeModel';
 
 export const getCountAll: RequestHandler = async (req, res) => {
     try {
-        const roomtype1emptycount = await Room.count({ where: { [Op.and]: [{ status_room: 'active' }, { room_status: 'empty' }, { idroom_type: 1 }] } });
-        const roomtype2emptycount = await Room.count({ where: { [Op.and]: [{ status_room: 'active' }, { room_status: 'empty' }, { idroom_type: 2 }] } });
-        const roomtype1fullcount = await Room.count({ where: { [Op.and]: [{ status_room: 'active' }, { room_status: 'full' }, { idroom_type: 1 }] } });
-        const roomtype2fullcount = await Room.count({ where: { [Op.and]: [{ status_room: 'active' }, { room_status: 'full' }, { idroom_type: 2 }] } });
-        const countReport = await Report.count({ where: { [Op.or]: [{ report_status: "pending" }, { report_status: "inprogress" }] } });
+        const countReport = await Report.count({
+            where: {
+                [Op.or]: [{ report_status: "pending" }, { report_status: "inprogress" }]
+            }
+        });
 
-        return res.status(200).json({ countRoomEmptyType1: roomtype1emptycount, countRoomEmptyType2: roomtype2emptycount, countRoomFullType1: roomtype1fullcount, countRoomFullType2: roomtype2fullcount, countReport: countReport });
+        const countRoomEmptyAll = await Room.count({
+            where: {
+                [Op.and]: [
+                    { status_room: 'active' },
+                    { room_status: 'empty' }
+                ]
+            }
+        });
+
+        const countRoomFullAll = await Room.count({
+            where: {
+                [Op.and]: [
+                    { status_room: 'active' },
+                    { room_status: 'full' }
+                ]
+            }
+        });
+
+        const roomTypes = await RoomType.findAll({
+            attributes: ['idroom_type', 'room_type_name']
+        });
+
+        const data: { room_type_name: string; room_type_empty: number; room_type_full: number; }[] = [];
+
+        for (const roomType of roomTypes) {
+            const roomTypeEmptyCount = await Room.count({
+                where: {
+                    [Op.and]: [
+                        { status_room: 'active' },
+                        { room_status: 'empty' },
+                        { idroom_type: roomType.idroom_type }
+                    ]
+                }
+            });
+
+            const roomTypeFullCount = await Room.count({
+                where: {
+                    [Op.and]: [
+                        { status_room: 'active' },
+                        { room_status: 'full' },
+                        { idroom_type: roomType.idroom_type }
+                    ]
+                }
+            });
+
+            data.push({
+                room_type_name: roomType.room_type_name,
+                room_type_empty: roomTypeEmptyCount,
+                room_type_full: roomTypeFullCount
+            });
+        }
+        
+        return res.status(200).json({ countReport, data, countRoomEmptyAll, countRoomFullAll });
     } catch (err: any) {
         return res.status(500).json({ message: err.message });
     }
-}
+};
 
 export const getmonthlyincome = async (req: any, res: any) => {
     try {
@@ -29,12 +82,13 @@ export const getmonthlyincome = async (req: any, res: any) => {
             "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม",
             "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
         ];
-        const monthlyIncome = await Payment.calculateMonthlyIncome(year);
-
-        const barChartData = monthlyIncome.map((income, index) => {
+        const monthlyIncome = await Payment.MonthlyIncomecount(year);
+        
+        const barChartData = monthlyIncome.map((income:any, index) => {
             return {
                 เดือน: monthNames[index],
-                รายได้: income
+                จ่ายแล้ว: income.paid,
+                ค้างจ่าย: income.pending
             }
         });
 

@@ -1,6 +1,6 @@
 import { Table, Column, Model, DataType, BelongsTo, ForeignKey, CreatedAt, HasMany } from "sequelize-typescript";
 import { Invoice } from "./invoiceModel";
-import { Sequelize } from "sequelize";
+import { Op, Sequelize } from "sequelize";
 
 
 @Table({
@@ -71,27 +71,54 @@ export class Payment extends Model {
     })
     createdAt!: Date;
 
-    static async calculateMonthlyIncome(year: number): Promise<number[]> {
-        const monthlyIncomes: number[] = Array(12).fill(0);
+    static async MonthlyIncomecount(year: number): Promise<number[]> {
+        const monthlyIncomes = Array(12).fill(0);
 
-        const payments = await Payment.findAll({
-            where: {
-                payment_status: 'paid'
-            },
-            include: [
-                {
-                    model: Invoice,
-                    where: Sequelize.where(Sequelize.fn('YEAR', Sequelize.col('Invoice.createdAt')), year)
-                }
-            ]
-        });
+        for (let month = 1; month <= 12; month++) {
+            const paidCount = await Payment.count({
+                where: {
+                    payment_status: 'paid'
+                },
+                include: [
+                    {
+                        model: Invoice,
+                        where: {
+                            createdAt: {
+                                [Op.and]: [
+                                    Sequelize.where(Sequelize.fn('YEAR', Sequelize.col('Invoice.createdAt')), year),
+                                    Sequelize.where(Sequelize.fn('MONTH', Sequelize.col('Invoice.createdAt')), month)
+                                ]
+                            }
+                        }
+                    }
+                ]
+            });
 
-        payments.forEach(payment => {
-            const paymentMonth = payment.createdAt.getMonth();
-            monthlyIncomes[paymentMonth] += payment.invoice?.room_price + 
-                ((payment.invoice?.watermeter_new - payment.invoice?.watermeter_old) * payment.invoice?.water_price) +
-                ((payment.invoice?.electricmeter_new - payment.invoice?.electricmeter_old) * payment.invoice?.electric_price);
-        });
+            const pendingCount = await Payment.count({
+                where: {
+                    payment_status: 'pending'
+                },
+                include: [
+                    {
+                        model: Invoice,
+                        where: {
+                            createdAt: {
+                                [Op.and]: [
+                                    Sequelize.where(Sequelize.fn('YEAR', Sequelize.col('Invoice.createdAt')), year),
+                                    Sequelize.where(Sequelize.fn('MONTH', Sequelize.col('Invoice.createdAt')), month)
+                                ]
+                            }
+                        }
+                    }
+                ]
+            });
+
+            monthlyIncomes[month - 1] = {
+                month,
+                paid: paidCount,
+                pending: pendingCount
+            };
+        }
 
         return monthlyIncomes;
     }

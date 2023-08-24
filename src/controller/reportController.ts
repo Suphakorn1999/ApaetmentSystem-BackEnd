@@ -2,9 +2,10 @@ import { RequestHandler } from 'express';
 import { Report } from '../models/reportModel';
 import { ReportType } from '../models/reporttypeModel';
 import { Users } from '../models/userModel';
-import { Op } from 'sequelize';
+import { Op, where } from 'sequelize';
 import { UserRoom } from '../models/user_roomModel';
 import { Room } from '../models/roomModel';
+import { UserDetail } from '../models/userdetailModel';
 
 export const createReport: RequestHandler = async (req, res) => {
     try {
@@ -80,24 +81,54 @@ export const getReportTypeByid: RequestHandler = async (req, res) => {
 export const getAllReport: RequestHandler = async (req, res) => {
     try {
         const data: object[] = [];
-        const report = await Report.findAll({ include: [{ model: Users, include: [{ model: UserRoom, where: { status: 'active' }, include: [{ model: Room }] }] }, { model: ReportType, attributes: ['report_type'] }] });
+        const report = await Report.findAll({
+            include: [{
+                model: Users,
+                attributes: ['iduser'],
+                include: [{
+                    model: UserRoom,
+                    where: { status: 'active' },
+                    include: [{
+                        model: Room
+                    }]
+                },
+                {
+                    model: UserDetail,
+                    attributes: ['fname', 'lname'],
+                    where: {
+                        status_user: {
+                            [Op.or]: ['active', 'inactive']
+                        }
+                    },
+                }
+                ]
+            }, {
+                model: ReportType,
+                attributes: ['report_type']
+            }],
+        });
+
         if (report.length == 0) {
             return res.status(404).json({ message: 'ไม่มีรายงาน' });
         }
 
-        for (let i = 0; i < report.length; i++) {
-            if (report[i].user.user_room.length != 0) {
-                data.push({
-                    idreport: report[i].idreport,
-                    room_number: report[i].user.user_room[0].room.room_number,
-                    report_type: report[i].report_type.report_type,
-                    report_description: report[i].report_description,
-                    report_status: report[i].report_status,
-                    createdAt: report[i].createdAt,
-                    updatedAt: report[i].updatedAt,
-                });
+        report.forEach((element: any) => {
+            if (element.user == null) {
+                return;
             }
-        }
+            data.push({
+                idreport: element.idreport,
+                iduser: element.user.iduser,
+                room_number: element.user.user_room[0]?.room.room_number,
+                fname: element.user.user_detail.fname,
+                lname: element.user.user_detail.lname,
+                report_type: element.report_type.report_type,
+                report_description: element.report_description,
+                report_status: element.report_status,
+                createdAt: element.createdAt,
+                updatedAt: element.updatedAt
+            });
+        });
 
         return res.status(200).json({ data: data });
 
@@ -114,7 +145,7 @@ export const getReportByid: RequestHandler = async (req, res) => {
             if (report.user.user_room.length != 0) {
                 data.push({
                     idreport: report.idreport,
-                    room_number: report.user.user_room[0].room.room_number,
+                    room_number: report.user.user_room[0]?.room.room_number,
                     report_type: report.report_type.report_type,
                     report_description: report.report_description,
                     report_status: report.report_status,
@@ -183,7 +214,7 @@ export const getallReportByiduser: RequestHandler = async (req, res) => {
             if (report[i].user.user_room.length != 0) {
                 data.push({
                     idreport: report[i].idreport,
-                    room_number: report[i].user.user_room[0].room.room_number,
+                    room_number: report[i].user.user_room[0]?.room.room_number,
                     report_type: report[i].report_type.report_type,
                     report_description: report[i].report_description,
                     report_status: report[i].report_status,

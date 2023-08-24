@@ -4,6 +4,9 @@ import { RoomType } from '../models/roomtypeModel';
 import { UserDetail } from '../models/userdetailModel';
 import dayjs from "dayjs";
 import "dayjs/locale/th";
+import { Users } from '../models/userModel';
+import { UserRoom } from '../models/user_roomModel';
+import { Op } from 'sequelize';
 dayjs.locale("th");
 
 
@@ -20,20 +23,20 @@ export const createRoom: RequestHandler = async (req, res) => {
     try {
         const roomfind = await Room.findOne({ where: { room_number: req.body.room_number } });
         if (roomfind) {
-            return res.status(400).json({ message: 'หมายเลขห้องมีอยู่แล้ว'});
-        }else{
+            return res.status(400).json({ message: 'หมายเลขห้องมีอยู่แล้ว' });
+        } else {
             const data: Room = req.body;
             const room = await Room.create({
                 idroom_type: data.idroom_type,
                 room_number: data.room_number,
             });
-            if(room){
+            if (room) {
                 return res.status(200).json({ message: 'สร้างข้อมูลห้องสำเร็จ' });
-            }else{
+            } else {
                 return res.status(400).json({ message: 'สร้างข้อมูลห้องไม่สำเร็จ' });
             }
         }
-        
+
     }
     catch (err: any) {
         return res.status(500).json({ message: err.message });
@@ -42,7 +45,7 @@ export const createRoom: RequestHandler = async (req, res) => {
 
 export const createRoomType: RequestHandler = async (req, res) => {
     try {
-        const data:RoomType = req.body;
+        const data: RoomType = req.body;
 
         if (!data.room_type_name || !data.room_price) {
             return res.status(400).json({ message: 'กรุณาตรวจสอบข้อมูลให้ครบ' });
@@ -52,17 +55,17 @@ export const createRoomType: RequestHandler = async (req, res) => {
             const roomtype = await RoomType.findOne({ where: { room_type_name: data.room_type_name } });
             if (roomtype) {
                 return res.status(400).json({ message: 'ประเภทห้องมีอยู่แล้ว' });
-            }else{
+            } else {
                 const roomtype = await RoomType.create({
                     room_type_name: data.room_type_name,
                     room_price: data.room_price,
                     WaterMeterprice: data.WaterMeterprice,
                     ElectricMeterprice: data.ElectricMeterprice,
                 });
-    
+
                 return res.status(200).json({ message: 'สร้างข้อมูลประเภทห้องสำเร็จ' });
             }
-        }else {
+        } else {
             return res.status(400).json({ message: 'กรุณาตรวจสอบข้อมูลให้ครบ' });
         }
     }
@@ -95,7 +98,7 @@ export const getRoomTypeByid: RequestHandler = async (req, res) => {
 
 export const updateRoomType: RequestHandler = async (req, res) => {
     try {
-        const data:RoomType = req.body;
+        const data: RoomType = req.body;
         const roomtype = await RoomType.findOne({ where: { idroom_type: req.params.id } });
         if (roomtype) {
             await RoomType.update({
@@ -129,15 +132,16 @@ export const getRoomByid: RequestHandler = async (req, res) => {
 
 export const updateRoom: RequestHandler = async (req, res) => {
     const t = await Room.sequelize?.transaction();
-    try{
-        const data:Room = req.body;
+    try {
+        const data: Room = req.body;
         const room = await Room.findOne({ where: { idroom: req.params.id } });
-        if(data.room_status === "empty"){
-            const userdetail = await UserDetail.findOne({ where: { idroom: data.idroom } });
-            if(userdetail){
-                await UserDetail.update({
-                    idroom: null,
-                }, { where: { idroom: data.idroom }, transaction: t });
+        if (data.room_status === "empty") {
+            const userroom = await UserRoom.findOne({ where: { idroom: req.params.id } });
+            if (userroom) {
+                await UserRoom.update({
+                    status: "inactive",
+                    date_out: dayjs().format('YYYY-MM-DD HH:mm:ss'),
+                }, { where: { idroom: req.params.id }, transaction: t });
             }
         }
         if (room) {
@@ -153,6 +157,74 @@ export const updateRoom: RequestHandler = async (req, res) => {
     }
     catch (err: any) {
         await t?.rollback();
+        res.status(500).json({ message: err.message });
+    }
+}
+
+export const getAllUserInRoom: RequestHandler = async (req, res) => {
+    try {
+        const userroom = await UserRoom.findAll({
+            include: [
+                {
+                    model: Users, include: [{ model: UserDetail }],
+                    where: { idrole: { [Op.ne]: 1 } }
+                },
+                { model: Room, include: [{ model: RoomType }] }],
+        });
+
+        if (userroom.length == 0) {
+            return res.status(404).json({ message: 'ไม่มีผู้ใช้ในห้องนี้' });
+        }
+
+        const data: object[] = [];
+
+        userroom.forEach((element: any) => {
+            data.push({
+                iduser: element.users.iduser,
+                iduser_room: element.iduser_room,
+                fname: element.users.user_detail[0]?.fname,
+                lname: element.users.user_detail[0]?.lname,
+                room_number: element.room.room_number,
+                room_type_name: element.room.roomtype.room_type_name,
+                date_in: element.date_in,
+                date_out: element.date_out,
+                status: element.status,
+            });
+        });
+
+
+        return res.status(200).json({ data: data });
+    } catch (err: any) {
+        res.status(500).json({ message: err.message });
+    }
+}
+
+export const getAllUserInRooms: RequestHandler = async (req, res) => {
+    try {
+        const userroom = await UserRoom.findAll({
+            include: [{ model: Users, include: [{ model: UserDetail }] }, { model: Room, include: [{ model: RoomType }] }],
+            where: { status: "active" }
+        });
+
+        if (userroom.length == 0) {
+            return res.status(404).json({ message: 'ไม่มีผู้ใช้ในห้องนี้' });
+        }
+
+        const data: object[] = [];
+
+        userroom.forEach((element: any) => {
+            data.push({
+                iduser_room: element.iduser_room,
+                fname: element.users.user_detail[0]?.fname,
+                lname: element.users.user_detail[0]?.lname,
+                room_number: element.room.room_number,
+                room_type_name: element.room.roomtype.room_type_name,
+            });
+        });
+
+
+        return res.status(200).json({ data: data });
+    } catch (err: any) {
         res.status(500).json({ message: err.message });
     }
 }

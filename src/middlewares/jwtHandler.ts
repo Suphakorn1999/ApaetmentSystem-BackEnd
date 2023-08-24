@@ -31,7 +31,7 @@ function verifyToken(req: any, res: any, next: express.NextFunction) {
   }
 
   const secretKey: any = process.env.TokenKey;
-  
+
   try {
     const decoded = verify(token, secretKey);
     req.body.user = decoded;

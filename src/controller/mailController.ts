@@ -13,13 +13,41 @@ dotenv.config();
 export const sendMail: RequestHandler = async (req, res, next) => {
     try {
         const data = []
-        const invoice = await Invoice.findOne({ where: { idinvoice: req.params.id }, include: [{ model: Payment }, { model: Users, include: [{ model: UserDetail, attributes: ['fname', 'lname', 'email'] }, { model: UserRoom, attributes: ['idroom'], where: { status: 'active' }, include: [{ model: Room }] }], attributes: ['iduser'] }] });
+        // const invoice = await Invoice.findOne({
+        //     where: { idinvoice: req.params.id },
+        //     include: [
+        //         { model: Payment },
+        //         {
+        //             model: Users, include: [
+        //                 { model: UserDetail, attributes: ['fname', 'lname', 'email'] },
+        //                 {
+        //                     model: UserRoom, attributes: ['idroom'], where: { status: 'active' },
+        //                     include: [
+        //                         { model: Room }]
+        //                 }], attributes: ['iduser']
+        //         }],
+        //         order : [['createdAt', 'DESC']]
+        // });
+        const invoice = await Invoice.findOne({
+            where: { idinvoice: req.params.id },
+            include: [
+                { model: Payment },
+                {
+                    model: UserRoom, attributes: ['idroom'], where: { status: 'active' },
+                    include: [
+                        { model: Room },
+                        { model: Users, include: [{ model: UserDetail, attributes: ['fname', 'lname', 'email'] }], attributes: ['iduser'] }
+                    ]
+                }
+            ],
+            order: [['createdAt', 'DESC']]
+        });
         if (invoice) {
             data.push({
                 idinvoice: invoice.idinvoice,
-                room_number: invoice.user.user_room[0].room.room_number,
-                fname: invoice.user.user_detail[0].fname,
-                lname: invoice.user.user_detail[0].lname,
+                room_number: invoice.user_room.room.room_number,
+                fname: invoice.user_room.users.user_detail[0]?.fname,
+                lname: invoice.user_room.users.user_detail[0]?.lname,
                 room_price: invoice.room_price,
                 watermeter_old: invoice.watermeter_old,
                 watermeter_new: invoice.watermeter_new,
@@ -34,8 +62,8 @@ export const sendMail: RequestHandler = async (req, res, next) => {
                     ((invoice.watermeter_new - invoice.watermeter_old) * invoice.water_price) +
                     ((invoice.electricmeter_new - invoice.electricmeter_old) * invoice.electric_price)
                 ),
-                email: invoice.user.user_detail[0].email,
-                createAt : invoice.createdAt,
+                email: invoice.user_room.users.user_detail[0]?.email,
+                createAt: invoice.createdAt,
             })
         }
         const emailTemplate = EmailTemplate(data[0])
@@ -52,7 +80,7 @@ export const sendMail: RequestHandler = async (req, res, next) => {
 
         await transporter.sendMail({
             from: process.env.SMTP_SENDER,
-            to: data[0].email,
+            to: data[0]?.email,
             subject: emailTemplate.subject,
             html: emailTemplate.html,
         });

@@ -106,13 +106,6 @@ export class UserDetail extends Model {
     status_user !: string;
 
     @Column({
-        type: DataType.INTEGER,
-        allowNull: true,
-        defaultValue: 0
-    })
-    deposit!: string;
-
-    @Column({
         type: DataType.STRING,
         allowNull: true
     })

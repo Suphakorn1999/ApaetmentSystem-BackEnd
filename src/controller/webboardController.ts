@@ -48,9 +48,9 @@ export const getThreads: RequestHandler = async (req, res, next) => {
                 title: thread.title,
                 created_at: thread.created_at,
                 updatedAt: thread.updatedAt,
-                fname: thread.user.user_detail[0].fname,
-                lname: thread.user.user_detail[0].lname,
-                partNameAvatar: thread.user.user_detail[0].partNameAvatar,
+                fname: thread.user.user_detail[0]?.fname,
+                lname: thread.user.user_detail[0]?.lname,
+                partNameAvatar: thread.user.user_detail[0]?.partNameAvatar,
                 iduser: thread.user.iduser,
             })
         });
@@ -300,9 +300,9 @@ export const getSearchedThread: RequestHandler = async (req, res, next) => {
                 title: thread.title,
                 created_at: thread.created_at,
                 updatedAt: thread.updatedAt,
-                fname: thread.user.user_detail[0].fname,
-                lname: thread.user.user_detail[0].lname,
-                partNameAvatar: thread.user.user_detail[0].partNameAvatar,
+                fname: thread.user.user_detail[0]?.fname,
+                lname: thread.user.user_detail[0]?.lname,
+                partNameAvatar: thread.user.user_detail[0]?.partNameAvatar,
                 iduser: thread.user.iduser,
             })
         });

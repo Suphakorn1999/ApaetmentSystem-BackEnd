@@ -13,9 +13,13 @@ export const getallInvoices: RequestHandler = async (req, res) => {
         const data = []
         const users = await Users.findAll({
             include: [
-                { model: UserDetail, attributes: ['fname', 'lname'] },
-                { model: UserRoom, attributes: ['idroom'], where: { status: 'active' } },
-                { model: Invoice, required: true, order: [['createdAt', 'DESC']], include: [{ model: Payment, required: false, attributes: ['payment_status', 'updatedAt'] }] }
+                { model: UserDetail, attributes: ['fname', 'lname'], where: { [Op.or]: [{ status_user: 'active' }, { status_user: 'inactive' }] } },
+                {
+                    model: UserRoom, attributes: ['idroom'], where: { status: 'active' },
+                    include: [
+                        { model: Invoice, required: true, order: [['createdAt', 'DESC']], include: [{ model: Payment, required: false, attributes: ['payment_status', 'updatedAt'] }] }
+                    ]
+                },
             ],
             where: { idrole: { [Op.ne]: 1 } }
         })
@@ -26,17 +30,17 @@ export const getallInvoices: RequestHandler = async (req, res) => {
 
         for (let i = 0; i < users.length; i++) {
             data.push({
-                idinvoice: users[i].invoice[0].idinvoice,
-                idroom: users[i].user_room[0].idroom,
-                fname: users[i].user_detail[0].fname,
-                lname: users[i].user_detail[0].lname,
-                date_invoice: users[i].invoice[0].createdAt,
-                payment_status: users[i].invoice[0].payment[0]?.payment_status,
-                updatedAt: users[i].invoice[0].payment[0]?.updatedAt,
+                idinvoice: users[i]?.user_room[0]?.invoice[0]?.idinvoice,
+                idroom: users[i]?.user_room[0]?.idroom,
+                fname: users[i]?.user_detail[0]?.fname,
+                lname: users[i]?.user_detail[0]?.lname,
+                date_invoice: users[i]?.user_room[0]?.invoice[0]?.createdAt,
+                payment_status: users[i]?.user_room[0]?.invoice[0]?.payment[0]?.payment_status,
+                updatedAt: users[i]?.user_room[0]?.invoice[0]?.payment[0]?.updatedAt,
                 total: (
-                    users[i].invoice[0].room_price +
-                    (users[i].invoice[0].watermeter_new - users[i].invoice[0].watermeter_old) * users[i].invoice[0].water_price +
-                    (users[i].invoice[0].electricmeter_new - users[i].invoice[0].electricmeter_old) * users[i].invoice[0].electric_price
+                    users[i].user_room[0]?.invoice[0]?.room_price +
+                    (users[i].user_room[0]?.invoice[0]?.watermeter_new - users[i].user_room[0]?.invoice[0]?.watermeter_old) * users[i].user_room[0]?.invoice[0]?.water_price +
+                    (users[i].user_room[0]?.invoice[0]?.electricmeter_new - users[i].user_room[0]?.invoice[0]?.electricmeter_old) * users[i].user_room[0]?.invoice[0]?.electric_price
                 )
             })
         }
@@ -50,48 +54,55 @@ export const getallInvoices: RequestHandler = async (req, res) => {
 
 export const getInvoiceByid: RequestHandler = async (req, res) => {
     try {
-        let data = []
-        const userDetail = await UserDetail.findOne({ where: { iduser: req.params.id }, attributes: ['iduser', "fname", "lname"], include: [{ model: Users, include: [{ model: UserRoom, attributes: ['idroom'] }] }] });
-        if (userDetail) {
-            const room = await Room.findOne({ where: { idroom: userDetail?.users.user_room[0].idroom }, include: [{ model: RoomType, attributes: ["room_price", "WaterMeterprice", "ElectricMeterprice"] }] });
-            if (room) {
-                const invoice = await Invoice.findAll({ where: { iduser: req.params.id } });
-                if (invoice.length == 0) {
-                    data.push({
-                        iduser: userDetail.iduser,
-                        fname: userDetail.fname,
-                        lname: userDetail.lname,
-                        idroom: userDetail.users.user_room[0].idroom,
-                        room_price: parseInt(room.roomtype.room_price),
-                        electric_price: parseInt(room.roomtype.ElectricMeterprice),
-                        water_price: parseInt(room.roomtype.WaterMeterprice),
-                        watermeter_old: 0,
-                        electricmeter_old: 0,
-                    })
-                    return res.status(200).json({ data: data[0] });
-                } else {
-                    const invoice = await Invoice.findOne({ where: { iduser: req.params.id }, order: [['createdAt', 'DESC']] });
-                    if (invoice) {
-                        data.push({
-                            iduser: invoice.iduser,
-                            fname: userDetail.fname,
-                            lname: userDetail.lname,
-                            idroom: userDetail.users.user_room[0].idroom,
-                            room_price: parseInt(room.roomtype.room_price),
-                            electric_price: parseInt(room.roomtype.ElectricMeterprice),
-                            water_price: parseInt(room.roomtype.WaterMeterprice),
-                            watermeter_old: invoice.watermeter_new,
-                            electricmeter_old: invoice.electricmeter_new,
-                        })
-                        return res.status(200).json({ data: data[0] });
-                    }
-                }
+        let data: object[] = []
+
+        const userroom = await UserRoom.findOne({
+            where: { iduser_room: req.params.id },
+            include: [
+                { model: Users, attributes: ['iduser'], include: [{ model: UserDetail, attributes: ['fname', 'lname'] }] },
+                { model: Room, attributes: ['idroom', 'room_number'], include: [{ model: RoomType, attributes: ['room_price', 'WaterMeterprice', 'ElectricMeterprice'] }] },
+            ]
+        });
+
+        if (userroom) {
+            const invoice = await Invoice.findOne({
+                where: { iduser_room: req.params.id },
+                include: [{ model: Payment }],
+                order: [['createdAt', 'DESC']]
+            });
+
+            if (invoice) {
+                data.push({
+                    iduser: userroom.users.iduser,
+                    fname: userroom.users.user_detail[0]?.fname,
+                    lname: userroom.users.user_detail[0]?.lname,
+                    room_number: userroom.room.room_number,
+                    room_price: userroom.room.roomtype.room_price,
+                    watermeter_old: invoice.watermeter_old,
+                    electricmeter_old: invoice.electricmeter_old,
+                    water_price: userroom.room.roomtype.WaterMeterprice,
+                    electric_price: userroom.room.roomtype.ElectricMeterprice,
+                })
+                return res.status(200).json({ data: data[0] });
             } else {
-                return res.status(404).json({ message: 'ไม่เจอข้อมูล' });
+                data.push({
+                    iduser: userroom.users.iduser,
+                    fname: userroom.users.user_detail[0]?.fname,
+                    lname: userroom.users.user_detail[0]?.lname,
+                    room_number: userroom.room.room_number,
+                    room_price: userroom.room.roomtype.room_price,
+                    watermeter_old: userroom.watermeterstart,
+                    electricmeter_old: userroom.electricmeterstart,
+                    water_price: userroom.room.roomtype.WaterMeterprice,
+                    electric_price: userroom.room.roomtype.ElectricMeterprice,
+                })
+
+                return res.status(200).json({ data: data[0] });
             }
         } else {
             return res.status(404).json({ message: 'ไม่เจอข้อมูล' });
         }
+
     } catch (err: any) {
         res.status(500).json({ message: err.message });
     }
@@ -103,7 +114,7 @@ export const createInvoice: RequestHandler = async (req, res) => {
         const data: Invoice = req.body;
 
         const invoice = await Invoice.create({
-            iduser: data.iduser,
+            iduser_room: data.iduser_room,
             room_price: data.room_price,
             watermeter_old: data.watermeter_old,
             watermeter_new: data.watermeter_new,
@@ -128,13 +139,37 @@ export const createInvoice: RequestHandler = async (req, res) => {
 export const getInvoiceByidInvoice: RequestHandler = async (req, res) => {
     try {
         const data = []
-        const invoice = await Invoice.findOne({ where: { idinvoice: req.params.id }, include: [{ model: Payment }, { model: Users, include: [{ model: UserDetail, attributes: ['fname', 'lname'] }, { model: UserRoom, attributes: ['idroom'], where: { status: 'active' } }], attributes: ['iduser'] }] });
+        const invoice = await Invoice.findOne({
+            where: {
+                idinvoice: req.params.id
+            },
+            include: [{
+                model: Payment
+            },
+            {
+                model: UserRoom,
+                include: [{
+                    model: Room,
+                    include: [{
+                        model: RoomType
+                    }]
+                },
+                {
+                    model: Users,
+                    include: [{
+                        model: UserDetail
+                    }]
+                }
+                ]
+            }
+            ]
+        });
         if (invoice) {
             data.push({
                 idinvoice: invoice.idinvoice,
-                idroom: invoice.user.user_room[0].idroom,
-                fname: invoice.user.user_detail[0].fname,
-                lname: invoice.user.user_detail[0].lname,
+                idroom: invoice.user_room.idroom,
+                fname: invoice.user_room.users.user_detail[0]?.fname,
+                lname: invoice.user_room.users.user_detail[0]?.lname,
                 room_price: invoice.room_price,
                 watermeter_old: invoice.watermeter_old,
                 watermeter_new: invoice.watermeter_new,
@@ -160,7 +195,24 @@ export const getInvoiceMonthlyByToken: RequestHandler = async (req, res) => {
         const data = []
         const users = await Users.findOne({ where: { iduser: req.body.user.id }, attributes: ['iduser'] });
         if (users) {
-            const invoice = await Invoice.findAll({ include: [{ model: Payment, where: { [Op.or]: [{ payment_status: 'pending' }, { payment_status: "unpaid" }] } }], where: { iduser: users.iduser } });
+            const invoice = await Invoice.findAll({
+                include: [{
+                    model: Payment,
+                    where: {
+                        [Op.or]:
+                            [{ payment_status: 'pending' }, { payment_status: "unpaid" }]
+                    }
+                },
+                {
+                    model: UserRoom,
+                    where: { status: 'active' },
+                    include: [{
+                        model: Users,
+                        where: { iduser: users.iduser },
+                    }]
+                }
+                ]
+            });
             if (invoice.length == 0) {
                 return res.status(200).json({ data: [] });
             }
@@ -187,7 +239,20 @@ export const getAllInvoiceByToken: RequestHandler = async (req, res) => {
         const data = []
         const users = await Users.findOne({ where: { iduser: req.body.user.id }, attributes: ['iduser'] });
         if (users) {
-            const invoice = await Invoice.findAll({ include: [{ model: Payment, where: { payment_status: 'paid' } }], where: { iduser: users.iduser }, limit: 5, order: [['createdAt', 'DESC']] });
+            const invoice = await Invoice.findAll({
+                include: [{
+                    model: Payment,
+                    where: { payment_status: 'paid' }
+                }, {
+                    model: UserRoom,
+                    where: { status: 'active' },
+                    include: [{
+                        model: Users,
+                        where: { iduser: users.iduser },
+                    }]
+                }
+                ], limit: 5, order: [['createdAt', 'DESC']]
+            });
             if (invoice.length == 0) {
                 return res.status(200).json({ data: [] });
             }
@@ -214,12 +279,21 @@ export const getAllInvoiceByToken: RequestHandler = async (req, res) => {
 export const getAllInvoiceMonthly: RequestHandler = async (req, res) => {
     try {
         const data: object[] = []
-        const month:any = req.params.month;
+        const month: any = req.params.month;
         const users = await Users.findAll({
             include: [
-                { model: UserRoom, attributes: ['idroom'], where: { status: 'active' }, include: [{ model: Room, attributes: ['room_number'], include: [{ model: RoomType }], order: [['room_number', 'DESC']], required: true }] },
+                {
+                    model: UserRoom, attributes: ['idroom'], where: { status: 'active' },
+                    include: [{
+                        model: Room, attributes: ['room_number'],
+                        include: [{
+                            model: RoomType
+                        }], order: [['room_number', 'DESC']], required: true
+                    },
+                    { model: Invoice, required: true, include: [{ model: Payment, required: false, attributes: ['payment_status', 'updatedAt', "fname_payee", "lname_payee"] }], where: { [Op.and]: [{ createdAt: { [Op.gte]: new Date(new Date().getFullYear(), month - 1, 1) } }, { createdAt: { [Op.lte]: new Date(new Date().getFullYear(), month, 0) } }] } }
+                    ]
+                },
                 { model: UserDetail, attributes: ['fname', 'lname'] },
-                { model: Invoice, required: true, include: [{ model: Payment, required: false, attributes: ['payment_status', 'updatedAt', "fname_payee", "lname_payee"] }], where: { [Op.and]: [{ createdAt: { [Op.gte]: new Date(new Date().getFullYear(), month - 1, 1) } }, { createdAt: { [Op.lte]: new Date(new Date().getFullYear(), month, 0) } }] } }
             ],
             where: { idrole: { [Op.ne]: 1 } }
         })
@@ -230,24 +304,24 @@ export const getAllInvoiceMonthly: RequestHandler = async (req, res) => {
 
         users.forEach((user) => {
             data.push({
-                room_number: user.user_room[0].room.room_number,
+                room_number: user.user_room[0]?.room.room_number,
                 username: user.username,
-                fname: user.user_detail[0].fname,
-                lname: user.user_detail[0].lname,
-                room_price: parseInt(user.user_room[0].room.roomtype.room_price),
-                watermeter_old: user.invoice[0]?.watermeter_old,
-                watermeter_new: user.invoice[0]?.watermeter_new,
-                electricmeter_old: user.invoice[0]?.electricmeter_old,
-                electricmeter_new: user.invoice[0]?.electricmeter_new,
-                water_price: user.invoice[0]?.water_price,
-                electric_price: user.invoice[0]?.electric_price,
+                fname: user.user_detail[0]?.fname,
+                lname: user.user_detail[0]?.lname,
+                room_price: parseInt(user.user_room[0]?.room.roomtype.room_price),
+                watermeter_old: user.user_room[0]?.invoice[0]?.watermeter_old,
+                watermeter_new: user.user_room[0]?.invoice[0]?.watermeter_new,
+                electricmeter_old: user.user_room[0]?.invoice[0]?.electricmeter_old,
+                electricmeter_new: user.user_room[0]?.invoice[0]?.electricmeter_new,
+                water_price: user.user_room[0]?.invoice[0]?.water_price,
+                electric_price: user.user_room[0]?.invoice[0]?.electric_price,
                 total: (
-                    parseInt(user.user_room[0].room.roomtype.room_price) +
-                    (user.invoice[0]?.watermeter_new - user.invoice[0]?.watermeter_old) * user.invoice[0]?.water_price +
-                    (user.invoice[0]?.electricmeter_new - user.invoice[0]?.electricmeter_old) * user.invoice[0]?.electric_price
+                    user.user_room[0]?.invoice[0]?.room_price +
+                    (user.user_room[0]?.invoice[0]?.watermeter_new - user.user_room[0]?.invoice[0]?.watermeter_old) * user.user_room[0]?.invoice[0]?.water_price +
+                    (user.user_room[0]?.invoice[0]?.electricmeter_new - user.user_room[0]?.invoice[0]?.electricmeter_old) * user.user_room[0]?.invoice[0]?.electric_price
                 ),
-                fname_payee: user.invoice[0]?.payment[0]?.fname_payee,
-                lname_payee: user.invoice[0]?.payment[0]?.lname_payee,
+                payment_status: user.user_room[0]?.invoice[0]?.payment[0]?.payment_status,
+                updatedAt: user.user_room[0]?.invoice[0]?.payment[0]?.updatedAt,
             })
         })
 

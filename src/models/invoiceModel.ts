@@ -1,6 +1,7 @@
 import { Table, Column, Model, DataType, BelongsTo, ForeignKey, CreatedAt, HasMany } from "sequelize-typescript";
 import { Users } from "./userModel";
 import { Payment } from "./paymentModel";
+import { UserRoom } from "./user_roomModel";
 
 @Table({
     timestamps: true,
@@ -16,15 +17,15 @@ export class Invoice extends Model {
     })
     idinvoice!: number;
 
-    @ForeignKey(() => Users)
+    @ForeignKey(() => UserRoom)
     @Column({
         type: DataType.INTEGER,
         allowNull: false
     })
-    iduser!: number;
+    iduser_room!: number;
 
-    @BelongsTo(() => Users)
-    user!: Users;
+    @BelongsTo(() => UserRoom)
+    user_room!: UserRoom;
 
     @Column({
         type: DataType.INTEGER,
