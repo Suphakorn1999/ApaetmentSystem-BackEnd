@@ -2,6 +2,7 @@ import { Table, Column, Model, DataType, BelongsTo, ForeignKey, CreatedAt, Updat
 import { Room } from "./roomModel";
 import { Users } from "./userModel";
 import { Invoice } from "./invoiceModel";
+import { Report } from "./reportModel";
 
 @Table({
     timestamps: true,
@@ -76,4 +77,7 @@ export class UserRoom extends Model {
 
     @HasMany(() => Invoice)
     invoice!: Invoice[];
+
+    @HasMany(() => Report)
+    report!: Report[];
 }

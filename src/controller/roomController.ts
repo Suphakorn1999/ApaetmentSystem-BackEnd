@@ -6,7 +6,7 @@ import dayjs from "dayjs";
 import "dayjs/locale/th";
 import { Users } from '../models/userModel';
 import { UserRoom } from '../models/user_roomModel';
-import { Op } from 'sequelize';
+import { Op, where } from 'sequelize';
 dayjs.locale("th");
 
 
@@ -83,6 +83,15 @@ export const getRoomtype: RequestHandler = async (req, res) => {
     }
 }
 
+export const getRoomtypedrop: RequestHandler = async (req, res) => {
+    try {
+        const roomtype = await RoomType.findAll({ where: { status_room_type: "active" } });
+        res.status(200).json({ data: roomtype });
+    } catch (err: any) {
+        res.status(500).json({ message: err.message });
+    }
+}
+
 export const getRoomTypeByid: RequestHandler = async (req, res) => {
     try {
         const roomtype = await RoomType.findOne({ where: { idroom_type: req.params.id } });
@@ -141,7 +150,14 @@ export const updateRoom: RequestHandler = async (req, res) => {
                 await UserRoom.update({
                     status: "inactive",
                     date_out: dayjs().format('YYYY-MM-DD HH:mm:ss'),
+                }, { where: { idroom: req.params.id, status: 'active' }, transaction: t });
+
+                await Room.update({
+                    room_status: data.room_status,
                 }, { where: { idroom: req.params.id }, transaction: t });
+
+                await t?.commit();
+                return res.status(200).json({ message: 'อัปเดตข้อมูลห้องสำเร็จ' });
             }
         }
         if (room) {
@@ -224,6 +240,99 @@ export const getAllUserInRooms: RequestHandler = async (req, res) => {
 
 
         return res.status(200).json({ data: data });
+    } catch (err: any) {
+        res.status(500).json({ message: err.message });
+    }
+}
+
+export const createUserRoom: RequestHandler = async (req, res) => {
+    const t = await UserRoom.sequelize?.transaction();
+    try {
+        const data: UserRoom = req.body;
+        const userroom = await UserRoom.findOne({ where: { iduser: data.iduser, status: 'active' } });
+
+        if (userroom) {
+            return res.status(400).json({ message: 'ผู้ใช้นี้อยู่ในห้องอื่นแล้ว' });
+        }
+
+        const userroom2 = await UserRoom.findOne({ where: { idroom: data.idroom, status: 'active' } });
+
+        if (userroom2) {
+            return res.status(400).json({ message: 'ห้องนี้มีผู้ใช้แล้ว' });
+        }
+
+        const USERroom = await UserRoom.create({
+            iduser: data.iduser,
+            idroom: data.idroom,
+            deposit: data.deposit,
+            watermeterstart: data.watermeterstart,
+            electricmeterstart: data.electricmeterstart,
+            date_in: data.date_in,
+            status: 'active'
+        }, { transaction: t });
+
+        await Room.update({
+            room_status: 'full',
+        }, { where: { idroom: data.idroom }, transaction: t });
+
+        if (USERroom) {
+            await t?.commit();
+            return res.status(200).json({ message: 'การเช่าสำเร็จ' });
+        } else {
+            return res.status(400).json({ message: 'การเช่าไม่สำเร็จ' });
+        }
+
+    }
+    catch (err: any) {
+        await t?.rollback();
+        res.status(500).json({ message: err.message });
+    }
+}
+
+export const getRoomEmptyAndUsernotInRoom: RequestHandler = async (req, res) => {
+    try {
+        const room = await Room.findAll({
+            include: [{ model: RoomType }],
+            where: { room_status: "empty" }
+        });
+
+        const user = await Users.findAll({
+            include: [{ model: UserDetail }],
+            where: { idrole: { [Op.ne]: 1 } }
+        });
+
+        const userroom = await UserRoom.findAll();
+
+
+        const dataRoom: object[] = [];
+        const data: object[] = [];
+
+        room.forEach((element: any) => {
+            dataRoom.push({
+                idroom: element.idroom,
+                room_number: element.room_number,
+                room_type_name: element.roomtype.room_type_name,
+            });
+        });
+
+        user.forEach((element: any) => {
+            let check = true;
+            userroom.forEach((element2: any) => {
+                if (element.iduser == element2.iduser && element2.status == "active") {
+                    check = false;
+                }
+            });
+            if (check) {
+                data.push({
+                    iduser: element.iduser,
+                    fname: element.user_detail[0]?.fname,
+                    lname: element.user_detail[0]?.lname,
+                });
+            }
+        });
+
+
+        return res.status(200).json({ data: data, dataRoom: dataRoom });
     } catch (err: any) {
         res.status(500).json({ message: err.message });
     }

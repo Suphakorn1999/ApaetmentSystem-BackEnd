@@ -13,21 +13,7 @@ dotenv.config();
 export const sendMail: RequestHandler = async (req, res, next) => {
     try {
         const data = []
-        // const invoice = await Invoice.findOne({
-        //     where: { idinvoice: req.params.id },
-        //     include: [
-        //         { model: Payment },
-        //         {
-        //             model: Users, include: [
-        //                 { model: UserDetail, attributes: ['fname', 'lname', 'email'] },
-        //                 {
-        //                     model: UserRoom, attributes: ['idroom'], where: { status: 'active' },
-        //                     include: [
-        //                         { model: Room }]
-        //                 }], attributes: ['iduser']
-        //         }],
-        //         order : [['createdAt', 'DESC']]
-        // });
+        
         const invoice = await Invoice.findOne({
             where: { idinvoice: req.params.id },
             include: [

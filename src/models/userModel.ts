@@ -56,9 +56,6 @@ export class Users extends Model {
     @HasMany(() => UserRoom)
     user_room!: UserRoom[];
 
-    @HasMany(() => Report)
-    report!: Report[];
-
     @HasMany(() => Threads)
     threads!: Threads[];
 

@@ -397,7 +397,7 @@ export const updateUserUserDetailByid: RequestHandler = async (req, res) => {
 
 export const getIdroomByiduser: RequestHandler = async (req, res) => {
     try {
-        const userRoom = await UserRoom.findOne({ where: { iduser: req.params.id, status: 'active' }, include: [{ model: Room, attributes: ['room_number'] }] });
+        const userRoom = await UserRoom.findOne({ where: { iduser: req.params.id }, include: [{ model: Room, attributes: ['room_number'] }] });
         if (userRoom) {
             const data: object[] = [];
             data.push({
