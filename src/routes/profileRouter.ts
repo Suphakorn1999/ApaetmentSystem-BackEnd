@@ -1,5 +1,6 @@
 import { Router } from "express";
-import { createUserDetail, getUserDetailByToken, uploadImage, getUserAllDetail, getUserDetailbyid, updateUserUserDetailByid, getIdroomByiduser, updateidRoomByiduser } from "../controller/profileController";
+import { createUserDetail, getUserDetailByToken, uploadImage, getUserAllDetail, getUserDetailbyid, updateUserUserDetailByid, getIdroomByiduser, updateidRoomByiduser,
+    deleteUserDetailByid } from "../controller/profileController";
 const { verifyToken } = require('../middlewares/jwtHandler');
 
 const router = Router();
@@ -12,6 +13,7 @@ router.get('/getProfileById/:id', verifyToken, getUserDetailbyid);
 router.put('/updateProfileById/:id', verifyToken, updateUserUserDetailByid);
 router.get('/getIdroomByiduser/:id', verifyToken, getIdroomByiduser);
 router.post('/updateidRoomByiduser/:id', verifyToken, updateidRoomByiduser);
+router.delete('/deleteProfileById/:id', verifyToken, deleteUserDetailByid);
 
 
 export default router;

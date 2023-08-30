@@ -6,6 +6,8 @@ import { Comment } from "./commentModel";
 @Table({
     timestamps: true,
     tableName: "posts",
+    paranoid: true,
+    deletedAt: 'deleted_at',
 })
 
 export class Posts extends Model {

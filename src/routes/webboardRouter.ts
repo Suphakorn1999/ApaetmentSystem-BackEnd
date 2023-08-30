@@ -1,5 +1,9 @@
 import { Router } from 'express';
-import { getThreads, getThread, getPostAndCommentByidthreads, createThread, createPost, createComment, updateThread, updatePost, updateComment, getSearchedThread } from '../controller/webboardController';
+import {
+    getThreads, getThread, getPostAndCommentByidthreads, createThread, createPost,
+    createComment, updateThread, updatePost, updateComment, getSearchedThread, deleteComment,
+    deletePost, deleteThread
+} from '../controller/webboardController';
 const { verifyToken } = require('../middlewares/jwtHandler');
 const router = Router();
 
@@ -13,6 +17,9 @@ router.put('/threads/:id', verifyToken, updateThread);
 router.put('/posts/:id', verifyToken, updatePost);
 router.put('/comments/:id', verifyToken, updateComment);
 router.get('/search/:title', verifyToken, getSearchedThread);
+router.delete('/comments/:id', verifyToken, deleteComment);
+router.delete('/posts/:id', verifyToken, deletePost);
+router.delete('/threads/:id', verifyToken, deleteThread);
 
 
 export default router;

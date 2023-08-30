@@ -14,6 +14,7 @@ import { UserRoom } from '../models/user_roomModel';
 import { Room } from '../models/roomModel';
 import { Op } from 'sequelize';
 
+
 export const createUserDetail: RequestHandler = async (req, res) => {
     try {
         const iduser = req.body.user.id;
@@ -498,6 +499,27 @@ export const updateidRoomByiduser: RequestHandler = async (req, res) => {
                     return res.status(400).json({ message: 'ไม่เจอห้องพัก' });
                 }
             }
+        }
+    } catch (err: any) {
+        await t?.rollback();
+        res.status(500).json({ message: err.message });
+    }
+}
+
+export const deleteUserDetailByid: RequestHandler = async (req, res) => {
+    const t = await UserDetail.sequelize?.transaction();
+    try {
+        const iduser = req.params.id;
+        const userdetail = await UserDetail.findOne({ where: { iduser: iduser }, include: [{ model: Users, include: [{ model: UserRoom }] }] });
+        if (userdetail) {
+            await UserDetail.destroy({ where: { iduser: iduser }, transaction: t });
+            await Room.update({ room_status: 'empty' }, { where: { idroom: userdetail.users?.user_room[0]?.idroom }, transaction: t });
+            await UserRoom.destroy({ where: { iduser: iduser }, transaction: t });
+            
+            await t?.commit();
+            return res.status(200).json({ message: 'ลบข้อมูลพนักงานสำเร็จ' });
+        } else {
+            return res.status(404).json({ message: 'ไม่เจอข้อมูลพนักงาน' });
         }
     } catch (err: any) {
         await t?.rollback();

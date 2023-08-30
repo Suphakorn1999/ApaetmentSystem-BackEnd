@@ -5,6 +5,8 @@ import { Users } from "./userModel";
 @Table({
     timestamps: true,
     tableName: "user_detail",
+    paranoid: true,
+    deletedAt: 'deleted_at',
 })
 
 export class UserDetail extends Model {

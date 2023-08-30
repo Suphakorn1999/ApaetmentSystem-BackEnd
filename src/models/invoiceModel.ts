@@ -6,6 +6,8 @@ import { UserRoom } from "./user_roomModel";
 @Table({
     timestamps: true,
     tableName: "invoice",
+    paranoid: true,
+    deletedAt: 'deleted_at',
 })
 
 export class Invoice extends Model {

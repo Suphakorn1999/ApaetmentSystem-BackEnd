@@ -7,6 +7,8 @@ import { Report } from "./reportModel";
 @Table({
     timestamps: true,
     tableName: "user_room",
+    paranoid: true,
+    deletedAt: 'deleted_at',
 })
 
 export class UserRoom extends Model {

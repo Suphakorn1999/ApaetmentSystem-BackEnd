@@ -5,6 +5,8 @@ import { Posts } from "./postsModel";
 @Table({
     timestamps: true,
     tableName: "comment",
+    paranoid: true,
+    deletedAt: 'deleted_at',
 })
 
 export class Comment extends Model {

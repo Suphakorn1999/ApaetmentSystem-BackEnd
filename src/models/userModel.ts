@@ -9,7 +9,9 @@ import { Comment } from "./commentModel";
 
 @Table({
     timestamps: false,
-    tableName: "users"
+    tableName: "users",
+    paranoid: true,
+    deletedAt: 'deleted_at',
 })
 
 export class Users extends Model {

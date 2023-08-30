@@ -6,6 +6,8 @@ import { Op, Sequelize } from "sequelize";
 @Table({
     timestamps: true,
     tableName: "payment",
+    paranoid: true,
+    deletedAt: 'deleted_at',
 })
 
 export class Payment extends Model {

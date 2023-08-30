@@ -5,6 +5,8 @@ import { Posts } from "./postsModel";
 @Table({
     timestamps: true,
     tableName: "threads",
+    paranoid: true,
+    deletedAt: 'deleted_at',
 })
 
 export class Threads extends Model {
@@ -28,6 +30,7 @@ export class Threads extends Model {
         allowNull: false
     })
     iduser!: number;
+
 
     @BelongsTo(() => Users)
     user!: Users;
