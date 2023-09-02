@@ -10,40 +10,52 @@ import { Payment } from '../models/paymentModel';
 
 export const getallInvoices: RequestHandler = async (req, res) => {
     try {
-        const data = []
-        const users = await Users.findAll({
+        const data: object[] = []
+
+        const invoices = await Invoice.findAll({
             include: [
-                { model: UserDetail, attributes: ['fname', 'lname'], where: { [Op.or]: [{ status_user: 'active' }, { status_user: 'inactive' }] } },
+                { model: Payment },
                 {
-                    model: UserRoom, attributes: ['idroom'], where: { status: 'active' },
+                    model: UserRoom,
+                    attributes: ['idroom'],
+                    where: { [Op.or]: [{ status: 'active' }, { status: 'inactive' }] },
                     include: [
-                        { model: Invoice, required: true, order: [['createdAt', 'DESC']], include: [{ model: Payment, required: false, attributes: ['payment_status', 'updatedAt'] }] }
+                        { model: Room, attributes: ['room_number'] },
+                        {
+                            model: Users, attributes: ['iduser'], where: { idrole: { [Op.ne]: 1 } },
+                            include: [{
+                                model:
+                                    UserDetail, attributes: ['fname', 'lname']
+                            }]
+                        }
                     ]
                 },
             ],
-            where: { idrole: { [Op.ne]: 1 } }
-        })
+            order: [['createdAt', 'DESC']]
+        });
 
-        if (users.length == 0) {
-            return res.status(404).json({ message: 'ไม่มีข้อมูลใบแจ้งหนี้' });
+        if (invoices.length == 0) {
+            return res.status(200).json({ data: [] });
         }
 
-        for (let i = 0; i < users.length; i++) {
+        invoices.forEach((invoice) => {
             data.push({
-                idinvoice: users[i]?.user_room[0]?.invoice[0]?.idinvoice,
-                idroom: users[i]?.user_room[0]?.idroom,
-                fname: users[i]?.user_detail[0]?.fname,
-                lname: users[i]?.user_detail[0]?.lname,
-                date_invoice: users[i]?.user_room[0]?.invoice[0]?.createdAt,
-                payment_status: users[i]?.user_room[0]?.invoice[0]?.payment[0]?.payment_status,
-                updatedAt: users[i]?.user_room[0]?.invoice[0]?.payment[0]?.updatedAt,
+                idinvoice: invoice.idinvoice,
+                idroom: invoice.user_room.idroom,
+                fname: invoice.user_room.users.user_detail[0]?.fname,
+                lname: invoice.user_room.users.user_detail[0]?.lname,
+                room_number: invoice.user_room.room.room_number,
+                date_invoice: invoice.createdAt,
+                payment_status: invoice.payment[0]?.payment_status,
+                updatedAt: invoice.payment[0]?.updatedAt,
                 total: (
-                    users[i].user_room[0]?.invoice[0]?.room_price +
-                    (users[i].user_room[0]?.invoice[0]?.watermeter_new - users[i].user_room[0]?.invoice[0]?.watermeter_old) * users[i].user_room[0]?.invoice[0]?.water_price +
-                    (users[i].user_room[0]?.invoice[0]?.electricmeter_new - users[i].user_room[0]?.invoice[0]?.electricmeter_old) * users[i].user_room[0]?.invoice[0]?.electric_price
+                    invoice.room_price +
+                    (invoice.watermeter_new - invoice.watermeter_old) * invoice.water_price +
+                    (invoice.electricmeter_new - invoice.electricmeter_old) * invoice.electric_price
                 )
             })
-        }
+        })
+
 
         return res.status(200).json({ data: data });
 
@@ -112,24 +124,31 @@ export const createInvoice: RequestHandler = async (req, res) => {
     const t = await Invoice.sequelize?.transaction();
     try {
         const data: Invoice = req.body;
+        const userroom = await UserRoom.findOne({
+            where: { iduser: req.body.iduser, status: 'active' },
+        });
 
-        const invoice = await Invoice.create({
-            iduser_room: data.iduser_room,
-            room_price: data.room_price,
-            watermeter_old: data.watermeter_old,
-            watermeter_new: data.watermeter_new,
-            electricmeter_old: data.electricmeter_old,
-            electricmeter_new: data.electricmeter_new,
-            electric_price: data.electric_price,
-            water_price: data.water_price,
-        }, { transaction: t });
+        if (userroom) {
+            const invoice = await Invoice.create({
+                iduser_room: userroom.iduser_room,
+                room_price: data.room_price,
+                watermeter_old: data.watermeter_old,
+                watermeter_new: data.watermeter_new,
+                electricmeter_old: data.electricmeter_old,
+                electricmeter_new: data.electricmeter_new,
+                electric_price: data.electric_price,
+                water_price: data.water_price,
+            }, { transaction: t });
 
-        await Payment.create({
-            idinvoice: invoice.idinvoice,
-        }, { transaction: t })
+            await Payment.create({
+                idinvoice: invoice.idinvoice,
+            }, { transaction: t })
 
-        await t?.commit();
-        return res.status(200).json({ message: 'สร้างใบแจ้งหนี้สำเร็จ' });
+            await t?.commit();
+            return res.status(200).json({ message: 'สร้างใบแจ้งหนี้สำเร็จ' });
+        } else {
+            return res.status(404).json({ message: 'ไม่พบข้อมูลผู้เช่า' });
+        }
     } catch (err: any) {
         await t?.rollback();
         return res.status(500).json({ message: err.message });

@@ -218,7 +218,7 @@ export const getAllUserInRoom: RequestHandler = async (req, res) => {
 export const getAllUserInRooms: RequestHandler = async (req, res) => {
     try {
         const userroom = await UserRoom.findAll({
-            include: [{ model: Users, include: [{ model: UserDetail }] }, { model: Room, include: [{ model: RoomType }] }],
+            include: [{ model: Users, include: [{ model: UserDetail }], where: { idrole: { [Op.ne]: 1 } } }, { model: Room, include: [{ model: RoomType }] }],
             where: { status: "active" }
         });
 
