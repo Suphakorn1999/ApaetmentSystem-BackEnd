@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { createPaymentType, getallPaymentType, getPaymentByidinvoice, updatePaymentByidinvoice, 
-    getPaymentByTokenUser, updatePaymentByidinvoiceAndUploadfile, getAllpayee, createPayee, updatePayee } from '../controller/paymentController';
+    getPaymentByTokenUser, updatePaymentByidinvoiceAndUploadfile, getAllpayee, createPayee, updatePayee, getpayeeByid } from '../controller/paymentController';
 const { verifyToken } = require('../middlewares/jwtHandler');
 const router = Router();
 
@@ -13,5 +13,6 @@ router.post('/payment/upload/:id', verifyToken, updatePaymentByidinvoiceAndUploa
 router.get('/getAllPayee', verifyToken, getAllpayee);
 router.post('/createPayee', verifyToken, createPayee);
 router.put('/updatePayee/:id', verifyToken, updatePayee);
+router.get('/getPayee/:id', verifyToken, getpayeeByid);
 
 export default router;

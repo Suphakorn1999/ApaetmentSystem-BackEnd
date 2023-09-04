@@ -204,3 +204,16 @@ export const updatePayee: RequestHandler = async (req, res) => {
         return res.status(500).json({ message: err.message });
     }
 }
+
+export const getpayeeByid: RequestHandler = async (req, res) => {
+    try {
+        const payee = await Payee.findOne({ where: { idpayee: req.params.id } });
+        if (!payee) {
+            return res.status(404).json({ message: 'ไม่มีผู้รับเงิน' });
+        }
+        
+        return res.status(200).json({ data: payee });
+    } catch (err: any) {
+        return res.status(500).json({ message: err.message });
+    }
+}
