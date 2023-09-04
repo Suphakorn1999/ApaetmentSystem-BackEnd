@@ -1,6 +1,6 @@
+import { Invoice } from './../models/invoiceModel';
 import { RequestHandler } from 'express';
 import { Payment } from '../models/paymentModel';
-import { Invoice } from '../models/invoiceModel';
 import { Users } from '../models/userModel';
 import { UserDetail } from '../models/userdetailModel';
 import { Room } from '../models/roomModel';
@@ -73,31 +73,36 @@ export const updatePaymentByidinvoice: RequestHandler = async (req, res) => {
 export const getPaymentByTokenUser: RequestHandler = async (req, res) => {
     try {
         const data: Object[] = []
-        const users = await Users.findAll({
+
+        const invoice = await Invoice.findAll({
             include: [
-                { model: UserDetail, attributes: ['fname', 'lname'] },
-                { model: UserRoom, attributes: ['idroom'], where: { status: 'active' }, include: [{ model: Invoice, required: true, order: [['createdAt', 'DESC']], include: [{ model: Payment, required: false, attributes: ['payment_status', 'updatedAt'] }] }] },
+                { model: Payment, required: false, attributes: ['payment_status', 'updatedAt'] },
+                { model: UserRoom, attributes: ['idroom'], where: { status: 'active' },
+                    include: [ 
+                        { model: Users, attributes: ['iduser'], where: { iduser: req.body.user.id }, include: [{ model: UserDetail, attributes: ['fname', 'lname'] }] },
+                        { model: Room, attributes: ['room_number'] }
+                    ]
+                },
             ],
-            where: { iduser: req.body.user.id }
         })
 
-        if (users.length == 0) {
-            return res.status(404).json({ message: 'ไม่มีข้อมูลใบแจ้งหนี้' });
+        if (invoice.length == 0) {
+            return res.status(200).json({ data: [] });
         }
 
-        users.forEach((user) => {
+        invoice.forEach((inv) => {
             data.push({
-                idinvoice: user.user_room[0]?.invoice[0]?.idinvoice,
-                idroom: user.user_room[0]?.idroom,
-                fname: user.user_detail[0]?.fname,
-                lname: user.user_detail[0]?.lname,
-                date_invoice: user.user_room[0]?.invoice[0]?.createdAt,
-                payment_status: user.user_room[0]?.invoice[0]?.payment[0]?.payment_status,
-                updatedAt: user.user_room[0]?.invoice[0]?.payment[0]?.updatedAt,
+                idinvoice: inv.idinvoice,
+                room_number: inv.user_room?.room.room_number,
+                fname: inv.user_room?.users?.user_detail[0]?.fname,
+                lname: inv.user_room?.users?.user_detail[0]?.lname,
+                date_invoice: inv.createdAt,
+                payment_status: inv.payment[0]?.payment_status,
+                updatedAt: inv.payment[0]?.updatedAt,
                 total: (
-                    user.user_room[0]?.invoice[0]?.room_price +
-                    (user.user_room[0]?.invoice[0]?.watermeter_new - user.user_room[0]?.invoice[0]?.watermeter_old) * user.user_room[0]?.invoice[0]?.water_price +
-                    (user.user_room[0]?.invoice[0]?.electricmeter_new - user.user_room[0]?.invoice[0]?.electricmeter_old) * user.user_room[0]?.invoice[0]?.electric_price
+                    inv.room_price +
+                    (inv.watermeter_new - inv.watermeter_old) * inv.water_price +
+                    (inv.electricmeter_new - inv.electricmeter_old) * inv.electric_price
                 )
             })
         })

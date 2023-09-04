@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getallInvoices, getInvoiceByid, createInvoice, getInvoiceByidInvoice, getInvoiceMonthlyByToken, getAllInvoiceByToken, getAllInvoiceMonthly } from '../controller/invoiceController';
+import { getallInvoices, getInvoiceByid, createInvoice, getInvoiceByidInvoice, getInvoiceMonthlyByToken, getAllInvoiceByToken, getAllInvoiceMonthly, getAllInvoiceMonthlys } from '../controller/invoiceController';
 const { verifyToken } = require('../middlewares/jwtHandler');
 const router = Router();
 
@@ -10,6 +10,7 @@ router.post('/invoice', verifyToken, createInvoice);
 router.get('/invoicemonthly', verifyToken, getInvoiceMonthlyByToken);
 router.get('/invoiceall', verifyToken, getAllInvoiceByToken);
 router.get('/invoicemonthlyall/:month/:year', verifyToken, getAllInvoiceMonthly);
+router.get('/invoicemonthlysalls/:month/:year', verifyToken, getAllInvoiceMonthlys);
 
 export default router;
 
