@@ -7,6 +7,7 @@ import { UserDetail } from '../models/userdetailModel';
 import { UserRoom } from '../models/user_roomModel';
 import { Op } from 'sequelize';
 import { Payment } from '../models/paymentModel';
+import { Payee } from '../models/payeeModel';
 
 export const getallInvoices: RequestHandler = async (req, res) => {
     try {
@@ -163,7 +164,10 @@ export const getInvoiceByidInvoice: RequestHandler = async (req, res) => {
                 idinvoice: req.params.id
             },
             include: [{
-                model: Payment
+                model: Payment,
+                include: [{
+                    model: Payee
+                }]
             },
             {
                 model: UserRoom,
@@ -180,7 +184,7 @@ export const getInvoiceByidInvoice: RequestHandler = async (req, res) => {
                     }]
                 }
                 ]
-            }
+            },
             ]
         });
         if (invoice) {
@@ -197,8 +201,8 @@ export const getInvoiceByidInvoice: RequestHandler = async (req, res) => {
                 water_price: invoice.water_price,
                 electric_price: invoice.electric_price,
                 date_invoice: invoice.createdAt,
-                fname_payee: invoice.payment[0]?.fname_payee,
-                lname_payee: invoice.payment[0]?.lname_payee,
+                fname_payee: invoice.payment[0]?.payee?.fname_payee,
+                lname_payee: invoice.payment[0]?.payee?.lname_payee,
             })
             return res.status(200).json({ data: data[0] });
         } else {
@@ -299,6 +303,7 @@ export const getAllInvoiceMonthly: RequestHandler = async (req, res) => {
     try {
         const data: object[] = []
         const month: any = req.params.month;
+        const year: any = req.params.year;
         const users = await Users.findAll({
             include: [
                 {
@@ -309,7 +314,7 @@ export const getAllInvoiceMonthly: RequestHandler = async (req, res) => {
                             model: RoomType
                         }], order: [['room_number', 'DESC']], required: true
                     },
-                    { model: Invoice, required: true, include: [{ model: Payment, required: false, attributes: ['payment_status', 'updatedAt', "fname_payee", "lname_payee"] }], where: { [Op.and]: [{ createdAt: { [Op.gte]: new Date(new Date().getFullYear(), month - 1, 1) } }, { createdAt: { [Op.lte]: new Date(new Date().getFullYear(), month, 0) } }] } }
+                    { model: Invoice, required: true, include: [{ model: Payment, required: false, attributes: ['payment_status', 'updatedAt'], include: [{ model: Payee }] }], where: { [Op.and]: [{ createdAt: { [Op.gte]: new Date(year, month - 1, 1) } }, { createdAt: { [Op.lte]: new Date(year, month, 0) } }] } }
                     ]
                 },
                 { model: UserDetail, attributes: ['fname', 'lname'] },
@@ -320,7 +325,7 @@ export const getAllInvoiceMonthly: RequestHandler = async (req, res) => {
         if (users.length == 0) {
             return res.status(200).json({ data: [] });
         }
-
+        
         users.forEach((user) => {
             data.push({
                 room_number: user.user_room[0]?.room.room_number,
@@ -341,6 +346,8 @@ export const getAllInvoiceMonthly: RequestHandler = async (req, res) => {
                 ),
                 payment_status: user.user_room[0]?.invoice[0]?.payment[0]?.payment_status,
                 updatedAt: user.user_room[0]?.invoice[0]?.payment[0]?.updatedAt,
+                fname_payee: user.user_room[0]?.invoice[0]?.payment[0]?.payee?.fname_payee,
+                lname_payee: user.user_room[0]?.invoice[0]?.payment[0]?.payee?.lname_payee,
             })
         })
 

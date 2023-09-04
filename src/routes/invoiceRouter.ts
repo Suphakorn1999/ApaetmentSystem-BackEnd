@@ -9,7 +9,7 @@ router.get('/invoiceid/:id', verifyToken, getInvoiceByidInvoice);
 router.post('/invoice', verifyToken, createInvoice);
 router.get('/invoicemonthly', verifyToken, getInvoiceMonthlyByToken);
 router.get('/invoiceall', verifyToken, getAllInvoiceByToken);
-router.get('/invoicemonthlyall/:month', verifyToken, getAllInvoiceMonthly);
+router.get('/invoicemonthlyall/:month/:year', verifyToken, getAllInvoiceMonthly);
 
 export default router;
 

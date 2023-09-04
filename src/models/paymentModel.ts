@@ -1,6 +1,7 @@
 import { Table, Column, Model, DataType, BelongsTo, ForeignKey, CreatedAt, HasMany } from "sequelize-typescript";
 import { Invoice } from "./invoiceModel";
 import { Op, Sequelize } from "sequelize";
+import { Payee } from "./payeeModel";
 
 
 @Table({
@@ -48,17 +49,15 @@ export class Payment extends Model {
     })
     payment_status!: string;
 
+    @ForeignKey(() => Payee)
     @Column({
-        type: DataType.STRING,
-        allowNull: true
+        type: DataType.INTEGER,
+        allowNull: true,
     })
-    fname_payee!: string;
-
-    @Column({
-        type: DataType.STRING,
-        allowNull: true
-    })
-    lname_payee!: string;
+    idpayee!: number;
+    
+    @BelongsTo(() => Payee)
+    payee!: Payee;
 
     @Column({
         type: DataType.TEXT,

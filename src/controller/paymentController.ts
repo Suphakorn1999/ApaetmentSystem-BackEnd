@@ -9,6 +9,7 @@ import { PaymentType } from '../models/paymentTypeModel';
 import { Op, where } from 'sequelize';
 import { UserRoom } from '../models/user_roomModel';
 import multer, { Multer } from 'multer';
+import { Payee } from '../models/payeeModel';
 
 export const createPaymentType: RequestHandler = async (req, res) => {
     try {
@@ -57,8 +58,7 @@ export const updatePaymentByidinvoice: RequestHandler = async (req, res) => {
             payment: data.payment,
             payment_status: data.payment_status,
             note: data.note,
-            fname_payee: data.fname_payee,
-            lname_payee: data.lname_payee,
+            idpayee: data.idpayee
         }, { where: { idinvoice: req.params.id } });
         if (payment) {
             return res.status(200).json({ message: 'ชำระเงินสำเร็จ' });
@@ -155,6 +155,47 @@ export const updatePaymentByidinvoiceAndUploadfile: RequestHandler = async (req,
 
     } catch (err: any) {
         await t?.rollback();
+        return res.status(500).json({ message: err.message });
+    }
+}
+
+export const getAllpayee: RequestHandler = async (req, res) => {
+    try {
+        const payee = await Payee.findAll();
+        if (payee.length == 0) {
+            return res.status(404).json({ message: 'ไม่มีผู้รับเงิน' });
+        }
+        return res.status(200).json({ data: payee });
+    } catch (err: any) {
+        return res.status(500).json({ message: err.message });
+    }
+}
+
+export const createPayee: RequestHandler = async (req, res) => {
+    try {
+        const { fname_payee, lname_payee } = req.body;
+        const payee = await Payee.findOne({ where: { fname_payee: fname_payee, lname_payee: lname_payee } });
+        if (payee) {
+            return res.status(400).json({ message: 'ผู้รับเงินนี้มีอยู่แล้ว' });
+        } else {
+            const payee = await Payee.create({ fname_payee: fname_payee, lname_payee: lname_payee });
+            return res.status(200).json({ message: 'เพิ่มผู้รับเงินสำเร็จ' });
+        }
+    } catch (err: any) {
+        return res.status(500).json({ message: err.message });
+    }
+}
+
+export const updatePayee: RequestHandler = async (req, res) => {
+    try {
+        const { fname_payee, lname_payee } = req.body;
+        const payee = await Payee.update({ fname_payee: fname_payee, lname_payee: lname_payee }, { where: { idpayee: req.params.id } });
+        if (payee) {
+            return res.status(200).json({ message: 'แก้ไขผู้รับเงินสำเร็จ' });
+        } else {
+            return res.status(400).json({ message: 'แก้ไขผู้รับเงินไม่สำเร็จ' });
+        }
+    } catch (err: any) {
         return res.status(500).json({ message: err.message });
     }
 }

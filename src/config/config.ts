@@ -17,7 +17,7 @@ import { ReportType } from '../models/reporttypeModel';
 import { Threads } from '../models/threadsModel';
 import { Posts } from '../models/postsModel';
 import { Comment } from '../models/commentModel';
-
+import { Payee } from '../models/payeeModel';
 
 const connection = new Sequelize({
   dialect: 'mysql',
@@ -45,6 +45,7 @@ const connection = new Sequelize({
     Threads,
     Posts,
     Comment,
+    Payee,
   ],
   sync: { force: false, alter: true },
 });
