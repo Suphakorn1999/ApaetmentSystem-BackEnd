@@ -123,4 +123,63 @@ export class Payment extends Model {
 
         return monthlyIncomes;
     }
+
+    static async MonthlyIncome(year: number): Promise<{ month: number, paid: number, pending: number }[]> {
+        const monthlyIncomes: { month: number, paid: number, pending: number }[] = Array(12).fill(0);
+
+        for (let month = 1; month <= 12; month++) {
+            const paid = await Payment.findAll({
+                where: {
+                    payment_status: 'paid'
+                },
+                include: [
+                    {
+                        model: Invoice,
+                        where: {
+                            createdAt: {
+                                [Op.and]: [
+                                    Sequelize.where(Sequelize.fn('YEAR', Sequelize.col('Invoice.createdAt')), year),
+                                    Sequelize.where(Sequelize.fn('MONTH', Sequelize.col('Invoice.createdAt')), month)
+                                ]
+                            }
+                        }
+                    }
+                ]
+            });
+
+            const pending = await Payment.findAll({
+                where: {
+                    payment_status: 'pending'
+                },
+                include: [
+                    {
+                        model: Invoice,
+                        where: {
+                            createdAt: {
+                                [Op.and]: [
+                                    Sequelize.where(Sequelize.fn('YEAR', Sequelize.col('Invoice.createdAt')), year),
+                                    Sequelize.where(Sequelize.fn('MONTH', Sequelize.col('Invoice.createdAt')), month)
+                                ]
+                            }
+                        }
+                    }
+                ]
+            });
+
+            monthlyIncomes[month - 1] = {
+                month,
+                paid: paid.reduce((sum, payment) => sum + 
+                    Number(payment.invoice.room_price + 
+                        (payment.invoice.electricmeter_new - payment.invoice.electricmeter_old) * payment.invoice.electric_price + 
+                        (payment.invoice.watermeter_new - payment.invoice.watermeter_old) * payment.invoice.water_price), 0),
+                pending: pending.reduce((sum, payment) => sum +
+                    Number(payment.invoice.room_price +
+                        (payment.invoice.electricmeter_new - payment.invoice.electricmeter_old) * payment.invoice.electric_price +
+                        (payment.invoice.watermeter_new - payment.invoice.watermeter_old) * payment.invoice.water_price), 0),
+            };
+        }
+
+        return monthlyIncomes;
+    }
+
 }

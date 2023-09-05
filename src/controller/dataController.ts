@@ -76,7 +76,7 @@ export const getCountAll: RequestHandler = async (req, res) => {
     }
 };
 
-export const getmonthlyincome = async (req: any, res: any) => {
+export const getmonthlyincomecount = async (req: any, res: any) => {
     try {
         const { year } = req.query;
         const monthNames = [
@@ -97,6 +97,32 @@ export const getmonthlyincome = async (req: any, res: any) => {
         return res.status(200).json({ data: barChartData });
 
     } catch (err: any) {
+        return res.status(500).json({ message: err.message });
+    }
+}
+
+export const getmonthlyincome = async (req: any, res: any) => {
+    try {
+        const { year } = req.query;
+        const monthNames = [
+            "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน",
+            "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม",
+            "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
+        ];
+        const monthlyIncome = await Payment.MonthlyIncome(year);
+
+        const barChartData = monthlyIncome.map((income: any, index) => {
+            return {
+                เดือน: monthNames[index],
+                จ่ายแล้ว: income.paid,
+                ค้างจ่าย: income.pending
+            }
+        });
+
+        return res.status(200).json({ data: barChartData });
+
+    }
+    catch (err: any) {
         return res.status(500).json({ message: err.message });
     }
 }

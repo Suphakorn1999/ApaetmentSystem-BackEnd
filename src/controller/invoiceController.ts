@@ -1,4 +1,4 @@
-import { RequestHandler } from 'express';
+import e, { RequestHandler } from 'express';
 import { Invoice } from '../models/invoiceModel';
 import { Users } from '../models/userModel';
 import { Room } from '../models/roomModel';
@@ -360,8 +360,7 @@ export const getAllInvoiceMonthly: RequestHandler = async (req, res) => {
         data.sort((a: any, b: any) => {
             return parseInt(a.room_number) - parseInt(b.room_number);
         })
-
-
+        
         return res.status(200).json({ data: data });
 
     } catch (err: any) {
@@ -392,40 +391,73 @@ export const getAllInvoiceMonthlys: RequestHandler = async (req, res) => {
             where: { idrole: { [Op.ne]: 1 } }
         })
 
+        const room = await Room.findAll();
+
         if (users.length == 0) {
             return res.status(200).json({ data: [] });
         }
 
-        users.forEach((user) => {
-            data.push({
-                room_number: user.user_room[0]?.room.room_number,
-                username: user.username,
-                fname: user.user_detail[0]?.fname,
-                lname: user.user_detail[0]?.lname,
-                room_price: parseInt(user.user_room[0]?.room.roomtype.room_price),
-                watermeter_old: user.user_room[0]?.invoice[0]?.watermeter_old,
-                watermeter_new: user.user_room[0]?.invoice[0]?.watermeter_new,
-                electricmeter_old: user.user_room[0]?.invoice[0]?.electricmeter_old,
-                electricmeter_new: user.user_room[0]?.invoice[0]?.electricmeter_new,
-                water_price: user.user_room[0]?.invoice[0]?.water_price,
-                electric_price: user.user_room[0]?.invoice[0]?.electric_price,
-                total: (
-                    user.user_room[0]?.invoice[0]?.room_price +
-                    (user.user_room[0]?.invoice[0]?.watermeter_new - user.user_room[0]?.invoice[0]?.watermeter_old) * user.user_room[0]?.invoice[0]?.water_price +
-                    (user.user_room[0]?.invoice[0]?.electricmeter_new - user.user_room[0]?.invoice[0]?.electricmeter_old) * user.user_room[0]?.invoice[0]?.electric_price
-                ),
-                payment_status: user.user_room[0]?.invoice[0]?.payment[0]?.payment_status,
-                updatedAt: user.user_room[0]?.invoice[0]?.payment[0]?.updatedAt,
-                fname_payee: user.user_room[0]?.invoice[0]?.payment[0]?.payee?.fname_payee,
-                lname_payee: user.user_room[0]?.invoice[0]?.payment[0]?.payee?.lname_payee,
-            })
+        if (room.length == 0) {
+            return res.status(200).json({ data: [] });
+        }
+
+
+        room.forEach((room,index) => {
+            const roomUser = users.filter((user) => user.user_room[0]?.idroom === room.idroom);
+
+            if(roomUser.length > 0){
+                roomUser.forEach((user) => {
+                    const userRoom = user.user_room[0];
+                    const invoice = userRoom.invoice[0];
+                    const payment = invoice.payment[0];
+                    const roomPrice = parseInt(userRoom.room.roomtype.room_price);
+                    
+                    data.push({
+                        room_number: userRoom?.room.room_number,
+                        username: user.username,
+                        fname: user.user_detail[0]?.fname || '-',
+                        lname: user.user_detail[0]?.lname || '-',
+                        room_price: roomPrice || 0,
+                        watermeter_old: invoice?.watermeter_old || 0,
+                        watermeter_new: invoice?.watermeter_new || 0,
+                        electricmeter_old: invoice?.electricmeter_old || 0,
+                        electricmeter_new: invoice?.electricmeter_new || 0,
+                        water_price: invoice?.water_price || 0,
+                        electric_price: invoice?.electric_price || 0,
+                        total:
+                            roomPrice +
+                            ((invoice?.watermeter_new - invoice?.watermeter_old) || 0) * (invoice?.water_price || 0) +
+                            ((invoice?.electricmeter_new - invoice?.electricmeter_old) || 0) * (invoice?.electric_price || 0),
+                        payment_status: payment?.payment_status || '',
+                        updatedAt: payment?.updatedAt || '',
+                        fname_payee: payment?.payee?.fname_payee || '',
+                        lname_payee: payment?.payee?.lname_payee || '',
+                    });
+                })
+            }else{
+                data.push({
+                    room_number: room.room_number,
+                    username: '-',
+                    fname: '-',
+                    lname: '-',
+                    room_price: 0,
+                    watermeter_old: 0,
+                    watermeter_new: 0,
+                    electricmeter_old: 0,
+                    electricmeter_new: 0,
+                    water_price: 0,
+                    electric_price: 0,
+                    total: 0,
+                    payment_status: '',
+                    updatedAt: '',
+                    fname_payee: '',
+                    lname_payee: '',
+                });
+            }
         })
 
-        data.sort((a: any, b: any) => {
-            return parseInt(a.room_number) - parseInt(b.room_number);
-        })
-
-
+        data.sort((a: any, b: any) => { return parseInt(a.room_number) - parseInt(b.room_number); });
+        
         return res.status(200).json({ data: data });
 
     } catch (err: any) {
