@@ -432,6 +432,13 @@ export const updateidRoomByiduser: RequestHandler = async (req, res) => {
         const deposit = req.body.deposit;
         const watermeterstart = req.body.watermeterstart;
         const electricmeterstart = req.body.electricmeterstart;
+        const deposit_plus = req.body.deposit_plus;
+        let deposit_Total = 0;
+        if(deposit_plus !== null && deposit_plus !== undefined){
+            deposit_Total = deposit + deposit_plus;
+        }else{
+            deposit_Total = deposit;
+        }
         const userRoom = await UserRoom.findOne({ where: { iduser: iduser, status: 'active' }, include: [{ model: Room, attributes: ['room_status'] }] });
         if (date_out !== null && date_out !== undefined) {
             if (userRoom) {
@@ -452,7 +459,7 @@ export const updateidRoomByiduser: RequestHandler = async (req, res) => {
         if (userRoom) {
             if (userRoom.room.room_status == 'full') {
                 if (userRoom.idroom == idroom) {
-                    await UserRoom.update({ idroom: idroom, date_in: date_in, deposit: deposit, watermeterstart: watermeterstart, electricmeterstart: electricmeterstart }, { where: { iduser_room: userRoom.iduser_room } });
+                    await UserRoom.update({ idroom: idroom, date_in: date_in, deposit: deposit_Total, watermeterstart: watermeterstart, electricmeterstart: electricmeterstart }, { where: { iduser_room: userRoom.iduser_room } });
                     return res.status(200).json({ message: 'อัปเดตห้องพักสำเร็จ' });
                 } else {
                     return res.status(400).json({ message: 'ห้องพักนี้มีผู้เช่าคนอื่นอยู่' });

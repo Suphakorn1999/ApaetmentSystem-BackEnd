@@ -41,10 +41,10 @@ export class UserRoom extends Model {
     room!: Room;
 
     @Column({
-        type: DataType.STRING,
+        type: DataType.INTEGER,
         allowNull: true
     })
-    deposit!: string;
+    deposit!: number;
 
     @Column({
         type: DataType.INTEGER,

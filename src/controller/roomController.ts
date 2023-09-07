@@ -6,7 +6,9 @@ import dayjs from "dayjs";
 import "dayjs/locale/th";
 import { Users } from '../models/userModel';
 import { UserRoom } from '../models/user_roomModel';
-import { Op, where } from 'sequelize';
+import { Op, Sequelize, where } from 'sequelize';
+import { Invoice } from '../models/invoiceModel';
+import { Payment } from '../models/paymentModel';
 dayjs.locale("th");
 
 
@@ -154,6 +156,14 @@ export const updateRoom: RequestHandler = async (req, res) => {
 
                 await Room.update({
                     room_status: data.room_status,
+                    status_room: data.status_room
+                }, { where: { idroom: req.params.id }, transaction: t });
+
+                await t?.commit();
+                return res.status(200).json({ message: 'อัปเดตข้อมูลห้องสำเร็จ' });
+            } else {
+                await Room.update({
+                    room_status: data.room_status,
                 }, { where: { idroom: req.params.id }, transaction: t });
 
                 await t?.commit();
@@ -186,7 +196,7 @@ export const getAllUserInRoom: RequestHandler = async (req, res) => {
                     where: { idrole: { [Op.ne]: 1 } }
                 },
                 { model: Room, include: [{ model: RoomType }] }],
-                where:{status:"active"}
+            where: { status: "active" }
         });
 
         if (userroom.length == 0) {
@@ -218,27 +228,56 @@ export const getAllUserInRoom: RequestHandler = async (req, res) => {
 
 export const getAllUserInRooms: RequestHandler = async (req, res) => {
     try {
-        const userroom = await UserRoom.findAll({
-            include: [{ model: Users, include: [{ model: UserDetail }], where: { idrole: { [Op.ne]: 1 } } }, { model: Room, include: [{ model: RoomType }] }],
+        const month = req.params.month;
+        const year = req.params.year;
+
+        const userroomhave = await UserRoom.findAll({
+            include: [
+                { model: Users, include: [{ model: UserDetail }], where: { idrole: { [Op.ne]: 1 } } },
+                { model: Room, include: [{ model: RoomType }] },
+                {
+                    model: Invoice, include: [{ model: Payment }],
+                    where: {
+                        [Op.and]: [
+                            Sequelize.where(Sequelize.fn('MONTH', Sequelize.col('invoice.date_invoice')), month),
+                            Sequelize.where(Sequelize.fn('YEAR', Sequelize.col('invoice.date_invoice')), year)
+                        ]
+                    }
+                }
+            ],
             where: { status: "active" }
         });
 
-        if (userroom.length == 0) {
-            return res.status(404).json({ message: 'ไม่มีผู้ใช้ในห้องนี้' });
-        }
+        const userroomAll = await UserRoom.findAll({
+            include: [
+                { model: Users, include: [{ model: UserDetail }], where: { idrole: { [Op.ne]: 1 } } },
+                { model: Room, include: [{ model: RoomType }] },
+                {
+                    model: Invoice, include: [{ model: Payment }],
+                }
+            ],
+            where: { status: "active" }
+        });
 
         const data: object[] = [];
 
-        userroom.forEach((element: any) => {
-            data.push({
-                iduser_room: element.iduser_room,
-                fname: element.users.user_detail[0]?.fname,
-                lname: element.users.user_detail[0]?.lname,
-                room_number: element.room.room_number,
-                room_type_name: element.room.roomtype.room_type_name,
-            });
-        });
+        userroomAll.forEach((e: any) => {
+            const check = userroomhave.find((element: any) => element.iduser_room == e.iduser_room);
 
+            if (!check) {
+                data.push({
+                    iduser: e.users.iduser,
+                    iduser_room: e.iduser_room,
+                    fname: e.users.user_detail[0]?.fname,
+                    lname: e.users.user_detail[0]?.lname,
+                    room_number: e.room.room_number,
+                    room_type_name: e.room.roomtype.room_type_name,
+                    date_in: e.date_in,
+                    date_out: e.date_out,
+                    status: e.status,
+                });
+            }
+        });
 
         return res.status(200).json({ data: data });
     } catch (err: any) {

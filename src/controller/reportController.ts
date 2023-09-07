@@ -59,7 +59,8 @@ export const updateReportType: RequestHandler = async (req, res) => {
     try {
         const data: ReportType = req.body;
         const reportType = await ReportType.update({
-            report_type: data.report_type
+            report_type: data.report_type,
+            status: data.status
         }, { where: { idreport_type: req.params.id } });
         if (reportType) {
             return res.status(200).json({ message: 'แก้ไขประเภทรายงานสำเร็จ' });

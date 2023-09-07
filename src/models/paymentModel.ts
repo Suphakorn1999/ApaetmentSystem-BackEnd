@@ -84,10 +84,10 @@ export class Payment extends Model {
                     {
                         model: Invoice,
                         where: {
-                            createdAt: {
+                            date_invoice: {
                                 [Op.and]: [
-                                    Sequelize.where(Sequelize.fn('YEAR', Sequelize.col('Invoice.createdAt')), year),
-                                    Sequelize.where(Sequelize.fn('MONTH', Sequelize.col('Invoice.createdAt')), month)
+                                    Sequelize.where(Sequelize.fn('YEAR', Sequelize.col('Invoice.date_invoice')), year),
+                                    Sequelize.where(Sequelize.fn('MONTH', Sequelize.col('Invoice.date_invoice')), month)
                                 ]
                             }
                         }
@@ -103,10 +103,10 @@ export class Payment extends Model {
                     {
                         model: Invoice,
                         where: {
-                            createdAt: {
+                            date_invoice: {
                                 [Op.and]: [
-                                    Sequelize.where(Sequelize.fn('YEAR', Sequelize.col('Invoice.createdAt')), year),
-                                    Sequelize.where(Sequelize.fn('MONTH', Sequelize.col('Invoice.createdAt')), month)
+                                    Sequelize.where(Sequelize.fn('YEAR', Sequelize.col('Invoice.date_invoice')), year),
+                                    Sequelize.where(Sequelize.fn('MONTH', Sequelize.col('Invoice.date_invoice')), month)
                                 ]
                             }
                         }
@@ -136,10 +136,10 @@ export class Payment extends Model {
                     {
                         model: Invoice,
                         where: {
-                            createdAt: {
+                            date_invoice: {
                                 [Op.and]: [
-                                    Sequelize.where(Sequelize.fn('YEAR', Sequelize.col('Invoice.createdAt')), year),
-                                    Sequelize.where(Sequelize.fn('MONTH', Sequelize.col('Invoice.createdAt')), month)
+                                    Sequelize.where(Sequelize.fn('YEAR', Sequelize.col('Invoice.date_invoice')), year),
+                                    Sequelize.where(Sequelize.fn('MONTH', Sequelize.col('Invoice.date_invoice')), month)
                                 ]
                             }
                         }
@@ -155,10 +155,10 @@ export class Payment extends Model {
                     {
                         model: Invoice,
                         where: {
-                            createdAt: {
+                            date_invoice: {
                                 [Op.and]: [
-                                    Sequelize.where(Sequelize.fn('YEAR', Sequelize.col('Invoice.createdAt')), year),
-                                    Sequelize.where(Sequelize.fn('MONTH', Sequelize.col('Invoice.createdAt')), month)
+                                    Sequelize.where(Sequelize.fn('YEAR', Sequelize.col('Invoice.date_invoice')), year),
+                                    Sequelize.where(Sequelize.fn('MONTH', Sequelize.col('Invoice.date_invoice')), month)
                                 ]
                             }
                         }

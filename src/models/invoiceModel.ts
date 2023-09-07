@@ -71,6 +71,12 @@ export class Invoice extends Model {
     })
     water_price!: number;
 
+    @Column({
+        type: DataType.DATEONLY,
+        allowNull: true,
+    })
+    date_invoice!: Date;
+
     @HasMany(() => Payment)
     payment!: Payment[];
 }

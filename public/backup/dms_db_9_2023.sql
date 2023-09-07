@@ -60,8 +60,8 @@ CREATE TABLE `comment` (
   PRIMARY KEY (`idcomment`),
   KEY `iduser` (`iduser`),
   KEY `idposts` (`idposts`),
-  CONSTRAINT `comment_ibfk_2393` FOREIGN KEY (`iduser`) REFERENCES `users` (`iduser`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `comment_ibfk_2394` FOREIGN KEY (`idposts`) REFERENCES `posts` (`idposts`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `comment_ibfk_2395` FOREIGN KEY (`iduser`) REFERENCES `users` (`iduser`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `comment_ibfk_2396` FOREIGN KEY (`idposts`) REFERENCES `posts` (`idposts`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -188,8 +188,8 @@ CREATE TABLE `payment` (
   PRIMARY KEY (`idpayment`),
   KEY `idinvoice` (`idinvoice`),
   KEY `idpayee` (`idpayee`),
-  CONSTRAINT `payment_ibfk_551` FOREIGN KEY (`idinvoice`) REFERENCES `invoice` (`idinvoice`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `payment_ibfk_552` FOREIGN KEY (`idpayee`) REFERENCES `payee` (`idpayee`) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT `payment_ibfk_553` FOREIGN KEY (`idinvoice`) REFERENCES `invoice` (`idinvoice`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `payment_ibfk_554` FOREIGN KEY (`idpayee`) REFERENCES `payee` (`idpayee`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -247,8 +247,8 @@ CREATE TABLE `posts` (
   PRIMARY KEY (`idposts`),
   KEY `iduser` (`iduser`),
   KEY `idthreads` (`idthreads`),
-  CONSTRAINT `posts_ibfk_2971` FOREIGN KEY (`iduser`) REFERENCES `users` (`iduser`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  CONSTRAINT `posts_ibfk_2972` FOREIGN KEY (`idthreads`) REFERENCES `threads` (`idthreads`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `posts_ibfk_2973` FOREIGN KEY (`iduser`) REFERENCES `users` (`iduser`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `posts_ibfk_2974` FOREIGN KEY (`idthreads`) REFERENCES `threads` (`idthreads`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -305,8 +305,8 @@ CREATE TABLE `report` (
   PRIMARY KEY (`idreport`),
   KEY `iduser_room` (`iduser_room`),
   KEY `idreport_type` (`idreport_type`),
-  CONSTRAINT `report_ibfk_521` FOREIGN KEY (`iduser_room`) REFERENCES `user_room` (`iduser_room`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  CONSTRAINT `report_ibfk_522` FOREIGN KEY (`idreport_type`) REFERENCES `report_type` (`idreport_type`) ON DELETE NO ACTION ON UPDATE CASCADE
+  CONSTRAINT `report_ibfk_523` FOREIGN KEY (`iduser_room`) REFERENCES `user_room` (`iduser_room`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `report_ibfk_524` FOREIGN KEY (`idreport_type`) REFERENCES `report_type` (`idreport_type`) ON DELETE NO ACTION ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -558,8 +558,8 @@ CREATE TABLE `user_room` (
   PRIMARY KEY (`iduser_room`),
   KEY `iduser` (`iduser`),
   KEY `idroom` (`idroom`),
-  CONSTRAINT `user_room_ibfk_1033` FOREIGN KEY (`iduser`) REFERENCES `users` (`iduser`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `user_room_ibfk_1034` FOREIGN KEY (`idroom`) REFERENCES `room` (`idroom`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `user_room_ibfk_1035` FOREIGN KEY (`iduser`) REFERENCES `users` (`iduser`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `user_room_ibfk_1036` FOREIGN KEY (`idroom`) REFERENCES `room` (`idroom`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -611,4 +611,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-09-07 17:57:49
+-- Dump completed on 2023-09-07 18:05:23

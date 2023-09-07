@@ -9,7 +9,7 @@ router.get('/getRoomtype', verifyToken, getRoomtype);
 router.get('/getRoomtype/:id', verifyToken, getRoomTypeByid);
 router.get('/getRoom/:id', verifyToken, getRoomByid);
 router.get('/getAllUserInRoom', verifyToken, getAllUserInRoom);
-router.get('/getAllUserInRooms', verifyToken, getAllUserInRooms);
+router.get('/getAllUserInRooms/:month/:year', verifyToken, getAllUserInRooms);
 router.get('/getRoomtypedrop', verifyToken, getRoomtypedrop);
 router.get('/getRoomEmptyAndUsernotInRoom', verifyToken, getRoomEmptyAndUsernotInRoom);
 

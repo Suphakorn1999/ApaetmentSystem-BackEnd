@@ -12,7 +12,9 @@ import { Payee } from '../models/payeeModel';
 export const getallInvoices: RequestHandler = async (req, res) => {
     try {
         const data: object[] = []
-
+        const month: any = req.params.month;
+        const year: any = req.params.year;
+        
         const invoices = await Invoice.findAll({
             include: [
                 { model: Payment },
@@ -32,7 +34,8 @@ export const getallInvoices: RequestHandler = async (req, res) => {
                     ]
                 },
             ],
-            order: [['createdAt', 'DESC']]
+            order: [['date_invoice', 'DESC']],
+            where: { date_invoice: { [Op.between]: [new Date(year, month - 1, 1), new Date(year, month, 0)] } }
         });
 
         if (invoices.length == 0) {
@@ -46,7 +49,7 @@ export const getallInvoices: RequestHandler = async (req, res) => {
                 fname: invoice.user_room.users.user_detail[0]?.fname,
                 lname: invoice.user_room.users.user_detail[0]?.lname,
                 room_number: invoice.user_room.room.room_number,
-                date_invoice: invoice.createdAt,
+                date_invoice: invoice.date_invoice,
                 payment_status: invoice.payment[0]?.payment_status,
                 updatedAt: invoice.payment[0]?.updatedAt,
                 total: (
@@ -56,7 +59,6 @@ export const getallInvoices: RequestHandler = async (req, res) => {
                 )
             })
         })
-
 
         return res.status(200).json({ data: data });
 
@@ -83,7 +85,7 @@ export const getInvoiceByid: RequestHandler = async (req, res) => {
                 include: [{ model: Payment }],
                 order: [['idinvoice', 'DESC']]
             });
-            
+
             if (invoice) {
                 data.push({
                     iduser: userroom.users.iduser,
@@ -139,6 +141,7 @@ export const createInvoice: RequestHandler = async (req, res) => {
                 electricmeter_new: data.electricmeter_new,
                 electric_price: data.electric_price,
                 water_price: data.water_price,
+                date_invoice: data.date_invoice,
             }, { transaction: t });
 
             await Payment.create({
@@ -360,7 +363,7 @@ export const getAllInvoiceMonthly: RequestHandler = async (req, res) => {
         data.sort((a: any, b: any) => {
             return parseInt(a.room_number) - parseInt(b.room_number);
         })
-        
+
         return res.status(200).json({ data: data });
 
     } catch (err: any) {
@@ -402,16 +405,16 @@ export const getAllInvoiceMonthlys: RequestHandler = async (req, res) => {
         }
 
 
-        room.forEach((room,index) => {
+        room.forEach((room, index) => {
             const roomUser = users.filter((user) => user.user_room[0]?.idroom === room.idroom);
 
-            if(roomUser.length > 0){
+            if (roomUser.length > 0) {
                 roomUser.forEach((user) => {
                     const userRoom = user.user_room[0];
                     const invoice = userRoom.invoice[0];
                     const payment = invoice.payment[0];
                     const roomPrice = parseInt(userRoom.room.roomtype.room_price);
-                    
+
                     data.push({
                         room_number: userRoom?.room.room_number,
                         username: user.username,
@@ -434,7 +437,7 @@ export const getAllInvoiceMonthlys: RequestHandler = async (req, res) => {
                         lname_payee: payment?.payee?.lname_payee || '',
                     });
                 })
-            }else{
+            } else {
                 data.push({
                     room_number: room.room_number,
                     username: '-',
@@ -457,7 +460,7 @@ export const getAllInvoiceMonthlys: RequestHandler = async (req, res) => {
         })
 
         data.sort((a: any, b: any) => { return parseInt(a.room_number) - parseInt(b.room_number); });
-        
+
         return res.status(200).json({ data: data });
 
     } catch (err: any) {
