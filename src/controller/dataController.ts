@@ -1,4 +1,4 @@
-import { RequestHandler } from 'express';
+import e, { RequestHandler } from 'express';
 import { Users } from '../models/userModel';
 import { Room } from '../models/roomModel';
 import { Report } from '../models/reportModel';
@@ -9,6 +9,12 @@ import { Sequelize } from 'sequelize-typescript';
 import { RoomType } from '../models/roomtypeModel';
 import { UserRoom } from '../models/user_roomModel';
 import { UserDetail } from '../models/userdetailModel';
+import { exec, spawn } from 'child_process';
+import dotenv from 'dotenv';
+dotenv.config();
+import path from 'path';
+import fs from 'fs';
+
 
 export const getCountAll: RequestHandler = async (req, res) => {
     try {
@@ -157,3 +163,52 @@ export const getCountBadge = async (req: any, res: any) => {
         return res.status(500).json({ message: err.message });
     }
 }
+
+export const backupdatabase = async (req: any, res: any) => {
+    try {
+        const dbName = process.env.NAME_DB;
+        const month = new Date().getMonth() + 1;
+        const year = new Date().getFullYear();
+        const username = process.env.USER_DB;
+        const password = process.env.PASSWORD_DB;
+        const host = process.env.HOST_DB;
+        const backupFileName = `${dbName}_${month}_${year}.sql`;
+        const mysqldumpPath = 'C:/xampp/mysql/bin/mysqldump.exe';
+        const backupFilePath = path.resolve(`public/backup/${backupFileName}`);
+
+        const mysqldumpCmd = spawn(mysqldumpPath, [
+            `--host=${host}`,
+            `--user=${username}`,
+            `--password=${password}`,
+            `${dbName}`,
+        ]);
+
+        const backupStream = require('fs').createWriteStream(backupFilePath);
+
+        mysqldumpCmd.stdout.pipe(backupStream);
+
+        mysqldumpCmd.on('error', (err) => {
+            console.error(err);
+            return res.status(500).json({ error: 'Failed to create database backup' });
+        });
+
+        mysqldumpCmd.on('exit', (code) => {
+            if (code === 0) {
+                return res.attachment(backupFilePath).sendFile(backupFilePath, (err: any) => {
+                    if (err) {
+                        console.error(err);
+                        return res.status(500).json({ error: 'Failed to send backup file' });
+                    }
+                });
+            } else {
+                console.error(code);
+                return res.status(500).json({ error: 'Failed to create database backup' });
+            }
+        });
+
+    } catch (err: any) {
+        return res.status(500).json({ message: err.message });
+    }
+}
+
+

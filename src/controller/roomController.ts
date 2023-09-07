@@ -186,6 +186,7 @@ export const getAllUserInRoom: RequestHandler = async (req, res) => {
                     where: { idrole: { [Op.ne]: 1 } }
                 },
                 { model: Room, include: [{ model: RoomType }] }],
+                where:{status:"active"}
         });
 
         if (userroom.length == 0) {

@@ -18,13 +18,15 @@ import { Threads } from '../models/threadsModel';
 import { Posts } from '../models/postsModel';
 import { Comment } from '../models/commentModel';
 import { Payee } from '../models/payeeModel';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const connection = new Sequelize({
   dialect: 'mysql',
-  host: 'localhost',
-  username: 'root',
-  password: '1234',
-  database: 'dms_db',
+  host: process.env.HOST_DB || 'localhost',
+  username: process.env.USER_DB || 'root',
+  password: process.env.PASSWORD_DB || '',
+  database: process.env.NAME_DB || 'name_db',
   logging: false,
   models: [
     Users,

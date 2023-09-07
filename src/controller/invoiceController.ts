@@ -81,9 +81,9 @@ export const getInvoiceByid: RequestHandler = async (req, res) => {
             const invoice = await Invoice.findOne({
                 where: { iduser_room: req.params.id },
                 include: [{ model: Payment }],
-                order: [['createdAt', 'DESC']]
+                order: [['idinvoice', 'DESC']]
             });
-
+            
             if (invoice) {
                 data.push({
                     iduser: userroom.users.iduser,
@@ -91,8 +91,8 @@ export const getInvoiceByid: RequestHandler = async (req, res) => {
                     lname: userroom.users.user_detail[0]?.lname,
                     room_number: userroom.room.room_number,
                     room_price: userroom.room.roomtype.room_price,
-                    watermeter_old: invoice.watermeter_old,
-                    electricmeter_old: invoice.electricmeter_old,
+                    watermeter_old: invoice.watermeter_new,
+                    electricmeter_old: invoice.electricmeter_new,
                     water_price: userroom.room.roomtype.WaterMeterprice,
                     electric_price: userroom.room.roomtype.ElectricMeterprice,
                 })
