@@ -44,6 +44,12 @@ export class UserDetail extends Model {
         type: DataType.STRING,
         allowNull: true
     })
+    address!: string;
+
+    @Column({
+        type: DataType.STRING,
+        allowNull: true
+    })
     province!: string;
 
     @Column({

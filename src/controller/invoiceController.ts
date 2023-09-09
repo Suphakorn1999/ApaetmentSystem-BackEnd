@@ -14,7 +14,7 @@ export const getallInvoices: RequestHandler = async (req, res) => {
         const data: object[] = []
         const month: any = req.params.month;
         const year: any = req.params.year;
-        
+
         const invoices = await Invoice.findAll({
             include: [
                 { model: Payment },
@@ -322,7 +322,7 @@ export const getAllInvoiceMonthly: RequestHandler = async (req, res) => {
                         include: [{
                             model: Payment, attributes: ['payment_status', 'updatedAt'],
                             include: [{ model: Payee }], where: { payment_status: "paid" }
-                        }], where: { [Op.and]: [{ createdAt: { [Op.gte]: new Date(year, month - 1, 1) } }, { createdAt: { [Op.lte]: new Date(year, month, 0) } }] }
+                        }], where: { [Op.and]: [{ date_invoice: { [Op.gte]: new Date(year, month - 1, 1) } }, { createdAt: { [Op.lte]: new Date(year, month, 0) } }] }
                     }
                     ]
                 },
@@ -339,24 +339,16 @@ export const getAllInvoiceMonthly: RequestHandler = async (req, res) => {
             data.push({
                 room_number: user.user_room[0]?.room.room_number,
                 username: user.username,
-                fname: user.user_detail[0]?.fname,
-                lname: user.user_detail[0]?.lname,
+                name: user.user_detail[0]?.fname + ' ' + user.user_detail[0]?.lname,
                 room_price: parseInt(user.user_room[0]?.room.roomtype.room_price),
-                watermeter_old: user.user_room[0]?.invoice[0]?.watermeter_old,
-                watermeter_new: user.user_room[0]?.invoice[0]?.watermeter_new,
-                electricmeter_old: user.user_room[0]?.invoice[0]?.electricmeter_old,
-                electricmeter_new: user.user_room[0]?.invoice[0]?.electricmeter_new,
-                water_price: user.user_room[0]?.invoice[0]?.water_price,
-                electric_price: user.user_room[0]?.invoice[0]?.electric_price,
+                water_price: user.user_room[0]?.invoice[0]?.water_price * (user.user_room[0]?.invoice[0]?.watermeter_new - user.user_room[0]?.invoice[0]?.watermeter_old),
+                electric_price: user.user_room[0]?.invoice[0]?.electric_price * (user.user_room[0]?.invoice[0]?.electricmeter_new - user.user_room[0]?.invoice[0]?.electricmeter_old),
                 total: (
                     user.user_room[0]?.invoice[0]?.room_price +
                     (user.user_room[0]?.invoice[0]?.watermeter_new - user.user_room[0]?.invoice[0]?.watermeter_old) * user.user_room[0]?.invoice[0]?.water_price +
                     (user.user_room[0]?.invoice[0]?.electricmeter_new - user.user_room[0]?.invoice[0]?.electricmeter_old) * user.user_room[0]?.invoice[0]?.electric_price
                 ),
-                payment_status: user.user_room[0]?.invoice[0]?.payment[0]?.payment_status,
-                updatedAt: user.user_room[0]?.invoice[0]?.payment[0]?.updatedAt,
-                fname_payee: user.user_room[0]?.invoice[0]?.payment[0]?.payee?.fname_payee,
-                lname_payee: user.user_room[0]?.invoice[0]?.payment[0]?.payee?.lname_payee,
+                name_payee: user.user_room[0]?.invoice[0]?.payment[0]?.payee?.fname_payee + ' ' + user.user_room[0]?.invoice[0]?.payment[0]?.payee?.lname_payee,
             })
         })
 
@@ -386,7 +378,14 @@ export const getAllInvoiceMonthlys: RequestHandler = async (req, res) => {
                             model: RoomType
                         }], order: [['room_number', 'DESC']], required: true
                     },
-                    { model: Invoice, required: true, include: [{ model: Payment, required: false, attributes: ['payment_status', 'updatedAt'], include: [{ model: Payee }] }], where: { [Op.and]: [{ createdAt: { [Op.gte]: new Date(year, month - 1, 1) } }, { createdAt: { [Op.lte]: new Date(year, month, 0) } }] } }
+                    {
+                        model: Invoice, required: true,
+                        include: [{
+                            model: Payment, required: false, attributes: ['payment_status', 'updatedAt'],
+                            include: [{ model: Payee }]
+                        }],
+                        where: { [Op.and]: [{ date_invoice: { [Op.gte]: new Date(year, month - 1, 1) } }, { createdAt: { [Op.lte]: new Date(year, month, 0) } }] }
+                    }
                     ]
                 },
                 { model: UserDetail, attributes: ['fname', 'lname'] },
@@ -418,43 +417,30 @@ export const getAllInvoiceMonthlys: RequestHandler = async (req, res) => {
                     data.push({
                         room_number: userRoom?.room.room_number,
                         username: user.username,
-                        fname: user.user_detail[0]?.fname || '-',
-                        lname: user.user_detail[0]?.lname || '-',
+                        name: user.user_detail[0]?.fname + ' ' + user.user_detail[0]?.lname,
                         room_price: roomPrice || 0,
-                        watermeter_old: invoice?.watermeter_old || 0,
-                        watermeter_new: invoice?.watermeter_new || 0,
-                        electricmeter_old: invoice?.electricmeter_old || 0,
-                        electricmeter_new: invoice?.electricmeter_new || 0,
-                        water_price: invoice?.water_price || 0,
-                        electric_price: invoice?.electric_price || 0,
+                        water_price: invoice?.water_price * (invoice?.watermeter_new - invoice?.watermeter_old) || 0,
+                        electric_price: invoice?.electric_price * (invoice?.electricmeter_new - invoice?.electricmeter_old) || 0,
                         total:
                             roomPrice +
                             ((invoice?.watermeter_new - invoice?.watermeter_old) || 0) * (invoice?.water_price || 0) +
                             ((invoice?.electricmeter_new - invoice?.electricmeter_old) || 0) * (invoice?.electric_price || 0),
                         payment_status: payment?.payment_status || '',
-                        updatedAt: payment?.updatedAt || '',
-                        fname_payee: payment?.payee?.fname_payee || '',
-                        lname_payee: payment?.payee?.lname_payee || '',
+                        name_payee: payment?.payee?.fname_payee + ' ' + payment?.payee?.lname_payee,
                     });
                 })
             } else {
                 data.push({
                     room_number: room.room_number,
                     username: '-',
-                    fname: '-',
-                    lname: '-',
+                    name: '-',
                     room_price: 0,
-                    watermeter_old: 0,
-                    watermeter_new: 0,
-                    electricmeter_old: 0,
-                    electricmeter_new: 0,
                     water_price: 0,
                     electric_price: 0,
                     total: 0,
                     payment_status: '',
                     updatedAt: '',
-                    fname_payee: '',
-                    lname_payee: '',
+                    name_payee: '',
                 });
             }
         })
