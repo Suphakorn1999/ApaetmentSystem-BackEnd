@@ -211,4 +211,29 @@ export const backupdatabase = async (req: any, res: any) => {
     }
 }
 
+export const getStatisticsReport = async (req:any, res:any) => {
+    try {
+        const { year } = req.query;
+        
+        const monthNames = [
+            "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน",
+            "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม",
+            "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
+        ];
+
+        const statisticsReport = await Report.statisticsReportRoom(year);
+
+        const barChartData = statisticsReport.map((report: any, index) => {
+            return {
+                เดือน: monthNames[index],
+                จำนวน: report
+            }
+        });
+
+        return res.status(200).json({ data: barChartData });
+    } catch (err: any) {
+        return res.status(500).json({ message: err.message });
+    }
+}
+
 
