@@ -60,9 +60,9 @@ CREATE TABLE `comment` (
   PRIMARY KEY (`idcomment`),
   KEY `iduser` (`iduser`),
   KEY `idposts` (`idposts`),
-  CONSTRAINT `comment_ibfk_303` FOREIGN KEY (`iduser`) REFERENCES `users` (`iduser`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `comment_ibfk_304` FOREIGN KEY (`idposts`) REFERENCES `posts` (`idposts`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+  CONSTRAINT `comment_ibfk_583` FOREIGN KEY (`iduser`) REFERENCES `users` (`iduser`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `comment_ibfk_584` FOREIGN KEY (`idposts`) REFERENCES `posts` (`idposts`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -71,7 +71,7 @@ CREATE TABLE `comment` (
 
 LOCK TABLES `comment` WRITE;
 /*!40000 ALTER TABLE `comment` DISABLE KEYS */;
-INSERT INTO `comment` VALUES (2,1,3,'จริงครับผม','2023-08-10 09:18:02','2023-08-30 11:20:15',NULL),(3,2,3,'แต่ผมเห็นข้างห้อง 29 นะครับ','2023-08-10 09:28:22','2023-08-30 11:20:15',NULL),(4,4,3,'ผมก็เจอห้อง 29 ครับ','2023-08-10 09:46:18','2023-08-30 11:20:15',NULL),(5,1,3,'เห็นด้วยครับ','2023-08-30 11:35:36','2023-08-30 11:47:27',NULL);
+INSERT INTO `comment` VALUES (2,1,3,'จริงครับผม','2023-08-10 09:18:02','2023-08-30 11:20:15',NULL),(3,2,3,'แต่ผมเห็นข้างห้อง 29 นะครับ','2023-08-10 09:28:22','2023-08-30 11:20:15',NULL),(4,4,3,'ผมก็เจอห้อง 29 ครับ','2023-08-10 09:46:18','2023-08-30 11:20:15',NULL),(5,1,3,'เห็นด้วยครับ','2023-08-30 11:35:36','2023-08-30 11:47:27',NULL),(6,7,4,'ขอบคุณที่แจ้งข้อมูลก่อนครับ','2023-09-11 10:47:14','2023-09-11 10:47:14',NULL);
 /*!40000 ALTER TABLE `comment` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -189,8 +189,8 @@ CREATE TABLE `payment` (
   PRIMARY KEY (`idpayment`),
   KEY `idinvoice` (`idinvoice`),
   KEY `idpayee` (`idpayee`),
-  CONSTRAINT `payment_ibfk_1037` FOREIGN KEY (`idinvoice`) REFERENCES `invoice` (`idinvoice`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `payment_ibfk_1038` FOREIGN KEY (`idpayee`) REFERENCES `payee` (`idpayee`) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT `payment_ibfk_1405` FOREIGN KEY (`idinvoice`) REFERENCES `invoice` (`idinvoice`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `payment_ibfk_1406` FOREIGN KEY (`idpayee`) REFERENCES `payee` (`idpayee`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -248,9 +248,9 @@ CREATE TABLE `posts` (
   PRIMARY KEY (`idposts`),
   KEY `iduser` (`iduser`),
   KEY `idthreads` (`idthreads`),
-  CONSTRAINT `posts_ibfk_301` FOREIGN KEY (`iduser`) REFERENCES `users` (`iduser`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  CONSTRAINT `posts_ibfk_302` FOREIGN KEY (`idthreads`) REFERENCES `threads` (`idthreads`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+  CONSTRAINT `posts_ibfk_215` FOREIGN KEY (`iduser`) REFERENCES `users` (`iduser`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `posts_ibfk_216` FOREIGN KEY (`idthreads`) REFERENCES `threads` (`idthreads`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -259,7 +259,7 @@ CREATE TABLE `posts` (
 
 LOCK TABLES `posts` WRITE;
 /*!40000 ALTER TABLE `posts` DISABLE KEYS */;
-INSERT INTO `posts` VALUES (3,1,1,'ท่อน้ำแตกแถวๆห้อง 20','2023-08-10 08:17:23','2023-08-30 11:20:15',NULL);
+INSERT INTO `posts` VALUES (3,1,1,'ท่อน้ำแตกแถวๆห้อง 20','2023-08-10 08:17:23','2023-08-30 11:20:15',NULL),(4,1,2,'วันที่ 2 กันยายน 2566 น้ำไม่ไหลระหว่าง 08:00 ถึง 11:00 นะครับ','2023-09-11 10:45:51','2023-09-11 10:45:51',NULL);
 /*!40000 ALTER TABLE `posts` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -306,9 +306,9 @@ CREATE TABLE `report` (
   PRIMARY KEY (`idreport`),
   KEY `iduser_room` (`iduser_room`),
   KEY `idreport_type` (`idreport_type`),
-  CONSTRAINT `report_ibfk_185` FOREIGN KEY (`iduser_room`) REFERENCES `user_room` (`iduser_room`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  CONSTRAINT `report_ibfk_186` FOREIGN KEY (`idreport_type`) REFERENCES `report_type` (`idreport_type`) ON DELETE NO ACTION ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+  CONSTRAINT `report_ibfk_529` FOREIGN KEY (`iduser_room`) REFERENCES `user_room` (`iduser_room`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `report_ibfk_530` FOREIGN KEY (`idreport_type`) REFERENCES `report_type` (`idreport_type`) ON DELETE NO ACTION ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -317,7 +317,7 @@ CREATE TABLE `report` (
 
 LOCK TABLES `report` WRITE;
 /*!40000 ALTER TABLE `report` DISABLE KEYS */;
-INSERT INTO `report` VALUES (1,2,1,'หลอดไฟแตก','done','2023-08-03 05:34:32','2023-09-07 14:36:28'),(2,4,10,'ลูบิดหักครับ','inprogress','2023-08-10 09:50:51','2023-09-01 07:56:46'),(3,2,18,'มุ้งลวดขาดครับมาเปลี่ยนให้หน่อย','pending','2023-08-29 08:58:37','2023-08-29 08:58:37'),(4,11,19,'ลมแรงเลยทำให้มันหลุดครับ','inprogress','2023-09-01 07:55:42','2023-09-01 07:57:19');
+INSERT INTO `report` VALUES (1,2,1,'หลอดไฟแตก','done','2023-08-03 05:34:32','2023-09-07 14:36:28'),(2,4,10,'ลูบิดหักครับ','inprogress','2023-08-10 09:50:51','2023-09-01 07:56:46'),(3,2,18,'มุ้งลวดขาดครับมาเปลี่ยนให้หน่อย','pending','2023-08-29 08:58:37','2023-08-29 08:58:37'),(4,11,19,'ลมแรงเลยทำให้มันหลุดครับ','inprogress','2023-09-01 07:55:42','2023-09-01 07:57:19'),(5,8,1,'หลอดไฟขาด','pending','2023-09-11 11:53:03','2023-09-11 11:53:03'),(6,8,1,'หลอดไฟขาดอีกแล้วครับ','pending','2023-09-11 11:53:28','2023-09-11 11:53:28');
 /*!40000 ALTER TABLE `report` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -560,8 +560,8 @@ CREATE TABLE `user_room` (
   PRIMARY KEY (`iduser_room`),
   KEY `iduser` (`iduser`),
   KEY `idroom` (`idroom`),
-  CONSTRAINT `user_room_ibfk_1593` FOREIGN KEY (`iduser`) REFERENCES `users` (`iduser`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `user_room_ibfk_1594` FOREIGN KEY (`idroom`) REFERENCES `room` (`idroom`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `user_room_ibfk_283` FOREIGN KEY (`iduser`) REFERENCES `users` (`iduser`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `user_room_ibfk_284` FOREIGN KEY (`idroom`) REFERENCES `room` (`idroom`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -613,4 +613,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-09-09 21:19:22
+-- Dump completed on 2023-09-11 23:07:17
