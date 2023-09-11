@@ -96,7 +96,7 @@ export const getAllReport: RequestHandler = async (req, res) => {
                 attributes: ['report_type']
             }],
         });
-        
+
 
         if (report.length == 0) {
             return res.status(404).json({ message: 'ไม่มีรายงาน' });
@@ -243,4 +243,107 @@ export const getallReportByiduser: RequestHandler = async (req, res) => {
         return res.status(500).json({ message: err.message });
     }
 }
+
+export const getCountReportByididreporttype: RequestHandler = async (req, res) => {
+    try {
+        const report_type: ReportType[] = await ReportType.findAll({ attributes: ['idreport_type', 'report_type'] });
+        const data: object[] = [];
+
+        for (let i = 0; i < report_type.length; i++) {
+            const count = await Report.count({ where: { [Op.and]: [{ idreport_type: report_type[i].idreport_type }] } });
+
+            if (count > 0) {
+                data.push({
+                    idreport_type: report_type[i].idreport_type,
+                    report_type: report_type[i].report_type,
+                    count: count,
+                    ประเภทรายงาน: report_type[i].report_type,
+                    จำนวน: count
+                });
+            }
+        }
+
+        data.sort((a: any, b: any) => { return b.count - a.count });
+
+
+        return res.status(200).json({ data: data });
+    } catch (err: any) {
+        return res.status(500).json({ message: err.message });
+    }
+}
+
+export const getCountRoomByidreporttype: RequestHandler = async (req, res) => {
+    try {
+        const idreport_type = req.params.id;
+        const data: object[] = [];
+
+        const userRoom = await UserRoom.findAll({ where: { status: 'active' }, include: [{ model: Room }] });
+
+        for (let i = 0; i < userRoom.length; i++) {
+            const count = await Report.count({ where: { [Op.and]: [{ iduser_room: userRoom[i].iduser_room }, { idreport_type: idreport_type }] } });
+
+            if (count > 0) {
+                data.push({
+                    room_number: userRoom[i].room.room_number,
+                    count: count,
+                    หมายเลขห้อง: userRoom[i].room.room_number,
+                    จำนวน: count
+                });
+            }
+        }
+
+        data.sort((a: any, b: any) => { return b.count - a.count });
+
+        return res.status(200).json({ data: data });
+    } catch (err: any) {
+        return res.status(500).json({ message: err.message });
+    }
+}
+
+export const getReportMonthlys: RequestHandler = async (req, res) => {
+    try {
+        const data: object[] = [];
+        const month = req.params.month || new Date().getMonth() + 1;
+        const year = req.params.year || new Date().getFullYear();
+        const report = await Report.findAll({
+            include: [{
+                model: UserRoom, where: { status: 'active' }, include: [{ model: Room }, { model: Users, include: [{ model: UserDetail, attributes: ['fname', 'lname'] }] }]
+            }, { model: ReportType, attributes: ['report_type'] }],
+            where: { [Op.and]: [{ createdAt: { [Op.lte]: new Date(`${year}-${month}-31`) } }, { createdAt: { [Op.gte]: new Date(`${year}-${month}-01`) } }] }
+        })
+
+        const room = await Room.findAll();
+        const report_type = await ReportType.findAll();
+
+        if (report.length == 0) {
+            return res.status(404).json({ data: [] });
+        }
+
+        if (room.length == 0) {
+            return res.status(404).json({ data: [] });
+        }
+
+        room.forEach((element: any) => {
+            const roomUser = report.filter((report: any) => report.user_room.room.room_number == element.room_number);
+            const roomReport = report_type.map((report_type: any) => {
+                const reportType = roomUser.filter((report: any) => report.report_type.report_type == report_type.report_type);
+                return {
+                    room_number: element.room_number,
+                    report_type: report_type.report_type,
+                    count: reportType.length,
+                }
+            });
+            data.push({
+                room_number: element.room_number,
+                report: roomReport
+            });
+        });
+
+        return res.status(200).json({ data: data, report_type: report_type });
+
+    } catch (err: any) {
+        return res.status(500).json({ message: err.message });
+    }
+}
+
 

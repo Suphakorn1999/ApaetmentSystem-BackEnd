@@ -1,5 +1,8 @@
 import { Router } from "express";
-import { createReportType, getallReportType, updateReportType, getReportTypeByid, getAllReport, createReport, getReportByid, updateReportByid, getReportByiduser, getallReportByiduser } from "../controller/reportController";
+import { createReportType, getallReportType, updateReportType, getReportTypeByid, 
+    getAllReport, createReport, getReportByid, updateReportByid, getReportByiduser, 
+    getallReportByiduser, getCountReportByididreporttype, getCountRoomByidreporttype, getReportMonthlys
+} from "../controller/reportController";
 const { verifyToken } = require('../middlewares/jwtHandler');
 
 const router = Router();
@@ -14,5 +17,8 @@ router.get('/getReportByid/:id', verifyToken, getReportByid);
 router.put('/updateReportByid/:id', verifyToken, updateReportByid);
 router.get('/getReportByiduser', verifyToken, getReportByiduser);
 router.get('/getallReportByiduser', verifyToken, getallReportByiduser);
+router.get('/getCountReportByididreporttype', verifyToken, getCountReportByididreporttype);
+router.get('/getCountRoomByidreporttype/:id', verifyToken, getCountRoomByidreporttype);
+router.get('/getReportMonthlys/:month/:year', verifyToken, getReportMonthlys);
 
 export default router;

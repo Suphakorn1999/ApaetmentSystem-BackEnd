@@ -60,8 +60,8 @@ CREATE TABLE `comment` (
   PRIMARY KEY (`idcomment`),
   KEY `iduser` (`iduser`),
   KEY `idposts` (`idposts`),
-  CONSTRAINT `comment_ibfk_2395` FOREIGN KEY (`iduser`) REFERENCES `users` (`iduser`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `comment_ibfk_2396` FOREIGN KEY (`idposts`) REFERENCES `posts` (`idposts`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `comment_ibfk_303` FOREIGN KEY (`iduser`) REFERENCES `users` (`iduser`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `comment_ibfk_304` FOREIGN KEY (`idposts`) REFERENCES `posts` (`idposts`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -120,13 +120,14 @@ CREATE TABLE `invoice` (
   `electricmeter_new` int(11) NOT NULL,
   `electric_price` int(11) NOT NULL,
   `water_price` int(11) NOT NULL,
+  `date_invoice` date DEFAULT NULL,
   `createdAt` datetime NOT NULL,
   `updatedAt` datetime NOT NULL,
   `deleted_at` datetime DEFAULT NULL,
   PRIMARY KEY (`idinvoice`),
   KEY `iduser_room` (`iduser_room`),
   CONSTRAINT `invoice_ibfk_1` FOREIGN KEY (`iduser_room`) REFERENCES `user_room` (`iduser_room`) ON DELETE NO ACTION ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -135,7 +136,7 @@ CREATE TABLE `invoice` (
 
 LOCK TABLES `invoice` WRITE;
 /*!40000 ALTER TABLE `invoice` DISABLE KEYS */;
-INSERT INTO `invoice` VALUES (1,1,1200,901,906,7212,7268,5,13,'2023-07-13 12:13:37','2023-07-13 12:13:37',NULL),(2,2,1200,901,906,7212,7268,5,13,'2023-07-17 10:52:45','2023-07-17 10:52:45',NULL),(3,3,1200,901,906,7212,7268,5,13,'2023-07-17 10:53:23','2023-07-17 10:53:23',NULL),(10,4,1200,901,906,7212,7268,5,13,'2023-07-24 13:43:51','2023-07-24 13:43:51',NULL),(11,5,1200,901,906,7212,7268,5,13,'2023-07-26 11:54:01','2023-07-26 11:54:01',NULL),(12,7,300,900,905,7000,7100,5,13,'2023-08-16 06:43:21','2023-08-16 06:43:21',NULL),(13,11,1200,820,900,9000,9120,5,13,'2023-09-01 07:53:11','2023-09-01 07:53:11',NULL),(14,1,1200,901,1000,7212,7213,5,13,'2023-09-02 11:16:37','2023-09-02 11:16:37',NULL),(15,2,1200,901,1000,7212,7213,5,13,'2023-09-02 11:17:18','2023-09-02 11:17:18',NULL),(16,11,1200,820,1000,9000,9010,5,13,'2023-09-02 11:59:29','2023-09-02 11:59:29',NULL),(17,11,1200,820,900,9000,9200,5,13,'2023-09-06 11:14:34','2023-09-06 11:14:34',NULL),(18,10,300,7000,7100,900,1000,5,13,'2023-09-06 11:50:08','2023-09-06 11:50:08',NULL);
+INSERT INTO `invoice` VALUES (1,1,1200,901,906,7212,7268,5,13,'2023-07-13','2023-07-13 12:13:37','2023-07-13 12:13:37',NULL),(2,2,1200,901,906,7212,7213,5,13,'2023-07-17','2023-07-17 10:52:45','2023-07-17 10:52:45',NULL),(3,3,1200,901,906,7212,7268,5,13,'2023-07-17','2023-07-17 10:53:23','2023-07-17 10:53:23',NULL),(10,4,1200,901,906,7212,7268,5,13,'2023-07-24','2023-07-24 13:43:51','2023-07-24 13:43:51',NULL),(11,5,1200,901,906,7212,7268,5,13,'2023-07-26','2023-07-26 11:54:01','2023-07-26 11:54:01',NULL),(13,11,1200,901,974,9201,9266,5,13,'2023-08-01','2023-08-01 07:53:11','2023-08-01 07:53:11',NULL),(14,1,1200,901,1000,7212,7213,5,13,'2023-09-02','2023-09-02 11:16:37','2023-09-02 11:16:37',NULL),(15,2,1200,901,906,7212,7213,5,13,'2023-09-02','2023-09-02 11:17:18','2023-09-02 11:17:18',NULL),(17,11,1200,1023,1055,9266,9340,5,13,'2023-09-06','2023-09-06 11:14:34','2023-09-06 11:14:34',NULL),(18,10,300,7000,7100,950,1000,5,13,'2023-09-06','2023-09-06 11:50:08','2023-09-06 11:50:08',NULL),(19,2,1200,906,930,7213,7240,5,13,'2023-08-07','2023-08-07 12:49:14','2023-08-07 12:49:14',NULL),(20,10,300,6900,6950,900,925,5,13,'2023-07-07','2023-09-07 13:36:53','2023-09-07 13:36:53',NULL),(21,8,0,901,902,7212,7213,5,13,'2023-07-07','2023-09-07 13:37:12','2023-09-07 13:37:12',NULL),(22,11,1200,900,901,9200,9201,5,13,'2023-07-07','2023-07-07 13:37:29','2023-07-07 13:37:29',NULL),(23,10,300,6950,7000,925,950,5,13,'2023-08-07','2023-08-07 13:40:09','2023-08-07 13:40:09',NULL),(24,3,1200,906,966,7268,7300,5,13,'2023-08-07','2023-08-07 13:43:16','2023-08-07 13:43:16',NULL),(25,3,1200,966,1002,7300,7322,5,13,'2023-09-07','2023-09-07 13:43:59','2023-09-07 13:43:59',NULL),(26,4,1200,906,944,7268,7333,5,13,'2023-08-07','2023-08-07 13:45:02','2023-08-07 13:45:02',NULL),(27,4,1200,944,989,7333,7397,5,13,'2023-09-07','2023-09-07 13:45:26','2023-09-07 13:45:26',NULL),(28,5,1200,906,955,7268,7322,5,13,'2023-08-07','2023-08-07 13:46:18','2023-08-07 13:46:18',NULL),(29,8,0,902,988,7213,7301,5,13,'2023-08-07','2023-08-07 13:51:10','2023-08-07 13:51:10',NULL),(30,5,1200,955,999,7322,7388,5,13,'2023-09-07','2023-09-07 13:51:31','2023-09-07 13:51:31',NULL),(31,8,0,988,1006,7301,7377,5,13,'2023-09-07','2023-09-07 13:51:55','2023-09-07 13:51:55',NULL);
 /*!40000 ALTER TABLE `invoice` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -163,7 +164,7 @@ CREATE TABLE `payee` (
 
 LOCK TABLES `payee` WRITE;
 /*!40000 ALTER TABLE `payee` DISABLE KEYS */;
-INSERT INTO `payee` VALUES (1,'ยุพิน','แสนคำนวน','2023-09-04 08:29:27','2023-09-04 08:29:27',NULL),(2,'อภิชญา','ทรัพย์ปรีชา','2023-09-04 11:44:42','2023-09-04 11:45:07',NULL);
+INSERT INTO `payee` VALUES (1,'ยุพิน','แสนคำนวน','2023-09-04 08:29:27','2023-09-07 14:37:59',NULL),(2,'อภิชญา','ทรัพย์ปรีชา','2023-09-04 11:44:42','2023-09-04 11:45:07',NULL);
 /*!40000 ALTER TABLE `payee` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -188,9 +189,9 @@ CREATE TABLE `payment` (
   PRIMARY KEY (`idpayment`),
   KEY `idinvoice` (`idinvoice`),
   KEY `idpayee` (`idpayee`),
-  CONSTRAINT `payment_ibfk_553` FOREIGN KEY (`idinvoice`) REFERENCES `invoice` (`idinvoice`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `payment_ibfk_554` FOREIGN KEY (`idpayee`) REFERENCES `payee` (`idpayee`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+  CONSTRAINT `payment_ibfk_1037` FOREIGN KEY (`idinvoice`) REFERENCES `invoice` (`idinvoice`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `payment_ibfk_1038` FOREIGN KEY (`idpayee`) REFERENCES `payee` (`idpayee`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -199,7 +200,7 @@ CREATE TABLE `payment` (
 
 LOCK TABLES `payment` WRITE;
 /*!40000 ALTER TABLE `payment` DISABLE KEYS */;
-INSERT INTO `payment` VALUES (1,10,'1',NULL,'paid',1,NULL,'2023-07-24 13:43:51','2023-08-30 08:48:42',NULL),(2,1,'1',NULL,'paid',1,NULL,'2023-07-24 15:45:27','2023-07-25 09:01:10','2023-09-04 14:11:50'),(3,2,'2','2023-7-26-2.jpeg','paid',1,NULL,'2023-07-24 15:45:33','2023-07-26 11:16:57',NULL),(4,3,'1',NULL,'paid',1,NULL,'2023-07-25 15:45:36','2023-09-04 06:58:15',NULL),(5,11,'2','2023-7-26-5.jpeg','paid',1,NULL,'2023-07-26 11:54:01','2023-07-26 11:54:34',NULL),(6,12,'2','2023-8-16-6.png','paid',1,NULL,'2023-08-16 06:43:21','2023-09-07 08:41:17',NULL),(7,13,'1',NULL,'paid',1,NULL,'2023-09-01 07:53:11','2023-09-01 07:54:53',NULL),(8,14,NULL,NULL,'pending',NULL,NULL,'2023-09-02 11:16:37','2023-09-02 11:16:37',NULL),(9,15,NULL,NULL,'pending',NULL,NULL,'2023-09-02 11:17:18','2023-09-05 10:59:56',NULL),(10,16,'1',NULL,'paid',1,NULL,'2023-09-02 11:59:29','2023-09-05 10:57:10',NULL),(11,17,NULL,NULL,'pending',NULL,NULL,'2023-09-06 11:14:34','2023-09-06 11:14:34',NULL),(12,18,'1',NULL,'paid',1,NULL,'2023-09-06 11:50:08','2023-09-07 08:46:21',NULL);
+INSERT INTO `payment` VALUES (1,10,'1',NULL,'paid',1,NULL,'2023-07-24 13:43:51','2023-08-30 08:48:42',NULL),(2,1,'1',NULL,'paid',1,NULL,'2023-07-24 15:45:27','2023-07-25 09:01:10','2023-09-04 14:11:50'),(3,2,'2','2023-7-26-2.jpeg','paid',1,NULL,'2023-07-24 15:45:33','2023-07-26 11:16:57',NULL),(4,3,'1',NULL,'paid',1,NULL,'2023-07-25 15:45:36','2023-09-04 06:58:15',NULL),(5,11,'2','2023-7-26-5.jpeg','paid',1,NULL,'2023-07-26 11:54:01','2023-07-26 11:54:34',NULL),(7,13,'1',NULL,'paid',1,NULL,'2023-09-01 07:53:11','2023-09-01 07:54:53',NULL),(9,15,NULL,NULL,'pending',NULL,NULL,'2023-09-02 11:17:18','2023-09-05 10:59:56',NULL),(11,17,NULL,NULL,'pending',NULL,NULL,'2023-09-06 11:14:34','2023-09-06 11:14:34',NULL),(12,18,'1',NULL,'paid',1,NULL,'2023-09-06 11:50:08','2023-09-07 14:35:15',NULL),(13,19,'1',NULL,'paid',1,NULL,'2023-09-07 12:49:14','2023-09-07 13:52:54',NULL),(14,20,'1',NULL,'paid',1,NULL,'2023-09-07 13:36:53','2023-09-07 13:59:56',NULL),(15,21,'1',NULL,'paid',2,NULL,'2023-09-07 13:37:12','2023-09-07 14:00:04',NULL),(16,22,'1',NULL,'paid',2,NULL,'2023-09-07 13:37:29','2023-09-07 14:00:12',NULL),(17,23,'1',NULL,'paid',2,NULL,'2023-09-07 13:40:09','2023-09-07 13:53:30',NULL),(18,24,'1',NULL,'paid',1,NULL,'2023-09-07 13:43:16','2023-09-07 13:53:02',NULL),(19,25,NULL,NULL,'pending',NULL,NULL,'2023-09-07 13:43:59','2023-09-07 13:43:59',NULL),(20,26,'1',NULL,'paid',1,NULL,'2023-09-07 13:45:02','2023-09-07 13:53:10',NULL),(21,27,'2',NULL,'paid',1,NULL,'2023-09-07 13:45:26','2023-09-07 14:36:11',NULL),(22,28,'1',NULL,'paid',1,NULL,'2023-09-07 13:46:18','2023-09-07 13:53:20',NULL),(23,29,'1',NULL,'paid',2,NULL,'2023-09-07 13:51:10','2023-09-07 13:53:38',NULL),(24,30,NULL,NULL,'pending',NULL,NULL,'2023-09-07 13:51:31','2023-09-07 13:51:31',NULL),(25,31,NULL,NULL,'pending',NULL,NULL,'2023-09-07 13:51:55','2023-09-07 13:51:55',NULL);
 /*!40000 ALTER TABLE `payment` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -247,8 +248,8 @@ CREATE TABLE `posts` (
   PRIMARY KEY (`idposts`),
   KEY `iduser` (`iduser`),
   KEY `idthreads` (`idthreads`),
-  CONSTRAINT `posts_ibfk_2973` FOREIGN KEY (`iduser`) REFERENCES `users` (`iduser`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  CONSTRAINT `posts_ibfk_2974` FOREIGN KEY (`idthreads`) REFERENCES `threads` (`idthreads`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `posts_ibfk_301` FOREIGN KEY (`iduser`) REFERENCES `users` (`iduser`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `posts_ibfk_302` FOREIGN KEY (`idthreads`) REFERENCES `threads` (`idthreads`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -305,8 +306,8 @@ CREATE TABLE `report` (
   PRIMARY KEY (`idreport`),
   KEY `iduser_room` (`iduser_room`),
   KEY `idreport_type` (`idreport_type`),
-  CONSTRAINT `report_ibfk_523` FOREIGN KEY (`iduser_room`) REFERENCES `user_room` (`iduser_room`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  CONSTRAINT `report_ibfk_524` FOREIGN KEY (`idreport_type`) REFERENCES `report_type` (`idreport_type`) ON DELETE NO ACTION ON UPDATE CASCADE
+  CONSTRAINT `report_ibfk_185` FOREIGN KEY (`iduser_room`) REFERENCES `user_room` (`iduser_room`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `report_ibfk_186` FOREIGN KEY (`idreport_type`) REFERENCES `report_type` (`idreport_type`) ON DELETE NO ACTION ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -316,7 +317,7 @@ CREATE TABLE `report` (
 
 LOCK TABLES `report` WRITE;
 /*!40000 ALTER TABLE `report` DISABLE KEYS */;
-INSERT INTO `report` VALUES (1,2,1,'หลอดไฟแตก','done','2023-08-03 05:34:32','2023-08-09 08:12:00'),(2,4,10,'ลูบิดหักครับ','inprogress','2023-08-10 09:50:51','2023-09-01 07:56:46'),(3,2,18,'มุ้งลวดขาดครับมาเปลี่ยนให้หน่อย','pending','2023-08-29 08:58:37','2023-08-29 08:58:37'),(4,11,19,'ลมแรงเลยทำให้มันหลุดครับ','inprogress','2023-09-01 07:55:42','2023-09-01 07:57:19');
+INSERT INTO `report` VALUES (1,2,1,'หลอดไฟแตก','done','2023-08-03 05:34:32','2023-09-07 14:36:28'),(2,4,10,'ลูบิดหักครับ','inprogress','2023-08-10 09:50:51','2023-09-01 07:56:46'),(3,2,18,'มุ้งลวดขาดครับมาเปลี่ยนให้หน่อย','pending','2023-08-29 08:58:37','2023-08-29 08:58:37'),(4,11,19,'ลมแรงเลยทำให้มันหลุดครับ','inprogress','2023-09-01 07:55:42','2023-09-01 07:57:19');
 /*!40000 ALTER TABLE `report` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -343,7 +344,7 @@ CREATE TABLE `report_type` (
 
 LOCK TABLES `report_type` WRITE;
 /*!40000 ALTER TABLE `report_type` DISABLE KEYS */;
-INSERT INTO `report_type` VALUES (1,'หลอดไฟ','active','2023-08-03 04:01:57','2023-08-03 04:01:57'),(2,'รางไฟ','active','2023-08-03 04:02:09','2023-08-03 04:02:09'),(3,'โซดาไฟ','active','2023-08-03 04:02:41','2023-08-03 04:02:41'),(4,'สายชำระ','active','2023-08-03 04:02:52','2023-08-03 04:02:52'),(5,'ฝารองนั่ง','active','2023-08-03 04:03:06','2023-08-03 04:03:06'),(6,'ซักโครก','active','2023-08-03 04:03:19','2023-08-03 04:03:19'),(7,'ประตูหน้า','active','2023-08-03 04:03:28','2023-08-03 04:03:28'),(8,'ประตูห้องน้ำ','active','2023-08-03 04:03:40','2023-08-03 04:03:40'),(9,'พัดลม','active','2023-08-03 04:03:52','2023-08-03 04:03:52'),(10,'ลูกบิด','active','2023-08-03 04:04:01','2023-08-03 04:04:01'),(11,'ฝักบัว','active','2023-08-03 04:04:12','2023-08-03 04:04:12'),(12,'ก็อกน้ำ','active','2023-08-03 04:04:43','2023-08-03 04:04:43'),(13,'ก็อกฝักบัว','active','2023-08-03 04:04:56','2023-08-03 04:04:56'),(14,'ก็อกอ่างล้างหน้า','active','2023-08-03 04:05:15','2023-08-03 04:05:15'),(15,'สายน้ำดี','active','2023-08-03 04:05:28','2023-08-03 04:05:28'),(16,'ท่อน้ำดี','active','2023-08-03 04:05:37','2023-08-03 04:05:37'),(17,'ปั้มกุญแจ','active','2023-08-03 04:05:48','2023-08-03 04:05:48'),(18,'บานมุ้งลวด','active','2023-08-03 04:06:07','2023-08-03 04:06:07'),(19,'กระจกบานเกล็ด','active','2023-08-03 04:06:19','2023-08-03 04:06:19'),(20,'มือหมุนบานเกล็ด','active','2023-08-03 04:06:34','2023-08-03 04:06:34');
+INSERT INTO `report_type` VALUES (1,'หลอดไฟ','active','2023-08-03 04:01:57','2023-09-07 15:44:24'),(2,'รางไฟ','active','2023-08-03 04:02:09','2023-08-03 04:02:09'),(3,'โซดาไฟ','active','2023-08-03 04:02:41','2023-08-03 04:02:41'),(4,'สายชำระ','active','2023-08-03 04:02:52','2023-08-03 04:02:52'),(5,'ฝารองนั่ง','active','2023-08-03 04:03:06','2023-08-03 04:03:06'),(6,'ซักโครก','active','2023-08-03 04:03:19','2023-08-03 04:03:19'),(7,'ประตูหน้า','active','2023-08-03 04:03:28','2023-08-03 04:03:28'),(8,'ประตูห้องน้ำ','active','2023-08-03 04:03:40','2023-08-03 04:03:40'),(9,'พัดลม','active','2023-08-03 04:03:52','2023-08-03 04:03:52'),(10,'ลูกบิด','active','2023-08-03 04:04:01','2023-08-03 04:04:01'),(11,'ฝักบัว','active','2023-08-03 04:04:12','2023-08-03 04:04:12'),(12,'ก็อกน้ำ','active','2023-08-03 04:04:43','2023-08-03 04:04:43'),(13,'ก็อกฝักบัว','active','2023-08-03 04:04:56','2023-08-03 04:04:56'),(14,'ก็อกอ่างล้างหน้า','active','2023-08-03 04:05:15','2023-08-03 04:05:15'),(15,'สายน้ำดี','active','2023-08-03 04:05:28','2023-08-03 04:05:28'),(16,'ท่อน้ำดี','active','2023-08-03 04:05:37','2023-08-03 04:05:37'),(17,'ปั้มกุญแจ','active','2023-08-03 04:05:48','2023-08-03 04:05:48'),(18,'บานมุ้งลวด','active','2023-08-03 04:06:07','2023-08-03 04:06:07'),(19,'กระจกบานเกล็ด','active','2023-08-03 04:06:19','2023-08-03 04:06:19'),(20,'มือหมุนบานเกล็ด','active','2023-08-03 04:06:34','2023-08-03 04:06:34');
 /*!40000 ALTER TABLE `report_type` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -399,7 +400,7 @@ CREATE TABLE `room` (
 
 LOCK TABLES `room` WRITE;
 /*!40000 ALTER TABLE `room` DISABLE KEYS */;
-INSERT INTO `room` VALUES (1,1,'1','empty','2023-07-04 17:23:16','2023-07-24 10:56:02','active'),(2,1,'2','full','2023-05-04 20:06:19','2023-08-30 12:26:50','active'),(3,1,'3','full','2023-04-04 20:06:19','2023-07-24 10:56:21','active'),(4,1,'4','full','2023-07-04 20:23:24','2023-07-24 10:56:32','active'),(5,1,'5','full','2023-07-04 20:24:23','2023-07-26 11:53:15','active'),(6,2,'280','full','2023-08-09 08:25:22','2023-08-23 12:27:27','active'),(7,3,'300','full','2023-08-16 06:20:40','2023-08-30 10:39:28','active'),(8,1,'6','empty','2023-08-29 08:26:08','2023-08-29 08:26:08','active'),(9,1,'7','full','2023-09-01 07:48:24','2023-09-01 07:49:05','active'),(10,1,'8','empty','2023-09-04 07:02:34','2023-09-04 07:02:34','active'),(11,1,'9','empty','2023-09-04 07:02:41','2023-09-04 07:02:41','active'),(12,1,'10','empty','2023-09-04 07:02:49','2023-09-04 07:02:49','active'),(13,1,'11','empty','2023-09-04 07:02:56','2023-09-04 07:02:56','active'),(14,1,'12','empty','2023-09-04 07:03:03','2023-09-04 07:03:03','active'),(15,1,'13','empty','2023-09-04 07:03:11','2023-09-04 07:03:11','active'),(16,1,'14','empty','2023-09-04 07:03:19','2023-09-04 07:03:19','active');
+INSERT INTO `room` VALUES (1,1,'1','empty','2023-07-04 17:23:16','2023-09-07 14:43:05','active'),(2,1,'2','full','2023-05-04 20:06:19','2023-08-30 12:26:50','active'),(3,1,'3','full','2023-04-04 20:06:19','2023-07-24 10:56:21','active'),(4,1,'4','full','2023-07-04 20:23:24','2023-07-24 10:56:32','active'),(5,1,'5','full','2023-07-04 20:24:23','2023-07-26 11:53:15','active'),(6,2,'280','full','2023-08-09 08:25:22','2023-08-23 12:27:27','active'),(7,3,'300','full','2023-08-16 06:20:40','2023-08-30 10:39:28','active'),(8,1,'6','empty','2023-08-29 08:26:08','2023-08-29 08:26:08','active'),(9,1,'7','full','2023-09-01 07:48:24','2023-09-01 07:49:05','active'),(10,1,'8','empty','2023-09-04 07:02:34','2023-09-04 07:02:34','active'),(11,1,'9','empty','2023-09-04 07:02:41','2023-09-04 07:02:41','active'),(12,1,'10','empty','2023-09-04 07:02:49','2023-09-04 07:02:49','active'),(13,1,'11','empty','2023-09-04 07:02:56','2023-09-04 07:02:56','active'),(14,1,'12','empty','2023-09-04 07:03:03','2023-09-04 07:03:03','active'),(15,1,'13','empty','2023-09-04 07:03:11','2023-09-04 07:03:11','active'),(16,1,'14','empty','2023-09-04 07:03:19','2023-09-04 07:03:19','active');
 /*!40000 ALTER TABLE `room` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -429,7 +430,7 @@ CREATE TABLE `room_type` (
 
 LOCK TABLES `room_type` WRITE;
 /*!40000 ALTER TABLE `room_type` DISABLE KEYS */;
-INSERT INTO `room_type` VALUES (1,'ห้องพัดลม','1200','13','5','2023-07-03 07:14:24','2023-07-24 06:41:35','active'),(2,'ห้องแอร์','0','13','5','2023-07-03 07:14:24','2023-07-10 06:46:49','active'),(3,'ห้องประชุม','300','13','5','2023-08-16 06:19:13','2023-09-04 11:49:18','active');
+INSERT INTO `room_type` VALUES (1,'ห้องพัดลม','1200','13','5','2023-07-03 07:14:24','2023-09-07 15:43:20','active'),(2,'ห้องแอร์','0','13','5','2023-07-03 07:14:24','2023-07-10 06:46:49','active'),(3,'ห้องประชุม','300','13','5','2023-08-16 06:19:13','2023-09-04 11:49:18','active');
 /*!40000 ALTER TABLE `room_type` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -506,6 +507,7 @@ CREATE TABLE `user_detail` (
   `lname` varchar(255) DEFAULT NULL,
   `age` int(11) DEFAULT NULL,
   `email` varchar(255) DEFAULT NULL,
+  `address` varchar(255) DEFAULT NULL,
   `sub_district` varchar(255) DEFAULT NULL,
   `district` varchar(255) DEFAULT NULL,
   `province` varchar(255) DEFAULT NULL,
@@ -531,7 +533,7 @@ CREATE TABLE `user_detail` (
 
 LOCK TABLES `user_detail` WRITE;
 /*!40000 ALTER TABLE `user_detail` DISABLE KEYS */;
-INSERT INTO `user_detail` VALUES (1,1,'ศุภกร','ขันเงิน',23,'suphakorn.ku@rmuti.ac.th','ผาอินทร์แปลง','เอราวัณ','เลย','42220','2222222222222','1999-11-18T17:00:00.000Z','0805872614','Male','active','1.jpg','2023-07-05 09:19:48','2023-08-23 11:13:31',NULL),(2,2,'รัตนาพร','แสนคำนวน',23,'rattanaphon.se@rmuti.ac.th','แม่เปิน','แม่เปิน','นครสวรรค์','60150','1111111111111','2000-04-15T17:00:00.000Z','0940655009','Female','active','2.jpg','2023-07-05 09:19:48','2023-08-30 12:16:56',NULL),(3,3,'วิทยา','วิประทุม',23,'witaya.vt@rmuti.ac.th','หัวนาคำ','กระนวน','ขอนแก่น','40170','3333333333333','2000-07-12T17:00:00.000Z','0940655007','Male','active','3.png','2023-07-13 08:33:02','2023-07-14 10:46:01',NULL),(4,4,'บุรินทร','ป้องจันทร์',23,'burintorn.po@rmuti.ac.th','ป่าหวายนั่ง','บ้านฝาง','ขอนแก่น','40270','9999999999999','1999-08-08T17:00:00.000Z','9999999999','Male','active','4.png','2023-07-17 07:58:51','2023-08-10 09:52:15',NULL),(5,5,'ปิยะพัทธ์','ธรรมวงศ์',23,'suphakorn.ku@rmuti.ac.th','ในเมือง','เมืองขอนแก่น','ขอนแก่น','40000','1111111111111','1999-11-18T17:00:00.000Z','1111111111','Male','active','5.png','2023-07-26 11:38:52','2023-09-04 07:04:41',NULL),(6,6,'ณัฐ','เดชบุญ',0,'error24509@gmail.com','เสาชิงช้า','เขตพระนคร','กรุงเทพมหานคร','10200','9999999999999','2023-08-15T17:00:00.000Z','9999999999','Male','active','6.png','2023-08-16 06:23:30','2023-09-04 07:05:02',NULL),(7,7,'ธเนษฐ','อินทรมา',23,'rattanaphon.se@rmuti.ac.th','ในเมือง','เมืองขอนแก่น','ขอนแก่น','40000','9999999999999','2000-04-15T17:00:00.000Z','9999999999','Female','active','7.jpeg','2023-08-23 11:20:39','2023-09-04 07:05:21',NULL),(8,8,'สมชาย','โอนไว',17,'b@gmail.com','นากลาง','นากลาง','หนองบัวลำภู','39170','1111111111111','2005-09-13T17:00:00.000Z','0999999999','Male','active','8.png','2023-08-30 08:22:31','2023-09-01 07:47:42',NULL);
+INSERT INTO `user_detail` VALUES (1,1,'ศุภกร','ขันเงิน',23,'suphakorn.ku@rmuti.ac.th','209 หมู่ 5','ผาอินทร์แปลง','เอราวัณ','เลย','42220','2222222222222','1999-11-18T17:00:00.000Z','0805872614','Male','active','1.jpg','2023-07-05 09:19:48','2023-09-09 10:16:59',NULL),(2,2,'รัตนาพร','แสนคำนวน',23,'rattanaphon.se@rmuti.ac.th','57 หมู่ 3','แม่เปิน','แม่เปิน','นครสวรรค์','60150','1601125372993','2000-04-15T17:00:00.000Z','0940655009','Female','active','2.jpg','2023-07-05 09:19:48','2023-09-09 10:11:57',NULL),(3,3,'วิทยา','วิประทุม',23,'witaya.vt@rmuti.ac.th','99 หมู่ 8','หัวนาคำ','กระนวน','ขอนแก่น','40170','1672390943923','2000-07-12T17:00:00.000Z','0992655077','Male','active','3.png','2023-07-13 08:33:02','2023-09-09 14:00:56',NULL),(4,4,'บุรินทร','ป้องจันทร์',23,'burintorn.po@rmuti.ac.th','49 หมู่ 10','ป่าหวายนั่ง','บ้านฝาง','ขอนแก่น','40270','1634043098482','1999-08-08T17:00:00.000Z','0873562102','Male','active','4.png','2023-07-17 07:58:51','2023-09-09 14:01:11',NULL),(5,5,'ปิยะพัทธ์','ธรรมวงศ์',23,'suphakorn.ku@rmuti.ac.th','11 หมู่ 1','ในเมือง','เมืองขอนแก่น','ขอนแก่น','40000','1639408939892','1999-11-18T17:00:00.000Z','0918253674','Male','active','5.png','2023-07-26 11:38:52','2023-09-09 14:01:22',NULL),(6,6,'ณัฐ','เดชบุญ',0,'error24509@gmail.com','921 หมู่ 10','เสาชิงช้า','เขตพระนคร','กรุงเทพมหานคร','10200','1409482674423','2023-08-15T17:00:00.000Z','0922254186','Male','active','6.png','2023-08-16 06:23:30','2023-09-09 10:13:36',NULL),(7,7,'ธเนษฐ','อินทรมา',23,'rattanaphon.se@rmuti.ac.th','101/2','ในเมือง','เมืองขอนแก่น','ขอนแก่น','40000','1608948342323','2000-04-15T17:00:00.000Z','0612836529','Female','active','7.jpeg','2023-08-23 11:20:39','2023-09-09 14:01:38',NULL),(8,8,'สมชาย','โอนไว',17,'b@gmail.com','821/22','นากลาง','นากลาง','หนองบัวลำภู','39170','1823245353243','2005-09-13T17:00:00.000Z','0897122264','Male','active','8.png','2023-08-30 08:22:31','2023-09-09 14:02:59',NULL);
 /*!40000 ALTER TABLE `user_detail` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -546,7 +548,7 @@ CREATE TABLE `user_room` (
   `iduser_room` int(11) NOT NULL AUTO_INCREMENT,
   `iduser` int(11) NOT NULL,
   `idroom` int(11) NOT NULL,
-  `deposit` varchar(255) DEFAULT NULL,
+  `deposit` int(11) DEFAULT NULL,
   `watermeterstart` int(11) DEFAULT NULL,
   `electricmeterstart` int(11) DEFAULT NULL,
   `date_in` varchar(255) DEFAULT NULL,
@@ -558,8 +560,8 @@ CREATE TABLE `user_room` (
   PRIMARY KEY (`iduser_room`),
   KEY `iduser` (`iduser`),
   KEY `idroom` (`idroom`),
-  CONSTRAINT `user_room_ibfk_1035` FOREIGN KEY (`iduser`) REFERENCES `users` (`iduser`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `user_room_ibfk_1036` FOREIGN KEY (`idroom`) REFERENCES `room` (`idroom`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `user_room_ibfk_1593` FOREIGN KEY (`iduser`) REFERENCES `users` (`iduser`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `user_room_ibfk_1594` FOREIGN KEY (`idroom`) REFERENCES `room` (`idroom`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -569,7 +571,7 @@ CREATE TABLE `user_room` (
 
 LOCK TABLES `user_room` WRITE;
 /*!40000 ALTER TABLE `user_room` DISABLE KEYS */;
-INSERT INTO `user_room` VALUES (1,1,1,'1000',NULL,NULL,'2023-07-19T17:00:00.000Z','2023-08-12 14:49:14','inactive','2023-07-24 10:56:02','2023-07-24 10:56:02',NULL),(2,2,2,'900',901,7212,'2023-07-20T17:00:00.000Z',NULL,'active','2023-07-24 10:56:14','2023-08-29 08:26:28',NULL),(3,3,3,'1000',901,7212,'2023-07-21T17:00:00.000Z',NULL,'active','2023-07-24 10:56:21','2023-08-24 08:57:08',NULL),(4,4,4,'1000',901,7212,'2023-07-22T17:00:00.000Z',NULL,'active','2023-07-24 10:56:32','2023-08-24 08:57:34',NULL),(5,5,5,'1000',901,7212,'2023-07-25T17:00:00.000Z',NULL,'active','2023-07-26 11:53:15','2023-08-24 09:02:21',NULL),(6,6,7,'1000',NULL,NULL,'2023-08-14T17:00:00.000Z','2023-08-15 14:49:14','inactive','2023-08-16 06:27:12','2023-08-30 07:49:14',NULL),(7,6,7,NULL,901,7212,'2023-08-16T17:00:00.000Z','2023-08-30 16:12:37','inactive','2023-08-16 06:42:11','2023-08-30 09:12:37',NULL),(8,7,6,NULL,901,7212,'2023-08-22T17:00:00.000Z',NULL,'active','2023-08-23 12:27:27','2023-08-24 08:57:25',NULL),(9,6,7,'1000',7000,900,'2023-08-29T17:00:00.000Z','2023-08-30 17:39:07','inactive','2023-08-30 10:36:32','2023-08-30 10:39:07',NULL),(10,6,7,'1000',7000,900,'2023-08-30T17:00:00.000Z',NULL,'active','2023-08-30 10:39:28','2023-08-30 10:39:28',NULL),(11,8,9,'1000',820,9000,'2023-08-30T17:00:00.000Z',NULL,'active','2023-09-01 07:49:05','2023-09-01 07:49:05',NULL);
+INSERT INTO `user_room` VALUES (1,1,1,1000,901,7212,'2023-07-19T17:00:00.000Z','2023-08-30 14:49:14','inactive','2023-07-24 10:56:02','2023-07-24 10:56:02',NULL),(2,2,2,1000,901,7212,'2023-07-20T17:00:00.000Z',NULL,'active','2023-07-24 10:56:14','2023-09-07 15:42:35',NULL),(3,3,3,1000,901,7212,'2023-07-21T17:00:00.000Z',NULL,'active','2023-07-24 10:56:21','2023-08-24 08:57:08',NULL),(4,4,4,1000,901,7212,'2023-07-22T17:00:00.000Z',NULL,'active','2023-07-24 10:56:32','2023-08-24 08:57:34',NULL),(5,5,5,1000,901,7212,'2023-07-25T17:00:00.000Z',NULL,'active','2023-07-26 11:53:15','2023-08-24 09:02:21',NULL),(8,7,6,1000,901,7212,'2023-09-22T17:00:00.000Z',NULL,'active','2023-08-23 12:27:27','2023-08-24 08:57:25',NULL),(10,6,7,1000,7000,900,'2023-08-30T17:00:00.000Z',NULL,'active','2023-08-30 10:39:28','2023-08-30 10:39:28',NULL),(11,8,9,1000,820,9000,'2023-08-30T17:00:00.000Z',NULL,'active','2023-09-01 07:49:05','2023-09-01 07:49:05',NULL);
 /*!40000 ALTER TABLE `user_room` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -598,7 +600,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'admin','U2FsdGVkX19ZwUIbpUv3oSRCnZ7Zq8Obgsy8iKJX5vs=',1,'active'),(2,'user','U2FsdGVkX1/+UdzNKeQstvXWfL9v4MDgIKVnpmUA0lM=',2,'active'),(3,'123456','U2FsdGVkX1+mCqgGY6QrWvvdSdul/LjnMxXUArqqBG4=',2,'active'),(4,'burintorn','U2FsdGVkX19DSEtFhewWytsJifeWocxQVQbtYDJzVhI=',2,'active'),(5,'suphakorn','U2FsdGVkX18Sy17UzXTfHdJSPCzqwuJFlKGvnz5x3/g=',2,'active'),(6,'234567','U2FsdGVkX19nHUhvMkyBzmSJV342BwXlH/nopUtgthg=',2,'active'),(7,'rattanaphon','U2FsdGVkX19b7A9SSMA9GlwovCLPXt3v4GgMvWgWUB0=',2,'active'),(8,'99999','U2FsdGVkX18ofvWC9vd0HXcZlGIELwCTaqB8o8FGn5I=',2,'active');
+INSERT INTO `users` VALUES (1,'3954301','U2FsdGVkX1/cPQVhsabcflGrQGi0oII49+IfzefkKeE=',1,'active'),(2,'6360278','U2FsdGVkX19GDnRuqfeBcdsKfniOgiMf7/IFezts+nw=',2,'active'),(3,'6562180','U2FsdGVkX18zetpwd0mmAseKvEEJ9SnaRGCpQDaN+Lc=',2,'active'),(4,'6561572','U2FsdGVkX1+YMRvotuo752sA8k/ejWGa7C0G95dHR0A=',2,'active'),(5,'6562179','U2FsdGVkX1+UNGH7Dro9P9PWLiJBujdDSz0hsiClaBs=',2,'active'),(6,'666002','U2FsdGVkX1+fLg6EeVisPM/CxYNmAzGvdnQ13tTuZW0=',2,'active'),(7,'5140564','U2FsdGVkX1/wPPE1Utsw8wQ65C4BYYmwJE72MO3BL5U=',2,'active'),(8,'4056007','U2FsdGVkX1/DNmS3BPWoZ8T3tlAKqcESLlvUW5RrLWs=',2,'active');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -611,4 +613,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-09-07 18:05:23
+-- Dump completed on 2023-09-09 21:19:22
