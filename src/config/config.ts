@@ -5,7 +5,6 @@ import { UserDetail } from '../models/userdetailModel';
 import { Room } from '../models/roomModel';
 import { Invoice } from '../models/invoiceModel';
 import { Payment } from '../models/paymentModel';
-import { Checkout } from '../models/checkoutModel';
 import { Report } from '../models/reportModel';
 import { RoomType } from '../models/roomtypeModel';
 import { Districts } from '../models/districtsModel';
@@ -35,7 +34,6 @@ const connection = new Sequelize({
     Room,
     Invoice,
     Payment,
-    Checkout,
     Report,
     RoomType,
     Districts,

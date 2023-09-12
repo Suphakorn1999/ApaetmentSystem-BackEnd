@@ -245,8 +245,11 @@ export const getAllUserInRooms: RequestHandler = async (req, res) => {
                     }
                 }
             ],
-            where: { status: "active" }
+            where: {
+                status: "active",
+            },
         });
+
 
         const userroomAll = await UserRoom.findAll({
             include: [
@@ -265,17 +268,22 @@ export const getAllUserInRooms: RequestHandler = async (req, res) => {
             const check = userroomhave.find((element: any) => element.iduser_room == e.iduser_room);
 
             if (!check) {
-                data.push({
-                    iduser: e.users.iduser,
-                    iduser_room: e.iduser_room,
-                    fname: e.users.user_detail[0]?.fname,
-                    lname: e.users.user_detail[0]?.lname,
-                    room_number: e.room.room_number,
-                    room_type_name: e.room.roomtype.room_type_name,
-                    date_in: e.date_in,
-                    date_out: e.date_out,
-                    status: e.status,
-                });
+                if (e.date_in >= dayjs(`${year}-${month}-01`).format('YYYY-MM-DD HH:mm:ss')) {
+                    return;
+                }
+                else {
+                    data.push({
+                        iduser: e.users.iduser,
+                        iduser_room: e.iduser_room,
+                        fname: e.users.user_detail[0]?.fname,
+                        lname: e.users.user_detail[0]?.lname,
+                        room_number: e.room.room_number,
+                        room_type_name: e.room.roomtype.room_type_name,
+                        date_in: e.date_in,
+                        date_out: e.date_out,
+                        status: e.status,
+                    });
+                }
             }
         });
 

@@ -86,6 +86,10 @@ export const getInvoiceByid: RequestHandler = async (req, res) => {
                 order: [['idinvoice', 'DESC']]
             });
 
+            if (invoice?.payment[0]?.payment_status == 'pending' || invoice?.payment[0]?.payment_status == 'unpaid') {
+                return res.status(400).json({ message: 'ยังมีบิลที่ยังไม่ชำระ' });
+            }
+
             if (invoice) {
                 data.push({
                     iduser: userroom.users.iduser,
