@@ -1,12 +1,12 @@
 import { Router } from 'express';
 import { getCountAll, getmonthlyincomecount, getCountBadge, getmonthlyincome, backupdatabase } from '../controller/dataController';
-const { verifyToken } = require('../middlewares/jwtHandler');
+const { verifyTokenAdmin } = require('../middlewares/jwtHandler');
 const router = Router();
 
-router.get('/countall', verifyToken, getCountAll);
-router.get('/monthlyincomecount', verifyToken, getmonthlyincomecount);
-router.get('/countbadge', verifyToken, getCountBadge);
-router.get('/monthlyincome', verifyToken, getmonthlyincome);
-router.get('/backupdatabase', verifyToken, backupdatabase);
+router.get('/countall', verifyTokenAdmin, getCountAll);
+router.get('/monthlyincomecount', verifyTokenAdmin, getmonthlyincomecount);
+router.get('/countbadge', verifyTokenAdmin, getCountBadge);
+router.get('/monthlyincome', verifyTokenAdmin, getmonthlyincome);
+router.get('/backupdatabase', verifyTokenAdmin, backupdatabase);
 
 export default router;

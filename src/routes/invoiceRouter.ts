@@ -1,16 +1,16 @@
 import { Router } from 'express';
 import { getallInvoices, getInvoiceByid, createInvoice, getInvoiceByidInvoice, getInvoiceMonthlyByToken, getAllInvoiceByToken, getAllInvoiceMonthly, getAllInvoiceMonthlys } from '../controller/invoiceController';
-const { verifyToken } = require('../middlewares/jwtHandler');
+const { verifyToken, verifyTokenAdmin, verifyTokenUser } = require('../middlewares/jwtHandler');
 const router = Router();
 
-router.get('/invoices/:month/:year', verifyToken, getallInvoices);
-router.get('/invoice/:id', verifyToken, getInvoiceByid);
-router.get('/invoiceid/:id', verifyToken, getInvoiceByidInvoice);
-router.post('/invoice', verifyToken, createInvoice);
+router.get('/invoices/:month/:year', verifyTokenAdmin, getallInvoices);
+router.get('/invoice/:id', verifyTokenAdmin, getInvoiceByid);
+router.get('/invoiceid/:id', verifyTokenAdmin, getInvoiceByidInvoice);
+router.post('/invoice', verifyTokenAdmin, createInvoice);
 router.get('/invoicemonthly', verifyToken, getInvoiceMonthlyByToken);
 router.get('/invoiceall', verifyToken, getAllInvoiceByToken);
-router.get('/invoicemonthlyall/:month/:year', verifyToken, getAllInvoiceMonthly);
-router.get('/invoicemonthlysalls/:month/:year', verifyToken, getAllInvoiceMonthlys);
+router.get('/invoicemonthlyall/:month/:year', verifyTokenAdmin, getAllInvoiceMonthly);
+router.get('/invoicemonthlysalls/:month/:year', verifyTokenAdmin, getAllInvoiceMonthlys);
 
 export default router;
 

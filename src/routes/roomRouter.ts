@@ -1,26 +1,26 @@
 import { Router } from "express";
 import { getallRoom, createRoom, createRoomType, getRoomtype, getRoomTypeByid, updateRoomType, getRoomByid, updateRoom, getAllUserInRoom, getAllUserInRooms, getRoomtypedrop, createUserRoom, getRoomEmptyAndUsernotInRoom  } from "../controller/roomController";
-const { verifyToken } = require('../middlewares/jwtHandler');
+const { verifyTokenAdmin } = require('../middlewares/jwtHandler');
 
 const router = Router();
 
-router.get('/getRoom', verifyToken, getallRoom);
-router.get('/getRoomtype', verifyToken, getRoomtype);
-router.get('/getRoomtype/:id', verifyToken, getRoomTypeByid);
-router.get('/getRoom/:id', verifyToken, getRoomByid);
-router.get('/getAllUserInRoom', verifyToken, getAllUserInRoom);
-router.get('/getAllUserInRooms/:month/:year', verifyToken, getAllUserInRooms);
-router.get('/getRoomtypedrop', verifyToken, getRoomtypedrop);
-router.get('/getRoomEmptyAndUsernotInRoom', verifyToken, getRoomEmptyAndUsernotInRoom);
+router.get('/getRoom', verifyTokenAdmin, getallRoom);
+router.get('/getRoomtype', verifyTokenAdmin, getRoomtype);
+router.get('/getRoomtype/:id', verifyTokenAdmin, getRoomTypeByid);
+router.get('/getRoom/:id', verifyTokenAdmin, getRoomByid);
+router.get('/getAllUserInRoom', verifyTokenAdmin, getAllUserInRoom);
+router.get('/getAllUserInRooms/:month/:year', verifyTokenAdmin, getAllUserInRooms);
+router.get('/getRoomtypedrop', verifyTokenAdmin, getRoomtypedrop);
+router.get('/getRoomEmptyAndUsernotInRoom', verifyTokenAdmin, getRoomEmptyAndUsernotInRoom);
 
 
-router.post('/createRoom', verifyToken, createRoom);
-router.post('/createRoomType', verifyToken, createRoomType);
-router.post('/createUserRoom', verifyToken, createUserRoom);
+router.post('/createRoom', verifyTokenAdmin, createRoom);
+router.post('/createRoomType', verifyTokenAdmin, createRoomType);
+router.post('/createUserRoom', verifyTokenAdmin, createUserRoom);
 
 
-router.put('/updateRoomType/:id', verifyToken, updateRoomType);
-router.put('/updateRoom/:id', verifyToken, updateRoom);
+router.put('/updateRoomType/:id', verifyTokenAdmin, updateRoomType);
+router.put('/updateRoom/:id', verifyTokenAdmin, updateRoom);
 
 
 
