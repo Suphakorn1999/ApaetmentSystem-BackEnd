@@ -19,7 +19,7 @@ export const getallUsers: RequestHandler = async (req, res) => {
 export const register: RequestHandler = async (req, res) => {
     const t = await Users.sequelize?.transaction();
     try {
-        const { username, idrole } = req.body;
+        const { username, idrole, fname, lname, card_id, phone_number } = req.body;
         const user = await Users.findOne({ where: { username: username } });
         if (user) {
             return res.status(400).json({ message: 'มีชื่อผู้ใช้อยู่แล้ว' });
@@ -33,6 +33,10 @@ export const register: RequestHandler = async (req, res) => {
 
             await UserDetail.create({
                 iduser: user.iduser,
+                fname: fname,
+                lname: lname,
+                card_id: card_id,
+                phone_number: phone_number,
             }, { transaction: t });
 
             await t?.commit();

@@ -70,9 +70,12 @@ export const getallInvoices: RequestHandler = async (req, res) => {
 export const getInvoiceByid: RequestHandler = async (req, res) => {
     try {
         let data: object[] = []
+        const iduser_room = req.params.id;
+        const month:any = req.params.month || new Date().getMonth() + 1;
+        const year:any = req.params.year || new Date().getFullYear();
 
         const userroom = await UserRoom.findOne({
-            where: { iduser_room: req.params.id },
+            where: { iduser_room: iduser_room },
             include: [
                 { model: Users, attributes: ['iduser'], include: [{ model: UserDetail, attributes: ['fname', 'lname'] }] },
                 { model: Room, attributes: ['idroom', 'room_number'], include: [{ model: RoomType, attributes: ['room_price', 'WaterMeterprice', 'ElectricMeterprice'] }] },
@@ -81,7 +84,10 @@ export const getInvoiceByid: RequestHandler = async (req, res) => {
 
         if (userroom) {
             const invoice = await Invoice.findOne({
-                where: { iduser_room: req.params.id },
+                where: { 
+                    iduser_room: iduser_room , 
+                    date_invoice: { [Op.between]: [new Date(year, month - 2, 1), new Date(year, month, 0)] }
+                },
                 include: [{ model: Payment }],
                 order: [['idinvoice', 'DESC']]
             });
@@ -104,19 +110,29 @@ export const getInvoiceByid: RequestHandler = async (req, res) => {
                 })
                 return res.status(200).json({ data: data[0] });
             } else {
-                data.push({
-                    iduser: userroom.users.iduser,
-                    fname: userroom.users.user_detail[0]?.fname,
-                    lname: userroom.users.user_detail[0]?.lname,
-                    room_number: userroom.room.room_number,
-                    room_price: userroom.room.roomtype.room_price,
-                    watermeter_old: userroom.watermeterstart,
-                    electricmeter_old: userroom.electricmeterstart,
-                    water_price: userroom.room.roomtype.WaterMeterprice,
-                    electric_price: userroom.room.roomtype.ElectricMeterprice,
-                })
+                const check = await Invoice.findOne({
+                    where: { iduser_room: iduser_room },
+                    include: [{ model: Payment }],
+                    order: [['idinvoice', 'DESC']]
+                });
 
-                return res.status(200).json({ data: data[0] });
+                if (check) {
+                    return res.status(400).json({ message: 'ยังไม่มีบิลในเดือนก่อนหน้า' });
+                } else {
+                    data.push({
+                        iduser: userroom.users.iduser,
+                        fname: userroom.users.user_detail[0]?.fname,
+                        lname: userroom.users.user_detail[0]?.lname,
+                        room_number: userroom.room.room_number,
+                        room_price: userroom.room.roomtype.room_price,
+                        watermeter_old: userroom.watermeterstart,
+                        electricmeter_old: userroom.electricmeterstart,
+                        water_price: userroom.room.roomtype.WaterMeterprice,
+                        electric_price: userroom.room.roomtype.ElectricMeterprice,
+                    })
+
+                    return res.status(200).json({ data: data[0] });
+                }
             }
         } else {
             return res.status(404).json({ message: 'ไม่เจอข้อมูล' });

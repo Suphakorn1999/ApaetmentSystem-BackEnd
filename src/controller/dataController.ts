@@ -24,6 +24,8 @@ export const getCountAll: RequestHandler = async (req, res) => {
             }
         });
 
+        const countRoomAll = await Room.count();
+
         const countRoomEmptyAll = await Room.count({
             where: {
                 [Op.and]: [
@@ -72,11 +74,11 @@ export const getCountAll: RequestHandler = async (req, res) => {
             data.push({
                 room_type_name: roomType.room_type_name,
                 room_type_empty: roomTypeEmptyCount,
-                room_type_full: roomTypeFullCount
+                room_type_full: roomTypeFullCount,
             });
         }
 
-        return res.status(200).json({ countReport, data, countRoomEmptyAll, countRoomFullAll });
+        return res.status(200).json({ countReport, data, countRoomEmptyAll, countRoomFullAll, countRoomAll });
     } catch (err: any) {
         return res.status(500).json({ message: err.message });
     }
