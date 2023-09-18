@@ -146,6 +146,19 @@ export const updateRoom: RequestHandler = async (req, res) => {
     try {
         const data: Room = req.body;
         const room = await Room.findOne({ where: { idroom: req.params.id } });
+        if (data.status_room === "inactive") {
+            const userroom = await UserRoom.findOne({ where: { idroom: req.params.id, status: 'active' } });
+            if (userroom) {
+                return res.status(400).json({ message: 'ห้องนี้มีผู้ใช้อยู่' });
+            } else {
+                await Room.update({
+                    room_status: data.room_status,
+                    status_room: data.status_room
+                }, { where: { idroom: req.params.id }, transaction: t });
+                await t?.commit();
+                return res.status(200).json({ message: 'อัปเดตข้อมูลห้องสำเร็จ' });
+            }
+        }
         if (data.room_status === "empty") {
             const userroom = await UserRoom.findOne({ where: { idroom: req.params.id } });
             if (userroom) {
