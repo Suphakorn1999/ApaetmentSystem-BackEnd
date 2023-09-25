@@ -347,7 +347,7 @@ export const getUserAllDetail: RequestHandler = async (req, res) => {
 
 export const getUserDetailbyid: RequestHandler = async (req, res) => {
     try {
-        const userdetail = await UserDetail.findOne({ where: { iduser: req.params.id } });
+        const userdetail = await UserDetail.findOne({ where: { iduser: req.params.id }, include: [{ model: Users, attributes: ['idrole'] }] });
         if (userdetail) {
             const sub_districts = await SubDistricts.findOne({ where: { zip_code: userdetail.zip_code } });
             const districts = await Districts.findOne({ where: { name_th: userdetail.district } });
@@ -373,6 +373,7 @@ export const getUserDetailbyid: RequestHandler = async (req, res) => {
                 gender: userdetail.gender,
                 status_user: userdetail.status_user,
                 partNameAvatar: userdetail.partNameAvatar,
+                idrole: userdetail.users?.idrole,
             });
 
             return res.status(200).json({ data: data[0] });
@@ -385,18 +386,23 @@ export const getUserDetailbyid: RequestHandler = async (req, res) => {
 }
 
 export const updateUserUserDetailByid: RequestHandler = async (req, res) => {
+    const t = await UserDetail.sequelize?.transaction();
     try {
         const iduser = req.params.id;
-        const data: UserDetail = req.body;
+        const data = req.body;
         const userdetails = await UserDetail.findOne({ where: { iduser: iduser } });
         if (userdetails) {
-            await UserDetail.update({ ...data }, { where: { iduser: iduser } });
+            await UserDetail.update({ ...data }, { where: { iduser: iduser }, transaction: t });
+            await Users.update({ idrole: data.idrole }, { where: { iduser: iduser }, transaction: t });
+
+            await t?.commit();
             return res.status(200).json({ message: 'อัปเดตข้อมูลพนักงานสำเร็จ' });
         } else {
             return res.status(404).json({ message: 'ไม่เจอข้อมูลพนักงาน' });
         }
     }
     catch (err: any) {
+        await t?.rollback();
         return res.status(500).json({ message: err.message });
     }
 }
@@ -439,9 +445,9 @@ export const updateidRoomByiduser: RequestHandler = async (req, res) => {
         const electricmeterstart = req.body.electricmeterstart;
         const deposit_plus = req.body.deposit_plus;
         let deposit_Total = 0;
-        if(deposit_plus !== null && deposit_plus !== undefined){
+        if (deposit_plus !== null && deposit_plus !== undefined) {
             deposit_Total = deposit + deposit_plus;
-        }else{
+        } else {
             deposit_Total = deposit;
         }
         const userRoom = await UserRoom.findOne({ where: { iduser: iduser, status: 'active' }, include: [{ model: Room, attributes: ['room_status'] }] });
@@ -527,7 +533,7 @@ export const deleteUserDetailByid: RequestHandler = async (req, res) => {
             await UserDetail.destroy({ where: { iduser: iduser }, transaction: t });
             await Room.update({ room_status: 'empty' }, { where: { idroom: userdetail.users?.user_room[0]?.idroom }, transaction: t });
             await UserRoom.destroy({ where: { iduser: iduser }, transaction: t });
-            
+
             await t?.commit();
             return res.status(200).json({ message: 'ลบข้อมูลพนักงานสำเร็จ' });
         } else {

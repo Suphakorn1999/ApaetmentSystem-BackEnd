@@ -10,6 +10,7 @@ import { Op, where } from 'sequelize';
 import { UserRoom } from '../models/user_roomModel';
 import multer, { Multer } from 'multer';
 import { Payee } from '../models/payeeModel';
+import fs from 'fs';
 
 export const createPaymentType: RequestHandler = async (req, res) => {
     try {
@@ -61,7 +62,7 @@ export const updatePaymentByidinvoice: RequestHandler = async (req, res) => {
             idpayee: data.idpayee
         }, { where: { idinvoice: req.params.id } });
         if (payment) {
-            return res.status(200).json({ message: 'ชำระเงินสำเร็จ' });
+            return res.status(200).json({ message: 'อัปเดตชำระเงินสำเร็จ' });
         } else {
             return res.status(400).json({ message: 'ชำระเงินไม่สำเร็จ' });
         }
@@ -77,8 +78,9 @@ export const getPaymentByTokenUser: RequestHandler = async (req, res) => {
         const invoice = await Invoice.findAll({
             include: [
                 { model: Payment, required: false, attributes: ['payment_status', 'updatedAt'] },
-                { model: UserRoom, attributes: ['idroom'], where: { status: 'active' },
-                    include: [ 
+                {
+                    model: UserRoom, attributes: ['idroom'], where: { status: 'active' },
+                    include: [
                         { model: Users, attributes: ['iduser'], where: { iduser: req.body.user.id }, include: [{ model: UserDetail, attributes: ['fname', 'lname'] }] },
                         { model: Room, attributes: ['room_number'] }
                     ]
@@ -106,6 +108,8 @@ export const getPaymentByTokenUser: RequestHandler = async (req, res) => {
                 )
             })
         })
+
+        data.sort((a: any, b: any) => { return b.idinvoice - a.idinvoice })
 
         return res.status(200).json({ data: data });
 
@@ -211,9 +215,29 @@ export const getpayeeByid: RequestHandler = async (req, res) => {
         if (!payee) {
             return res.status(404).json({ message: 'ไม่มีผู้รับเงิน' });
         }
-        
+
         return res.status(200).json({ data: payee });
     } catch (err: any) {
+        return res.status(500).json({ message: err.message });
+    }
+}
+
+export const deleteimagepayment: RequestHandler = async (req, res) => {
+    const t = await Payment.sequelize?.transaction();
+    try {
+        const image_payment = req.params.image_payment;
+        const idpayment = req.params.idpayment;
+
+        const payment = await Payment.update({ image_payment: null, payment: null, idpayee: null }, { where: { idpayment: idpayment }, transaction: t });
+        if (payment) {
+            fs.unlinkSync('./public/uploads/payment/' + image_payment);
+            await t?.commit();
+            return res.status(200).json({ message: 'ลบรูปภาพสำเร็จ' });
+        } else {
+            return res.status(400).json({ message: 'ลบรูปภาพไม่สำเร็จ' });
+        }
+    } catch (err: any) {
+        await t?.rollback();
         return res.status(500).json({ message: err.message });
     }
 }
