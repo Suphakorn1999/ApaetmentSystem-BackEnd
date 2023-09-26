@@ -8,6 +8,7 @@ import { UserRoom } from '../models/user_roomModel';
 import { Op } from 'sequelize';
 import { Payment } from '../models/paymentModel';
 import { Payee } from '../models/payeeModel';
+import dayjs from 'dayjs';
 
 export const getallInvoices: RequestHandler = async (req, res) => {
     try {
@@ -25,7 +26,7 @@ export const getallInvoices: RequestHandler = async (req, res) => {
                     include: [
                         { model: Room, attributes: ['room_number'] },
                         {
-                            model: Users, attributes: ['iduser'], where: { idrole: { [Op.ne]: 1 } },
+                            model: Users, attributes: ['iduser'],
                             include: [{
                                 model:
                                     UserDetail, attributes: ['fname', 'lname']
@@ -71,8 +72,8 @@ export const getInvoiceByid: RequestHandler = async (req, res) => {
     try {
         let data: object[] = []
         const iduser_room = req.params.id;
-        const month:any = req.params.month || new Date().getMonth() + 1;
-        const year:any = req.params.year || new Date().getFullYear();
+        const month: any = req.params.month || new Date().getMonth() + 1;
+        const year: any = req.params.year || new Date().getFullYear();
 
         const userroom = await UserRoom.findOne({
             where: { iduser_room: iduser_room },
@@ -84,8 +85,8 @@ export const getInvoiceByid: RequestHandler = async (req, res) => {
 
         if (userroom) {
             const invoice = await Invoice.findOne({
-                where: { 
-                    iduser_room: iduser_room , 
+                where: {
+                    iduser_room: iduser_room,
                     date_invoice: { [Op.between]: [new Date(year, month - 2, 1), new Date(year, month, 0)] }
                 },
                 include: [{ model: Payment }],
@@ -117,8 +118,14 @@ export const getInvoiceByid: RequestHandler = async (req, res) => {
                 });
 
                 if (check) {
-                    return res.status(400).json({ message: 'ยังไม่มีบิลในเดือนก่อนหน้า' });
+                    return res.status(400).json({ message: 'ยังไม่มีบิลในเดือนก่อน' });
                 } else {
+                    const currentDate = new Date(userroom.date_in);
+                    const providedDate = new Date(year, month - 1, 1);
+
+                    if (dayjs(currentDate).format('MM/YYYY') !== dayjs(providedDate).format('MM/YYYY')) {
+                        return res.status(400).json({ message: 'ยังไม่ได้จดมิเตอร์เดือนก่อน' });
+                    }
                     data.push({
                         iduser: userroom.users.iduser,
                         fname: userroom.users.user_detail[0]?.fname,
@@ -327,6 +334,7 @@ export const getAllInvoiceMonthly: RequestHandler = async (req, res) => {
         const data: object[] = []
         const month: any = req.params.month;
         const year: any = req.params.year;
+
         const users = await Users.findAll({
             include: [
                 {
@@ -342,7 +350,9 @@ export const getAllInvoiceMonthly: RequestHandler = async (req, res) => {
                         include: [{
                             model: Payment, attributes: ['payment_status', 'updatedAt'],
                             include: [{ model: Payee }], where: { payment_status: "paid" }
-                        }], where: { [Op.and]: [{ date_invoice: { [Op.gte]: new Date(year, month - 1, 1) } }, { createdAt: { [Op.lte]: new Date(year, month, 0) } }] }
+                        }], where: {
+                            [Op.and]: [{ date_invoice: { [Op.gte]: new Date(year, month - 1, 1) } }, { date_invoice: { [Op.lte]: new Date(year, month, 0) } }]
+                        }
                     }
                     ]
                 },
@@ -404,7 +414,7 @@ export const getAllInvoiceMonthlys: RequestHandler = async (req, res) => {
                             model: Payment, required: false, attributes: ['payment_status', 'updatedAt'],
                             include: [{ model: Payee }]
                         }],
-                        where: { [Op.and]: [{ date_invoice: { [Op.gte]: new Date(year, month - 1, 1) } }, { createdAt: { [Op.lte]: new Date(year, month, 0) } }] }
+                        where: { [Op.and]: [{ date_invoice: { [Op.gte]: new Date(year, month - 1, 1) } }, { date_invoice: { [Op.lte]: new Date(year, month, 0) } }] }
                     }
                     ]
                 },

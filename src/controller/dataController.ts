@@ -148,7 +148,7 @@ export const getCountBadge = async (req: any, res: any) => {
                     include: [
                         { model: Room, attributes: ['room_number'] },
                         {
-                            model: Users, attributes: ['iduser'], where: { idrole: { [Op.ne]: 1 } },
+                            model: Users, attributes: ['iduser'],
                             include: [{
                                 model:
                                     UserDetail, attributes: ['fname', 'lname']

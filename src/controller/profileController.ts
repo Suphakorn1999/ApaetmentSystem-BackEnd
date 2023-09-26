@@ -287,9 +287,6 @@ export const getUserAllDetail: RequestHandler = async (req, res) => {
         const userdetail = await UserDetail.findAll({
             include: [{
                 model: Users,
-                where: {
-                    idrole: { [Op.ne]: 1 }
-                },
                 include: [{
                     model: UserRoom,
                     required: false,
@@ -333,8 +330,10 @@ export const getUserAllDetail: RequestHandler = async (req, res) => {
                     email: userdetail.email,
                     date_in: userdetail.users?.user_room[0]?.date_in,
                     date_out: userdetail.users?.user_room[0]?.date_out,
+                    idrole: userdetail.users?.idrole,
                 })
             })
+            data.sort((a: any, b: any) => { return b.createdAt - a.createdAt });
             return res.status(200).json({ data: data });
         } else {
             return res.status(404).json({ message: 'ไม่เจอข้อมูลผู้ใช้งาน' });

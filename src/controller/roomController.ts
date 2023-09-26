@@ -206,7 +206,6 @@ export const getAllUserInRoom: RequestHandler = async (req, res) => {
             include: [
                 {
                     model: Users, include: [{ model: UserDetail }],
-                    where: { idrole: { [Op.ne]: 1 } }
                 },
                 { model: Room, include: [{ model: RoomType }] }],
             where: { status: "active" }
@@ -229,6 +228,7 @@ export const getAllUserInRoom: RequestHandler = async (req, res) => {
                 date_in: element.date_in,
                 date_out: element.date_out,
                 status: element.status,
+                deposit: element.deposit,
             });
         });
 
@@ -241,12 +241,12 @@ export const getAllUserInRoom: RequestHandler = async (req, res) => {
 
 export const getAllUserInRooms: RequestHandler = async (req, res) => {
     try {
-        const month = req.params.month;
-        const year = req.params.year;
+        const month: any = req.params.month;
+        const year: any = req.params.year;
 
         const userroomhave = await UserRoom.findAll({
             include: [
-                { model: Users, include: [{ model: UserDetail }], where: { idrole: { [Op.ne]: 1 } } },
+                { model: Users, include: [{ model: UserDetail }]},
                 { model: Room, include: [{ model: RoomType }] },
                 {
                     model: Invoice, include: [{ model: Payment }],
@@ -266,7 +266,7 @@ export const getAllUserInRooms: RequestHandler = async (req, res) => {
 
         const userroomAll = await UserRoom.findAll({
             include: [
-                { model: Users, include: [{ model: UserDetail }], where: { idrole: { [Op.ne]: 1 } } },
+                { model: Users, include: [{ model: UserDetail }]},
                 { model: Room, include: [{ model: RoomType }] },
                 {
                     model: Invoice, include: [{ model: Payment }],
@@ -278,13 +278,15 @@ export const getAllUserInRooms: RequestHandler = async (req, res) => {
         const data: object[] = [];
 
         userroomAll.forEach((e: any) => {
+            const currentDate = new Date(year, month - 1, 31);
+            const providedDate = new Date(e.date_in);
+            
             const check = userroomhave.find((element: any) => element.iduser_room == e.iduser_room);
-
-            if (!check) {
-                if (e.date_in >= dayjs(`${year}-${month}-01`).format('YYYY-MM-DD HH:mm:ss')) {
-                    return;
-                }
-                else {
+            
+            if (check) {
+                return;
+            } else {
+                if (currentDate >= providedDate) {
                     data.push({
                         iduser: e.users.iduser,
                         iduser_room: e.iduser_room,
@@ -296,8 +298,28 @@ export const getAllUserInRooms: RequestHandler = async (req, res) => {
                         date_out: e.date_out,
                         status: e.status,
                     });
+                } else {
+                    return;
                 }
             }
+            // if (!check) {
+            //     if (e.date_in >= dayjs(`${year}-${month}-01`).format('YYYY-MM-DD HH:mm:ss')) {
+            //         return;
+            //     }
+            //     else {
+            //         data.push({
+            //             iduser: e.users.iduser,
+            //             iduser_room: e.iduser_room,
+            //             fname: e.users.user_detail[0]?.fname,
+            //             lname: e.users.user_detail[0]?.lname,
+            //             room_number: e.room.room_number,
+            //             room_type_name: e.room.roomtype.room_type_name,
+            //             date_in: e.date_in,
+            //             date_out: e.date_out,
+            //             status: e.status,
+            //         });
+            //     }
+            // }
         });
 
         return res.status(200).json({ data: data });
@@ -359,7 +381,6 @@ export const getRoomEmptyAndUsernotInRoom: RequestHandler = async (req, res) => 
 
         const user = await Users.findAll({
             include: [{ model: UserDetail }],
-            where: { idrole: { [Op.ne]: 1 } }
         });
 
         const userroom = await UserRoom.findAll();

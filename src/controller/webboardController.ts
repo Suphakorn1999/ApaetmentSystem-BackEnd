@@ -137,16 +137,15 @@ export const getPostAndCommentByidthreads: RequestHandler = async (req, res, nex
                 }
             ]
         });
-
         post.forEach((post: any, index: number) => {
             data.push({
                 idposts: post.idposts,
                 content: post.content,
                 created_at: post.created_at,
                 updatedAt: post.updatedAt,
-                fname: post.user.user_detail[index].fname,
-                lname: post.user.user_detail[index].lname,
-                partNameAvatar: post.user.user_detail[index].partNameAvatar,
+                fname: post.user.user_detail[0].fname,
+                lname: post.user.user_detail[0].lname,
+                partNameAvatar: post.user.user_detail[0].partNameAvatar,
                 iduser: post.user.iduser,
                 comments: post.comment && post.comment.map((comment: any, index: number) => {
                     return {
@@ -162,7 +161,6 @@ export const getPostAndCommentByidthreads: RequestHandler = async (req, res, nex
                 })
             })
         });
-
         return res.status(200).json({ data: data });
     } catch (err: any) {
         return res.status(500).json({ message: err.message });
