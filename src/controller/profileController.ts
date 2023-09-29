@@ -385,8 +385,9 @@ export const getUserDetailbyid: RequestHandler = async (req, res) => {
 }
 
 export const updateUserUserDetailByid: RequestHandler = async (req, res) => {
-    const t = await UserDetail.sequelize?.transaction();
+    let t;
     try {
+        t = await UserDetail.sequelize?.transaction();
         const iduser = req.params.id;
         const data = req.body;
         const userdetails = await UserDetail.findOne({ where: { iduser: iduser } });
@@ -401,7 +402,7 @@ export const updateUserUserDetailByid: RequestHandler = async (req, res) => {
         }
     }
     catch (err: any) {
-        await t?.rollback();
+        if(t) await t?.rollback();
         return res.status(500).json({ message: err.message });
     }
 }
@@ -432,8 +433,9 @@ export const getIdroomByiduser: RequestHandler = async (req, res) => {
 }
 
 export const updateidRoomByiduser: RequestHandler = async (req, res) => {
-    const t = await UserRoom.sequelize?.transaction();
+    let t;
     try {
+        t = await UserRoom.sequelize?.transaction();
         const iduser = req.params.id;
         const idroom = req.body.idroom;
         const date_out = req.body.date_out;
@@ -518,14 +520,15 @@ export const updateidRoomByiduser: RequestHandler = async (req, res) => {
             }
         }
     } catch (err: any) {
-        await t?.rollback();
+        if(t) await t?.rollback();
         res.status(500).json({ message: err.message });
     }
 }
 
 export const deleteUserDetailByid: RequestHandler = async (req, res) => {
-    const t = await UserDetail.sequelize?.transaction();
+    let t;
     try {
+        t = await UserDetail.sequelize?.transaction();
         const iduser = req.params.id;
         const userdetail = await UserDetail.findOne({ where: { iduser: iduser }, include: [{ model: Users, include: [{ model: UserRoom }] }] });
         if (userdetail) {
@@ -539,7 +542,7 @@ export const deleteUserDetailByid: RequestHandler = async (req, res) => {
             return res.status(404).json({ message: 'ไม่เจอข้อมูลพนักงาน' });
         }
     } catch (err: any) {
-        await t?.rollback();
+        if(t) await t?.rollback();
         res.status(500).json({ message: err.message });
     }
 }

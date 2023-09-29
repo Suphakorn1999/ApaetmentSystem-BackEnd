@@ -151,8 +151,9 @@ export const getInvoiceByid: RequestHandler = async (req, res) => {
 }
 
 export const createInvoice: RequestHandler = async (req, res) => {
-    const t = await Invoice.sequelize?.transaction();
+    let t;
     try {
+        t = await Invoice.sequelize?.transaction();
         const data: Invoice = req.body;
         const userroom = await UserRoom.findOne({
             where: { iduser: req.body.iduser, status: 'active' },
@@ -181,7 +182,9 @@ export const createInvoice: RequestHandler = async (req, res) => {
             return res.status(404).json({ message: 'ไม่พบข้อมูลผู้เช่า' });
         }
     } catch (err: any) {
-        await t?.rollback();
+        if (t) {
+            await t.rollback();
+        }
         return res.status(500).json({ message: err.message });
     }
 }

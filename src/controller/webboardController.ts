@@ -323,8 +323,9 @@ export const deleteComment: RequestHandler = async (req, res, next) => {
 }
 
 export const deletePost: RequestHandler = async (req, res, next) => {
-    const t = await Posts.sequelize?.transaction();
+    let t
     try {
+        t = await Posts.sequelize?.transaction();
         const { id } = req.params;
         const post = await Posts.destroy({ where: { idposts: id }, transaction: t });
         const comment = await Comment.destroy({ where: { idposts: id }, transaction: t });
@@ -332,14 +333,15 @@ export const deletePost: RequestHandler = async (req, res, next) => {
         await t?.commit();
         return res.status(200).json({ data: post, comment: comment });
     } catch (err: any) {
-        await t?.rollback();
+        if(t) await t.rollback();
         return res.status(500).json({ message: err.message });
     }
 }
 
 export const deleteThread: RequestHandler = async (req, res, next) => {
-    const t = await Threads.sequelize?.transaction();
+    let t;
     try {
+        t = await Threads.sequelize?.transaction();
         const { id } = req.params;
         const thread = await Threads.destroy({ where: { idthreads: id }, transaction: t });
         const post = await Posts.destroy({ where: { idthreads: id }, transaction: t });
@@ -348,7 +350,7 @@ export const deleteThread: RequestHandler = async (req, res, next) => {
         await t?.commit();
         return res.status(200).json({ data: thread, post: post, comment: comment });
     } catch (err: any) {
-        await t?.rollback();
+        if(t) await t.rollback();
         return res.status(500).json({ message: err.message });
     }
 }

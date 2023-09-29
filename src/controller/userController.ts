@@ -17,8 +17,9 @@ export const getallUsers: RequestHandler = async (req, res) => {
 }
 
 export const register: RequestHandler = async (req, res) => {
-    const t = await Users.sequelize?.transaction();
+    let t;
     try {
+        t = await Users.sequelize?.transaction();
         const { username, idrole, fname, lname, card_id, phone_number } = req.body;
         const user = await Users.findOne({ where: { username: username } });
         if (user) {
@@ -43,7 +44,7 @@ export const register: RequestHandler = async (req, res) => {
             return res.status(200).json({ message: 'ลงทะเบียนสำเร็จ' });
         }
     } catch (err:any) {
-        await t?.rollback();
+        if(t) await t.rollback();
         return res.status(500).json({ message: err.message });
     }
 }

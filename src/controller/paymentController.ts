@@ -132,9 +132,10 @@ export const getPaymentByTokenUser: RequestHandler = async (req, res) => {
 }
 
 export const updatePaymentByidinvoiceAndUploadfile: RequestHandler = async (req, res) => {
-    const t = await Payment.sequelize?.transaction();
-    const iduser = req.body.user.id;
+    let t: any = null;
     try {
+        t = await Payment.sequelize?.transaction();
+        const iduser = req.body.user.id;
         const storage = multer.diskStorage({
             destination: function (req, file, cb) {
                 cb(null, './public/uploads/payment')
@@ -177,7 +178,7 @@ export const updatePaymentByidinvoiceAndUploadfile: RequestHandler = async (req,
         })
 
     } catch (err: any) {
-        await t?.rollback();
+        if(t) await t?.rollback();
         return res.status(500).json({ message: err.message });
     }
 }
@@ -237,8 +238,9 @@ export const getpayeeByid: RequestHandler = async (req, res) => {
 }
 
 export const deleteimagepayment: RequestHandler = async (req, res) => {
-    const t = await Payment.sequelize?.transaction();
+    let t: any = null;
     try {
+        t = await Payment.sequelize?.transaction();
         const image_payment = req.params.image_payment;
         const idpayment = req.params.idpayment;
 
@@ -251,7 +253,7 @@ export const deleteimagepayment: RequestHandler = async (req, res) => {
             return res.status(400).json({ message: 'ลบรูปภาพไม่สำเร็จ' });
         }
     } catch (err: any) {
-        await t?.rollback();
+        if(t) await t?.rollback();
         return res.status(500).json({ message: err.message });
     }
 }

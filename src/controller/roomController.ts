@@ -142,8 +142,9 @@ export const getRoomByid: RequestHandler = async (req, res) => {
 }
 
 export const updateRoom: RequestHandler = async (req, res) => {
-    const t = await Room.sequelize?.transaction();
+    let t:any = null;
     try {
+        t = await Room.sequelize?.transaction();
         const data: Room = req.body;
         const room = await Room.findOne({ where: { idroom: req.params.id } });
         if (data.status_room === "inactive") {
@@ -195,7 +196,7 @@ export const updateRoom: RequestHandler = async (req, res) => {
         }
     }
     catch (err: any) {
-        await t?.rollback();
+        if(t) await t?.rollback();
         res.status(500).json({ message: err.message });
     }
 }
@@ -329,8 +330,9 @@ export const getAllUserInRooms: RequestHandler = async (req, res) => {
 }
 
 export const createUserRoom: RequestHandler = async (req, res) => {
-    const t = await UserRoom.sequelize?.transaction();
+    let t:any = null;
     try {
+        t = await UserRoom.sequelize?.transaction();
         const data: UserRoom = req.body;
         const userroom = await UserRoom.findOne({ where: { iduser: data.iduser, status: 'active' } });
 
@@ -367,7 +369,7 @@ export const createUserRoom: RequestHandler = async (req, res) => {
 
     }
     catch (err: any) {
-        await t?.rollback();
+        if(t) await t?.rollback();
         res.status(500).json({ message: err.message });
     }
 }
