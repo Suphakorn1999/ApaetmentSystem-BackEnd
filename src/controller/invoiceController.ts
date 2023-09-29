@@ -358,7 +358,6 @@ export const getAllInvoiceMonthly: RequestHandler = async (req, res) => {
                 },
                 { model: UserDetail, attributes: ['fname', 'lname'] },
             ],
-            where: { idrole: { [Op.ne]: 1 } }
         })
 
         if (users.length == 0) {
@@ -420,7 +419,6 @@ export const getAllInvoiceMonthlys: RequestHandler = async (req, res) => {
                 },
                 { model: UserDetail, attributes: ['fname', 'lname'] },
             ],
-            where: { idrole: { [Op.ne]: 1 } }
         })
 
         const room = await Room.findAll();

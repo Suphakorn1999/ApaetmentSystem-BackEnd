@@ -95,7 +95,7 @@ function verifyTokenUser(req: any, res: any, next: express.NextFunction) {
   try {
     const decoded = verify(token, secretKey);
     req.body.user = decoded;
-    if (req.body.user.idrole === 2) {
+    if (req.body.user.idrole === 2 || req.body.user.idrole === 1) {
       next();
     } else {
       return res.status(401).json({ message: 'Failed to authenticate token.' });

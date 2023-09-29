@@ -41,11 +41,24 @@ export const getallPaymentType: RequestHandler = async (req, res) => {
 
 export const getPaymentByidinvoice: RequestHandler = async (req, res) => {
     try {
-        const payment = await Payment.findAll({ where: { idinvoice: req.params.id } });
+        const payment = await Payment.findAll({ where: { idinvoice: req.params.id }, include: [{ model: PaymentType }] });
+        const data: Object[] = [];
         if (payment.length == 0) {
             return res.status(404).json({ message: 'ไม่มีประวัติการชำระเงิน' });
         }
-        return res.status(200).json({ data: payment });
+        payment.forEach((pay) => {
+            data.push({
+                idpayment: pay.idpayment,
+                idpayment_type: pay.idpayment_type,
+                payment_status: pay.payment_status,
+                note: pay.note,
+                idpayee: pay.idpayee,
+                image_payment: pay.image_payment,
+                payment_type: pay.paymenttype?.payment_type,
+            })
+        })
+
+        return res.status(200).json({ data: data });
     } catch (err: any) {
         return res.status(500).json({ message: err.message });
     }
@@ -56,7 +69,7 @@ export const updatePaymentByidinvoice: RequestHandler = async (req, res) => {
         const data: Payment = req.body;
         const payment = await Payment.update({
             idinvoice: data.idinvoice,
-            payment: data.payment,
+            idpayment_type: data.idpayment_type,
             payment_status: data.payment_status,
             note: data.note,
             idpayee: data.idpayee
@@ -146,10 +159,11 @@ export const updatePaymentByidinvoiceAndUploadfile: RequestHandler = async (req,
             const date = new Date();
             const dateStr = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
             const data: Payment = req.body;
+            
             const mimetype = req.file?.mimetype.split('/')[1];
             const payment = await Payment.update({
                 idinvoice: data.idinvoice,
-                payment: data.payment,
+                idpayment_type: Number(data.idpayment_type),
                 note: data.note,
                 image_payment: dateStr + '-' + iduser + "." + mimetype
             }, { where: { idinvoice: req.params.id }, transaction: t });

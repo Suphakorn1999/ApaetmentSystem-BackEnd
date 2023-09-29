@@ -2,7 +2,7 @@ import { Router } from 'express';
 import {
     getThreads, getThread, getPostAndCommentByidthreads, createThread, createPost,
     createComment, updateThread, updatePost, updateComment, getSearchedThread, deleteComment,
-    deletePost, deleteThread
+    deletePost, deleteThread, getSearchedPost
 } from '../controller/webboardController';
 const { verifyToken } = require('../middlewares/jwtHandler');
 const router = Router();
@@ -20,6 +20,7 @@ router.get('/search/:title', verifyToken, getSearchedThread);
 router.delete('/comments/:id', verifyToken, deleteComment);
 router.delete('/posts/:id', verifyToken, deletePost);
 router.delete('/threads/:id', verifyToken, deleteThread);
+router.get('/searchpost/:id/:content', verifyToken, getSearchedPost);
 
 
 export default router;

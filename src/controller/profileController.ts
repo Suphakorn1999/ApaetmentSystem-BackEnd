@@ -336,7 +336,7 @@ export const getUserAllDetail: RequestHandler = async (req, res) => {
             data.sort((a: any, b: any) => { return b.createdAt - a.createdAt });
             return res.status(200).json({ data: data });
         } else {
-            return res.status(404).json({ message: 'ไม่เจอข้อมูลผู้ใช้งาน' });
+            return res.status(404).json({ message: 'ไม่เจอข้อมูลพนักงาน' });
         }
 
     } catch (err: any) {

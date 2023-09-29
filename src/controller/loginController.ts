@@ -1,5 +1,6 @@
 import { RequestHandler } from 'express';
 import { Users } from '../models/userModel';
+import { UserRoom } from '../models/user_roomModel';
 const CryptoJS = require('crypto-js');
 import dotenv from 'dotenv';
 dotenv.config();
@@ -13,6 +14,10 @@ export const login: RequestHandler = async (req, res) => {
         let passworddecrypt = CryptoJS.AES.decrypt(user.password, process.env.SECRET_KEY).toString(CryptoJS.enc.Utf8);
         if (passworddecrypt === password) {
             const token = generateToken({ id: user.iduser, username: user.username, idrole: user.idrole });
+            const adminhaveroom = await UserRoom.findOne({ where: { iduser: user.iduser } });
+            if(adminhaveroom){
+                return res.status(200).json({ message: 'เข้าสู่ระบบสำเร็จ', token: token , idrole: user.idrole, iduser: user.iduser, idroom: adminhaveroom.idroom });
+            }
             return res.status(200).json({ message: 'เข้าสู่ระบบสำเร็จ', token: token , idrole: user.idrole, iduser: user.iduser });
         }else{
             return res.status(401).json({ message: 'รหัสผ่านผิด' });

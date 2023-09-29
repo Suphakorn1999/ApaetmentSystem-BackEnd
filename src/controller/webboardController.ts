@@ -352,3 +352,74 @@ export const deleteThread: RequestHandler = async (req, res, next) => {
         return res.status(500).json({ message: err.message });
     }
 }
+
+export const getSearchedPost: RequestHandler = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const { content } = req.params;
+        const data: object[] = [];
+        const post = await Posts.findAll({
+            where: {
+                idthreads: id,
+                content: {
+                    [Op.like]: `%${content}%`
+                }
+            },
+            include: [
+                {
+                    model: Users,
+                    attributes: ["iduser"],
+                    include: [
+                        {
+                            model: UserDetail,
+                            attributes: ["fname", "lname", "partNameAvatar"]
+                        }
+                    ]
+                },
+                {
+                    model: Comment,
+                    include: [
+                        {
+                            model: Users,
+                            attributes: ["iduser"],
+                            include: [
+                                {
+                                    model: UserDetail,
+                                    attributes: ["fname", "lname", "partNameAvatar"]
+                                }
+                            ]
+                        }
+                    ],
+                }
+            ],
+        });
+
+        post.forEach((post: any, index: number) => {
+            data.push({
+                idposts: post.idposts,
+                content: post.content,
+                created_at: post.created_at,
+                updatedAt: post.updatedAt,
+                fname: post.user.user_detail[0].fname,
+                lname: post.user.user_detail[0].lname,
+                partNameAvatar: post.user.user_detail[0].partNameAvatar,
+                iduser: post.user.iduser,
+                comments: post.comment && post.comment.map((comment: any, index: number) => {
+                    return {
+                        idcomment: comment.idcomment,
+                        content: comment.content,
+                        created_at: comment.created_at,
+                        updatedAt: comment.updatedAt,
+                        fname: comment.user.user_detail[0]?.fname,
+                        lname: comment.user.user_detail[0]?.lname,
+                        partNameAvatar: comment.user.user_detail[0]?.partNameAvatar,
+                        iduser: comment.user.iduser
+                    }
+                })
+            })
+        });
+        return res.status(200).json({ data: data });
+    } catch (err: any) {
+        return res.status(500).json({ message: err.message });
+    }
+}

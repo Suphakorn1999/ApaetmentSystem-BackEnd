@@ -2,6 +2,7 @@ import { Table, Column, Model, DataType, BelongsTo, ForeignKey, CreatedAt, HasMa
 import { Invoice } from "./invoiceModel";
 import { Op, Sequelize } from "sequelize";
 import { Payee } from "./payeeModel";
+import { PaymentType } from "./paymentTypeModel";
 
 
 @Table({
@@ -30,11 +31,15 @@ export class Payment extends Model {
     @BelongsTo(() => Invoice)
     invoice!: Invoice;
 
+    @ForeignKey(() => PaymentType)
     @Column({
-        type: DataType.STRING,
+        type: DataType.INTEGER,
         allowNull: true
     })
-    payment!: string;
+    idpayment_type!: number;
+
+    @BelongsTo(() => PaymentType)
+    paymenttype!: PaymentType;
 
     @Column({
         type: DataType.STRING,
@@ -55,7 +60,7 @@ export class Payment extends Model {
         allowNull: true,
     })
     idpayee!: number;
-    
+
     @BelongsTo(() => Payee)
     payee!: Payee;
 
@@ -73,52 +78,55 @@ export class Payment extends Model {
     createdAt!: Date;
 
     static async MonthlyIncomecount(year: number): Promise<number[]> {
-        const monthlyIncomes = Array(12).fill(0);
+        const monthlyIncomes = Array(12).fill({ paid: 0, pending: 0 });
+        const payments = await Payment.findAll();
+
+        if(payments.length === 0) return monthlyIncomes;
 
         for (let month = 1; month <= 12; month++) {
-            const paidCount = await Payment.count({
-                where: {
-                    payment_status: 'paid'
-                },
-                include: [
-                    {
-                        model: Invoice,
-                        where: {
-                            date_invoice: {
-                                [Op.and]: [
-                                    Sequelize.where(Sequelize.fn('YEAR', Sequelize.col('Invoice.date_invoice')), year),
-                                    Sequelize.where(Sequelize.fn('MONTH', Sequelize.col('Invoice.date_invoice')), month)
-                                ]
+                const paidCount = await Payment.count({
+                    where: {
+                        payment_status: 'paid'
+                    },
+                    include: [
+                        {
+                            model: Invoice,
+                            where: {
+                                date_invoice: {
+                                    [Op.and]: [
+                                        Sequelize.where(Sequelize.fn('YEAR', Sequelize.col('Invoice.date_invoice')), year),
+                                        Sequelize.where(Sequelize.fn('MONTH', Sequelize.col('Invoice.date_invoice')), month)
+                                    ]
+                                }
                             }
                         }
-                    }
-                ]
-            });
+                    ]
+                });
 
-            const pendingCount = await Payment.count({
-                where: {
-                    payment_status: 'pending'
-                },
-                include: [
-                    {
-                        model: Invoice,
-                        where: {
-                            date_invoice: {
-                                [Op.and]: [
-                                    Sequelize.where(Sequelize.fn('YEAR', Sequelize.col('Invoice.date_invoice')), year),
-                                    Sequelize.where(Sequelize.fn('MONTH', Sequelize.col('Invoice.date_invoice')), month)
-                                ]
+                const pendingCount = await Payment.count({
+                    where: {
+                        payment_status: 'pending'
+                    },
+                    include: [
+                        {
+                            model: Invoice,
+                            where: {
+                                date_invoice: {
+                                    [Op.and]: [
+                                        Sequelize.where(Sequelize.fn('YEAR', Sequelize.col('Invoice.date_invoice')), year),
+                                        Sequelize.where(Sequelize.fn('MONTH', Sequelize.col('Invoice.date_invoice')), month)
+                                    ]
+                                }
                             }
                         }
-                    }
-                ]
-            });
+                    ]
+                });
 
-            monthlyIncomes[month - 1] = {
-                month,
-                paid: paidCount,
-                pending: pendingCount
-            };
+                monthlyIncomes[month - 1] = {
+                    month,
+                    paid: paidCount,
+                    pending: pendingCount
+                };
         }
 
         return monthlyIncomes;
@@ -168,9 +176,9 @@ export class Payment extends Model {
 
             monthlyIncomes[month - 1] = {
                 month,
-                paid: paid.reduce((sum, payment) => sum + 
-                    Number(payment.invoice.room_price + 
-                        (payment.invoice.electricmeter_new - payment.invoice.electricmeter_old) * payment.invoice.electric_price + 
+                paid: paid.reduce((sum, payment) => sum +
+                    Number(payment.invoice.room_price +
+                        (payment.invoice.electricmeter_new - payment.invoice.electricmeter_old) * payment.invoice.electric_price +
                         (payment.invoice.watermeter_new - payment.invoice.watermeter_old) * payment.invoice.water_price), 0),
                 pending: pending.reduce((sum, payment) => sum +
                     Number(payment.invoice.room_price +
@@ -181,5 +189,4 @@ export class Payment extends Model {
 
         return monthlyIncomes;
     }
-
 }

@@ -1,4 +1,5 @@
-import { Table, Column, Model, DataType, BelongsTo, ForeignKey, CreatedAt } from "sequelize-typescript";
+import { Table, Column, Model, DataType, BelongsTo, ForeignKey, CreatedAt, HasMany } from "sequelize-typescript";
+import { Payment } from "./paymentModel";
 
 
 @Table({
@@ -27,4 +28,7 @@ export class PaymentType extends Model {
         allowNull: true
     })
     createdAt!: Date;
+
+    @HasMany(() => Payment)
+    payment!: Payment[];
 }
