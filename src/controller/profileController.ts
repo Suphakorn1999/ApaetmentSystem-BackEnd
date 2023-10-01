@@ -117,7 +117,10 @@ export const uploadImage: RequestHandler = async (req, res) => {
 
                     const storage = multer.diskStorage({
                         destination: function (req, file, cb) {
-                            cb(null, './public/uploads/profile')
+                            //localhost
+                            //cb(null, './public/uploads/profile')
+                            //server
+                            cb(null, path.join(__dirname, '../../public/uploads/profile'))
                         },
                         filename: function (req, file, cb) {
                             const mimetype = file.mimetype.split('/')[1];
@@ -155,7 +158,10 @@ export const uploadImage: RequestHandler = async (req, res) => {
                 } else {
                     const storage = multer.diskStorage({
                         destination: function (req, file, cb) {
-                            cb(null, './public/uploads/profile')
+                            //localhost
+                            //cb(null, './public/uploads/profile')
+                            //server
+                            cb(null, path.join(__dirname, '../../public/uploads/profile'))
                         },
                         filename: function (req, file, cb) {
                             const mimetype = file.mimetype.split('/')[1];
@@ -201,7 +207,10 @@ export const uploadImage: RequestHandler = async (req, res) => {
 
                 const storage = multer.diskStorage({
                     destination: function (req, file, cb) {
-                        cb(null, './public/uploads/profile/')
+                        //localhost
+                        //cb(null, './public/uploads/profile/')
+                        //server
+                        cb(null, path.join(__dirname, '../../public/uploads/profile/'))
                     },
                     filename: function (req, file, cb) {
                         const mimetype = file.mimetype.split('/')[1];
@@ -239,7 +248,10 @@ export const uploadImage: RequestHandler = async (req, res) => {
             } else {
                 const storage = multer.diskStorage({
                     destination: function (req, file, cb) {
-                        cb(null, './public/uploads/profile/')
+                        //localhost
+                        //cb(null, './public/uploads/profile/')
+                        //server
+                        cb(null, path.join(__dirname, '../../public/uploads/profile/'))
                     },
                     filename: function (req, file, cb) {
                         const mimetype = file.mimetype.split('/')[1];

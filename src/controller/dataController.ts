@@ -167,6 +167,52 @@ export const getCountBadge = async (req: any, res: any) => {
 }
 
 export const backupdatabase = async (req: any, res: any) => {
+    //localhost
+    // try {
+    //     const dbName = process.env.NAME_DB;
+    //     const month = new Date().getMonth() + 1;
+    //     const year = new Date().getFullYear();
+    //     const username = process.env.USER_DB;
+    //     const password = process.env.PASSWORD_DB;
+    //     const host = process.env.HOST_DB;
+    //     const backupFileName = `${dbName}_${month}_${year}.sql`;
+    //     const mysqldumpPath = 'C:/xampp/mysql/bin/mysqldump.exe';
+    //     const backupFilePath = path.resolve(`public/backup/${backupFileName}`);
+
+    //     const mysqldumpCmd = spawn(mysqldumpPath, [
+    //         `--host=${host}`,
+    //         `--user=${username}`,
+    //         `--password=${password}`,
+    //         `${dbName}`,
+    //     ]);
+
+    //     const backupStream = require('fs').createWriteStream(backupFilePath);
+
+    //     mysqldumpCmd.stdout.pipe(backupStream);
+
+    //     mysqldumpCmd.on('error', (err) => {
+    //         console.error(err);
+    //         return res.status(500).json({ error: 'Failed to create database backup' });
+    //     });
+
+    //     mysqldumpCmd.on('exit', (code) => {
+    //         if (code === 0) {
+    //             return res.attachment(backupFilePath).sendFile(backupFilePath, (err: any) => {
+    //                 if (err) {
+    //                     console.error(err);
+    //                     return res.status(500).json({ error: 'Failed to send backup file' });
+    //                 }
+    //             });
+    //         } else {
+    //             console.error(code);
+    //             return res.status(500).json({ error: 'Failed to create database backup' });
+    //         }
+    //     });
+
+    // } catch (err: any) {
+    //     return res.status(500).json({ message: err.message });
+    // }
+    //server
     try {
         const dbName = process.env.NAME_DB;
         const month = new Date().getMonth() + 1;
@@ -175,17 +221,17 @@ export const backupdatabase = async (req: any, res: any) => {
         const password = process.env.PASSWORD_DB;
         const host = process.env.HOST_DB;
         const backupFileName = `${dbName}_${month}_${year}.sql`;
-        const mysqldumpPath = 'C:/xampp/mysql/bin/mysqldump.exe';
-        const backupFilePath = path.resolve(`public/backup/${backupFileName}`);
+        const backupFilePath = path.resolve(path.join(__dirname, `../../public/backup/${backupFileName}`));
 
-        const mysqldumpCmd = spawn(mysqldumpPath, [
+
+        const mysqldumpCmd = spawn('mysqldump', [
             `--host=${host}`,
             `--user=${username}`,
             `--password=${password}`,
             `${dbName}`,
         ]);
 
-        const backupStream = require('fs').createWriteStream(backupFilePath);
+        const backupStream = fs.createWriteStream(backupFilePath);
 
         mysqldumpCmd.stdout.pipe(backupStream);
 
@@ -207,7 +253,6 @@ export const backupdatabase = async (req: any, res: any) => {
                 return res.status(500).json({ error: 'Failed to create database backup' });
             }
         });
-
     } catch (err: any) {
         return res.status(500).json({ message: err.message });
     }

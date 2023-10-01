@@ -11,6 +11,7 @@ import { UserRoom } from '../models/user_roomModel';
 import multer, { Multer } from 'multer';
 import { Payee } from '../models/payeeModel';
 import fs from 'fs';
+import path from 'path';
 
 export const createPaymentType: RequestHandler = async (req, res) => {
     try {
@@ -138,7 +139,10 @@ export const updatePaymentByidinvoiceAndUploadfile: RequestHandler = async (req,
         const iduser = req.body.user.id;
         const storage = multer.diskStorage({
             destination: function (req, file, cb) {
-                cb(null, './public/uploads/payment')
+                //localhost
+                // cb(null, './public/uploads/payment')
+                //server
+                cb(null, path.join(__dirname, '../../public/uploads/payment'))
             },
             filename: function (req, file, cb) {
                 const date = new Date();
@@ -246,7 +250,10 @@ export const deleteimagepayment: RequestHandler = async (req, res) => {
 
         const payment = await Payment.update({ image_payment: null, payment: null, idpayee: null }, { where: { idpayment: idpayment }, transaction: t });
         if (payment) {
-            fs.unlinkSync('./public/uploads/payment/' + image_payment);
+            //localhost
+            //fs.unlinkSync('./public/uploads/payment/' + image_payment);
+            //server
+            fs.unlinkSync(path.join(__dirname, '../../public/uploads/payment/' + image_payment));
             await t?.commit();
             return res.status(200).json({ message: 'ลบรูปภาพสำเร็จ' });
         } else {
