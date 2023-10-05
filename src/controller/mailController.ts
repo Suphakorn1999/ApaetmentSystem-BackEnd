@@ -28,6 +28,9 @@ export const sendMail: RequestHandler = async (req, res, next) => {
             ],
             order: [['createdAt', 'DESC']]
         });
+        if (invoice?.user_room.users.user_detail[0]?.email === null) {
+            res.status(500).json({ message: 'ไม่สามารถส่งอีเมล์ได้ เนื่องจากผู้เช่าไม่มีอีเมล์' });
+        }
         if (invoice) {
             data.push({
                 idinvoice: invoice.idinvoice,

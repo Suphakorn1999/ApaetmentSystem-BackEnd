@@ -49,6 +49,7 @@ export const getPaymentByidinvoice: RequestHandler = async (req, res) => {
         }
         payment.forEach((pay) => {
             data.push({
+                idinvoice: pay.idinvoice,
                 idpayment: pay.idpayment,
                 idpayment_type: pay.idpayment_type,
                 payment_status: pay.payment_status,
@@ -68,6 +69,16 @@ export const getPaymentByidinvoice: RequestHandler = async (req, res) => {
 export const updatePaymentByidinvoice: RequestHandler = async (req, res) => {
     try {
         const data: Payment = req.body;
+        if (data.payment_status == 'unpaid' || data.payment_status == 'pending') {
+            await Payment.update({
+                idinvoice: data.idinvoice,
+                idpayment_type: data.idpayment_type,
+                payment_status: data.payment_status,
+                note: data.note,
+                idpayee: null
+            }, { where: { idinvoice: req.params.id } });
+            return res.status(200).json({ message: 'อัปเดตชำระเงินสำเร็จ' });
+        }
         const payment = await Payment.update({
             idinvoice: data.idinvoice,
             idpayment_type: data.idpayment_type,
@@ -164,7 +175,7 @@ export const updatePaymentByidinvoiceAndUploadfile: RequestHandler = async (req,
             const date = new Date();
             const dateStr = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
             const data: Payment = req.body;
-            
+
             const mimetype = req.file?.mimetype.split('/')[1];
             const payment = await Payment.update({
                 idinvoice: data.idinvoice,
@@ -182,7 +193,7 @@ export const updatePaymentByidinvoiceAndUploadfile: RequestHandler = async (req,
         })
 
     } catch (err: any) {
-        if(t) await t?.rollback();
+        if (t) await t?.rollback();
         return res.status(500).json({ message: err.message });
     }
 }
@@ -260,7 +271,7 @@ export const deleteimagepayment: RequestHandler = async (req, res) => {
             return res.status(400).json({ message: 'ลบรูปภาพไม่สำเร็จ' });
         }
     } catch (err: any) {
-        if(t) await t?.rollback();
+        if (t) await t?.rollback();
         return res.status(500).json({ message: err.message });
     }
 }

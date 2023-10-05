@@ -343,12 +343,15 @@ export const deleteThread: RequestHandler = async (req, res, next) => {
     try {
         t = await Threads.sequelize?.transaction();
         const { id } = req.params;
+        const threadByid = await Threads.findAll({ where: { idthreads: id }, include: [{ model: Posts }] });
+        if(!threadByid) return res.status(404).json({ message: "Thread not found" });
+
+        await Comment.destroy({ where: { idposts: threadByid[0].posts.map((post: any) => post.idposts) }, transaction: t });
+        await Posts.destroy({ where: { idthreads: id }, transaction: t });
         const thread = await Threads.destroy({ where: { idthreads: id }, transaction: t });
-        const post = await Posts.destroy({ where: { idthreads: id }, transaction: t });
-        const comment = await Comment.destroy({ where: { idthreads: id }, transaction: t });
 
         await t?.commit();
-        return res.status(200).json({ data: thread, post: post, comment: comment });
+        return res.status(200).json({ data: thread });
     } catch (err: any) {
         if(t) await t.rollback();
         return res.status(500).json({ message: err.message });

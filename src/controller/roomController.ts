@@ -15,6 +15,7 @@ dayjs.locale("th");
 export const getallRoom: RequestHandler = async (req, res) => {
     try {
         const room = await Room.findAll({ include: [{ model: RoomType, attributes: ['room_type_name', "room_price"] }] });
+        room.sort((a: any, b: any) => a.createdAt - b.createdAt);
         res.status(200).json({ data: room });
     } catch (err: any) {
         res.status(500).json({ message: err.message });
@@ -149,6 +150,12 @@ export const updateRoom: RequestHandler = async (req, res) => {
         const room = await Room.findOne({ where: { idroom: req.params.id } });
         if (data.status_room === "inactive") {
             const userroom = await UserRoom.findOne({ where: { idroom: req.params.id, status: 'active' } });
+            if(data.room_number != room?.room_number){
+                const roomfind = await Room.findOne({ where: { room_number: data.room_number } });
+                if(roomfind){
+                    return res.status(400).json({ message: 'หมายเลขห้องมีอยู่แล้ว' });
+                }
+            }
             if (userroom) {
                 return res.status(400).json({ message: 'ห้องนี้มีผู้ใช้อยู่' });
             } else {
@@ -162,6 +169,12 @@ export const updateRoom: RequestHandler = async (req, res) => {
         }
         if (data.room_status === "empty") {
             const userroom = await UserRoom.findOne({ where: { idroom: req.params.id } });
+            if (data.room_number != room?.room_number) {
+                const roomfind = await Room.findOne({ where: { room_number: data.room_number } });
+                if(roomfind){
+                    return res.status(400).json({ message: 'หมายเลขห้องมีอยู่แล้ว' });
+                }
+            }
             if (userroom) {
                 await UserRoom.update({
                     status: "inactive",
@@ -185,6 +198,10 @@ export const updateRoom: RequestHandler = async (req, res) => {
             }
         }
         if (room) {
+            const roomfind = await Room.findOne({ where: { room_number: data.room_number } });
+            if(roomfind){
+                return res.status(400).json({ message: 'หมายเลขห้องมีอยู่แล้ว' });
+            }
             await Room.update({
                 idroom_type: data.idroom_type,
                 room_number: data.room_number,
@@ -279,7 +296,7 @@ export const getAllUserInRooms: RequestHandler = async (req, res) => {
         const data: object[] = [];
 
         userroomAll.forEach((e: any) => {
-            const currentDate = new Date(year, month - 1, 31);
+            const currentDate = new Date(year, month - 1, 1);
             const providedDate = new Date(e.date_in);
             
             const check = userroomhave.find((element: any) => element.iduser_room == e.iduser_room);
@@ -287,7 +304,7 @@ export const getAllUserInRooms: RequestHandler = async (req, res) => {
             if (check) {
                 return;
             } else {
-                if (currentDate >= providedDate) {
+                if (dayjs(currentDate).format("MM/YYYY") >= dayjs(providedDate).format("MM/YYYY")) {
                     data.push({
                         iduser: e.users.iduser,
                         iduser_room: e.iduser_room,

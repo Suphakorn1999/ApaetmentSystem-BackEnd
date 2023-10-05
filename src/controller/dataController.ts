@@ -140,7 +140,7 @@ export const getCountBadge = async (req: any, res: any) => {
         const countReport = await Report.count({ where: { [Op.or]: [{ report_status: "pending" }, { report_status: "inprogress" }] } });
         const invoices = await Invoice.count({
             include: [
-                { model: Payment, where: { payment_status: 'pending' } },
+                { model: Payment, where: { [Op.or]: [{ payment_status: 'pending' }, { payment_status: 'unpaid' }] } },
                 {
                     model: UserRoom,
                     attributes: ['idroom'],
