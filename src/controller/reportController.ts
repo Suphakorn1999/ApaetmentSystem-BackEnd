@@ -45,6 +45,18 @@ export const createReportType: RequestHandler = async (req, res) => {
 
 export const getallReportType: RequestHandler = async (req, res) => {
     try {
+        const reportType = await ReportType.findAll({ where: { status: 'active' } });
+        if (reportType.length == 0) {
+            return res.status(404).json({ message: 'ไม่มีประเภทรายงาน' });
+        }
+        return res.status(200).json({ data: reportType });
+    } catch (err: any) {
+        return res.status(500).json({ message: err.message });
+    }
+}
+
+export const getallReportTypetable: RequestHandler = async (req, res) => {
+    try {
         const reportType = await ReportType.findAll();
         if (reportType.length == 0) {
             return res.status(404).json({ message: 'ไม่มีประเภทรายงาน' });

@@ -1,7 +1,8 @@
 import { Router } from "express";
 import { createReportType, getallReportType, updateReportType, getReportTypeByid, 
     getAllReport, createReport, getReportByid, updateReportByid, getReportByiduser, 
-    getallReportByiduser, getCountReportByididreporttype, getCountRoomByidreporttype, getReportMonthlys
+    getallReportByiduser, getCountReportByididreporttype, getCountRoomByidreporttype, getReportMonthlys,
+    getallReportTypetable
 } from "../controller/reportController";
 const { verifyToken, verifyTokenAdmin, verifyTokenUser } = require('../middlewares/jwtHandler');
 
@@ -20,5 +21,6 @@ router.get('/getallReportByiduser', verifyTokenUser, getallReportByiduser);
 router.get('/getCountReportByididreporttype', verifyTokenAdmin, getCountReportByididreporttype);
 router.get('/getCountRoomByidreporttype/:id', verifyTokenAdmin, getCountRoomByidreporttype);
 router.get('/getReportMonthlys/:month/:year', verifyTokenAdmin, getReportMonthlys);
+router.get('/getallReportTypetable', verifyTokenAdmin, getallReportTypetable);
 
 export default router;

@@ -13,6 +13,7 @@ import path from 'path';
 import { UserRoom } from '../models/user_roomModel';
 import { Room } from '../models/roomModel';
 import { Op } from 'sequelize';
+import { Invoice } from '../models/invoiceModel';
 
 
 export const createUserDetail: RequestHandler = async (req, res) => {
@@ -414,14 +415,20 @@ export const updateUserUserDetailByid: RequestHandler = async (req, res) => {
         }
     }
     catch (err: any) {
-        if(t) await t?.rollback();
+        if (t) await t?.rollback();
         return res.status(500).json({ message: err.message });
     }
 }
 
 export const getIdroomByiduser: RequestHandler = async (req, res) => {
     try {
-        const userRoom = await UserRoom.findOne({ where: { iduser: req.params.id }, include: [{ model: Room, attributes: ['room_number'] }] });
+        const userRoom = await UserRoom.findOne({
+            where: { iduser: req.params.id },
+            include: [
+                { model: Room, attributes: ['room_number'] },
+                { model: Invoice, }
+            ]
+        });
         if (userRoom) {
             const data: object[] = [];
             data.push({
@@ -433,6 +440,7 @@ export const getIdroomByiduser: RequestHandler = async (req, res) => {
                 electricmeterstart: userRoom.electricmeterstart,
                 date_in: userRoom.date_in,
                 date_out: userRoom.date_out,
+                date_invoice: userRoom.invoice[0]?.date_invoice,
             });
             return res.status(200).json({ data: data[0] });
         }
@@ -532,7 +540,7 @@ export const updateidRoomByiduser: RequestHandler = async (req, res) => {
             }
         }
     } catch (err: any) {
-        if(t) await t?.rollback();
+        if (t) await t?.rollback();
         res.status(500).json({ message: err.message });
     }
 }
@@ -554,7 +562,7 @@ export const deleteUserDetailByid: RequestHandler = async (req, res) => {
             return res.status(404).json({ message: 'ไม่เจอข้อมูลพนักงาน' });
         }
     } catch (err: any) {
-        if(t) await t?.rollback();
+        if (t) await t?.rollback();
         res.status(500).json({ message: err.message });
     }
 }

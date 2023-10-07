@@ -198,9 +198,11 @@ export const updateRoom: RequestHandler = async (req, res) => {
             }
         }
         if (room) {
-            const roomfind = await Room.findOne({ where: { room_number: data.room_number } });
-            if(roomfind){
-                return res.status(400).json({ message: 'หมายเลขห้องมีอยู่แล้ว' });
+            if(data.room_number != room?.room_number){
+                const roomfind = await Room.findOne({ where: { room_number: data.room_number } });
+                if(roomfind){
+                    return res.status(400).json({ message: 'หมายเลขห้องมีอยู่แล้ว' });
+                }
             }
             await Room.update({
                 idroom_type: data.idroom_type,

@@ -8,7 +8,7 @@ function generateToken(json: any) {
   const secretKey: any = process.env.TokenKey;
 
   const options: SignOptions = {
-    expiresIn: '24h',
+    expiresIn: '7d',
   };
   return sign(json, secretKey, options);
 }
