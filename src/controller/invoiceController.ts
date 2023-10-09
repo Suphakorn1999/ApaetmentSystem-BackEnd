@@ -233,7 +233,7 @@ export const getInvoiceByidInvoice: RequestHandler = async (req, res) => {
                 electricmeter_new: invoice.electricmeter_new,
                 water_price: invoice.water_price,
                 electric_price: invoice.electric_price,
-                date_invoice: invoice.createdAt,
+                date_invoice: invoice.date_invoice,
                 fname_payee: invoice.payment[0]?.payee?.fname_payee,
                 lname_payee: invoice.payment[0]?.payee?.lname_payee,
             })
@@ -480,6 +480,70 @@ export const getAllInvoiceMonthlys: RequestHandler = async (req, res) => {
 
         return res.status(200).json({ data: data });
 
+    } catch (err: any) {
+        res.status(500).json({ message: err.message });
+    }
+}
+
+export const getInvoiceBymonth: RequestHandler = async (req, res) => {
+    try {
+        const data: object[] = []
+        const month: any = req.params.month;
+        const year: any = req.params.year;
+        const datebefore = dayjs(new Date(year, month - 1, 1)).format('YYYY-MM-DD')
+        const dateafter = dayjs(new Date(year, month, 0)).format('YYYY-MM-DD')
+
+        const invoice = await Invoice.findAll({
+            where: {
+                date_invoice: { [Op.between]: [datebefore, dateafter] }
+            },
+            include: [{
+                model: Payment,
+                include: [{
+                    model: Payee
+                }]
+            },
+            {
+                model: UserRoom,
+                include: [{
+                    model: Room,
+                    include: [{
+                        model: RoomType
+                    }]
+                },
+                {
+                    model: Users,
+                    include: [{
+                        model: UserDetail
+                    }]
+                }
+                ]
+            },
+            ]
+        });
+        if (invoice) {
+            invoice.forEach((invoice) => {
+                data.push({
+                    idinvoice: invoice.idinvoice,
+                    idroom: invoice.user_room.idroom,
+                    fname: invoice.user_room.users.user_detail[0]?.fname,
+                    lname: invoice.user_room.users.user_detail[0]?.lname,
+                    room_price: invoice.room_price,
+                    watermeter_old: invoice.watermeter_old,
+                    watermeter_new: invoice.watermeter_new,
+                    electricmeter_old: invoice.electricmeter_old,
+                    electricmeter_new: invoice.electricmeter_new,
+                    water_price: invoice.water_price,
+                    electric_price: invoice.electric_price,
+                    date_invoice: invoice.date_invoice,
+                    fname_payee: invoice.payment[0]?.payee?.fname_payee,
+                    lname_payee: invoice.payment[0]?.payee?.lname_payee,
+                })
+            })
+            return res.status(200).json({ data: data });
+        } else {
+            return res.status(400).json({ data: [] });
+        }
     } catch (err: any) {
         res.status(500).json({ message: err.message });
     }
