@@ -223,7 +223,7 @@ export const getInvoiceByidInvoice: RequestHandler = async (req, res) => {
         if (invoice) {
             data.push({
                 idinvoice: invoice.idinvoice,
-                idroom: invoice.user_room.idroom,
+                room_number: invoice.user_room.room.room_number,
                 fname: invoice.user_room.users.user_detail[0]?.fname,
                 lname: invoice.user_room.users.user_detail[0]?.lname,
                 room_price: invoice.room_price,
@@ -236,6 +236,7 @@ export const getInvoiceByidInvoice: RequestHandler = async (req, res) => {
                 date_invoice: invoice.date_invoice,
                 fname_payee: invoice.payment[0]?.payee?.fname_payee,
                 lname_payee: invoice.payment[0]?.payee?.lname_payee,
+                payment_status: invoice.payment[0]?.payment_status,
             })
             return res.status(200).json({ data: data[0] });
         } else {
@@ -525,7 +526,7 @@ export const getInvoiceBymonth: RequestHandler = async (req, res) => {
             invoice.forEach((invoice) => {
                 data.push({
                     idinvoice: invoice.idinvoice,
-                    idroom: invoice.user_room.idroom,
+                    room_number: invoice.user_room.room.room_number,
                     fname: invoice.user_room.users.user_detail[0]?.fname,
                     lname: invoice.user_room.users.user_detail[0]?.lname,
                     room_price: invoice.room_price,
@@ -543,6 +544,36 @@ export const getInvoiceBymonth: RequestHandler = async (req, res) => {
             return res.status(200).json({ data: data });
         } else {
             return res.status(400).json({ data: [] });
+        }
+    } catch (err: any) {
+        res.status(500).json({ message: err.message });
+    }
+}
+
+export const updateInvoiceByid: RequestHandler = async (req, res) => {
+    try {
+        const idinvoice = req.params.id;
+        const invoice = await Invoice.findOne({
+            where: { idinvoice: idinvoice },
+            include: [{ model: Payment }]
+        });
+        if (invoice) {
+            if (invoice.payment[0]?.payment_status == 'paid') {
+                return res.status(400).json({ message: 'ไม่สามารถแก้ไขได้ เนื่องจากชำระบิลแล้ว' });
+            } else {
+                await Invoice.update({
+                    watermeter_old: req.body.watermeter_old,
+                    watermeter_new: req.body.watermeter_new,
+                    electricmeter_old: req.body.electricmeter_old,
+                    electricmeter_new: req.body.electricmeter_new,
+                    water_price: req.body.water_price,
+                    electric_price: req.body.electric_price,
+                    date_invoice: req.body.date_invoice,
+                }, { where: { idinvoice: idinvoice } });
+                return res.status(200).json({ message: 'แก้ไขใบแจ้งหนี้สำเร็จ' });
+            }
+        } else {
+            return res.status(404).json({ message: 'ไม่พบข้อมูลใบแจ้งหนี้' });
         }
     } catch (err: any) {
         res.status(500).json({ message: err.message });
