@@ -324,6 +324,7 @@ export const getUserAllDetail: RequestHandler = async (req, res) => {
             userdetail.forEach((userdetail) => {
                 data.push({
                     iduser: userdetail.iduser,
+                    username: userdetail.users?.username,
                     idroom: userdetail.users?.user_room[0]?.idroom,
                     room_number: userdetail.users?.user_room[0]?.room?.room_number,
                     fname: userdetail.fname,
