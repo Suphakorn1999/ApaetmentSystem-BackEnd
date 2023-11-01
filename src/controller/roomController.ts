@@ -160,6 +160,8 @@ export const updateRoom: RequestHandler = async (req, res) => {
                 return res.status(400).json({ message: 'ห้องนี้มีผู้ใช้อยู่' });
             } else {
                 await Room.update({
+                    idroom_type: data.idroom_type,
+                    room_number: data.room_number,
                     room_status: data.room_status,
                     status_room: data.status_room
                 }, { where: { idroom: req.params.id }, transaction: t });
@@ -182,6 +184,8 @@ export const updateRoom: RequestHandler = async (req, res) => {
                 }, { where: { idroom: req.params.id, status: 'active' }, transaction: t });
 
                 await Room.update({
+                    idroom_type: data.idroom_type,
+                    room_number: data.room_number,
                     room_status: data.room_status,
                     status_room: data.status_room
                 }, { where: { idroom: req.params.id }, transaction: t });
@@ -190,7 +194,10 @@ export const updateRoom: RequestHandler = async (req, res) => {
                 return res.status(200).json({ message: 'อัปเดตข้อมูลห้องสำเร็จ' });
             } else {
                 await Room.update({
+                    idroom_type: data.idroom_type,
+                    room_number: data.room_number,
                     room_status: data.room_status,
+                    status_room: data.status_room
                 }, { where: { idroom: req.params.id }, transaction: t });
 
                 await t?.commit();

@@ -9,7 +9,13 @@ dotenv.config();
 
 const app: Express = express();
 const port = process.env.PORT
-app.use(cors());
+app.use(cors(
+    {
+        origin: 'http://183.90.170.87',
+        methods: ['GET', 'POST', 'PUT', 'DELETE'],
+        allowedHeaders: ['Content-Type', 'Authorization']
+    }
+));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../public/uploads')));
